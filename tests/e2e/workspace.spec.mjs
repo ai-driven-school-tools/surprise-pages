@@ -200,6 +200,36 @@ test("personal workspace, formats, search and favorite persistence", async ({
     page.getByRole("textbox", { name: "owner の資料を検索" }),
   ).toHaveValue("ｹﾝｻｸﾆﾅｲ");
 });
+test("a favorite removed from the sidebar stays removed when the page is left at once", async ({
+  page,
+  context,
+}) => {
+  await login(context);
+  await page.goto("/mine");
+  const origin = new URL(page.url()).origin;
+  expect((await page.request.post("/api/workspace", { headers: { origin }, data: { action: "favorite", page: "internal/sidebar/long-title", selected: true } })).status()).toBe(200);
+  await page.reload();
+  const favoritesNav = page.getByRole("navigation", { name: "お気に入り", exact: true });
+  const longRow = page.locator(".ws-sidebar .ws-nav-favorite").filter({ hasText: "サイドバーの幅を超える長い題" });
+  await expect(longRow).toHaveCount(1);
+  // 星を押した瞬間に行は消える。保存の返事が届く前に再読み込みしても、外したことは失われない
+  // （CI で、保存の通信が始まって 17ms 後の再読み込みに打ち切られ、星が戻っていた）
+  await page.route("**/api/workspace", async (route) => {
+    await new Promise((resolve) => setTimeout(resolve, 500));
+    await route.continue().catch(() => undefined);
+  });
+  await longRow.hover();
+  await longRow.getByRole("button", { name: /お気に入りから外す$/ }).click();
+  await expect(longRow).toHaveCount(0);
+  await page.reload();
+  await page.unroute("**/api/workspace");
+  await expect.poll(async () => {
+    await page.reload();
+    return longRow.count();
+  }, { timeout: 5000 }).toBe(0);
+  await expect(favoritesNav).toHaveCount(0);
+});
+
 test("reader and admin start with their own empty shelf", async ({
   page,
   context,

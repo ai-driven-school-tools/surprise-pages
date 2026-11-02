@@ -203,8 +203,14 @@ README の第 3-○ 章だけを進めてください。
 | Node.js | サイトの準備や投稿コマンドを動かす | 24 系の最新版         | [Node.js](https://nodejs.org/en/download)  |
 | Python  | 清書やスライドの補助処理を動かす  | 3.10 以降           | [Python](https://www.python.org/downloads) |
 | Git     | コードの変更履歴を扱う       | 入っていればよい          | [Git](https://git-scm.com/downloads)       |
+| GitHub CLI（`gh`） | 3-3 で自分の GitHub へ送るときの認証 | 入っていればよい | [GitHub CLI](https://cli.github.com/) |
 | pnpm    | サイトに必要な部品をそろえる    | corepack が自動でそろえる | 用意不要                                       |
 
+
+GitHub CLI（`gh`）は、講座のパソコン準備に含まれていません。手順 2 でターミナルを開いたら、`gh --version` を実行します。版の数字が出なければ、次のどちらかで入れます。AI に「GitHub CLI を入れて」と頼んでも構いません。
+
+- Mac：`brew --version` で版の数字が出れば、`brew install gh` を実行します。出なければ、[GitHub CLI](https://cli.github.com/) の **Download for Mac** から入れ物（`.pkg`）を取り、開いて画面のとおりに入れます。
+- Windows（WSL2）：WSL 側のターミナルで `sudo apt update && sudo apt install -y gh` を実行します。途中で聞かれるパスワードは、WSL を作ったときに決めたものです。
 
 1. Cursor を起動し、画面上部の **Terminal → New Terminal**（ターミナル → 新しいターミナル）を押します。画面下に文字を入力できる欄が開きます。以降の「実行する」は、この欄へ貼り付けて Enter を押す操作です。
 2. 次を実行し、ホームフォルダに講座用のフォルダを作ります。
@@ -229,11 +235,12 @@ git clone 配布物のURL surprise-pages-distribution
 node --version
 python3 --version
 git --version
+gh --version
 corepack enable
 corepack pnpm --version
 ```
 
-1. Node.js は `v24.` で始まる数字、Python は `Python 3.10` 以上、Git と pnpm は版の数字が表示されることを確認します。
+1. Node.js は `v24.` で始まる数字、Python は `Python 3.10` 以上、Git・GitHub CLI・pnpm は版の数字が表示されることを確認します。
 2. 次を実行し、サイトが使う部品を入れます。
 
 ```bash
@@ -247,6 +254,7 @@ corepack pnpm install --frozen-lockfile
 **止まったら**
 
 - ZIP で取得していた（フォルダに `.git` が無い、フォルダ名が `-main` で終わる）。そのフォルダは使わず、手順 4 のコマンドで取り直し、手順 5 から進めます。
+- `gh: command not found` と出る。GitHub CLI が入っていません。手順 1 の表の下の方法で入れ、手順 8 からやり直します。Mac の `.pkg` で入れた直後は、ターミナルを開き直してから試します。
 - `corepack: command not found` と出る。`node --version` が `v25.` 以降なら、その版には corepack が付いていません。Node.js 24 系の最新版を入れ直し、手順 8 からやり直します。`v24.` なのに出る場合は、別のフォルダへ移ると Node.js が見つからなくなる環境です。入れたときの案内どおりに有効化してから、手順 8 からやり直します。
 - Python が `3.9` などと出る。Mac 標準の Python です。Homebrew などで入れた別の Python が入っている場合は `python3.12 --version` のように版を付けて確かめ、見つかった方を使います。無ければ公式の案内から 3.10 以降を入れます。
 - Windows / WSL2 で、以後の「**Command + S**」は **Ctrl + S** に読み替えます。
@@ -273,6 +281,19 @@ corepack pnpm install --frozen-lockfile
 git remote rename origin upstream
 ```
 
+1. 次を実行し、GitHub CLI で自分の個人用 GitHub アカウントにログインします。GitHub はパスワードでの送信を受け付けないので、git がパスワードを聞いてくる状態のままでは、正しいパスワードを入れても手順 11 が失敗します。
+
+```bash
+gh auth login --hostname github.com --git-protocol https --web
+```
+
+1. ターミナルに `First copy your one-time code: XXXX-XXXX` と 8 文字のコードが出ます。控えてから Enter を押します。ブラウザで GitHub の画面が開くので、コードを入れて **Continue**、続けて **Authorize github** を押します。ブラウザが開かない（WSL で多い）ときは、ターミナルに出た `https://github.com/login/device` を自分でブラウザに貼って開きます。`Authenticate Git with your GitHub credentials?` と聞かれたら、Enter（Yes）を押します。
+2. ターミナルに `Logged in as 自分のユーザー名` と出たことを確認し、次を実行します。git が送信のときの認証を GitHub CLI に任せるようになり、以後パスワードを聞かれません。
+
+```bash
+gh auth setup-git
+```
+
 1. 次の `自分のリポジトリのURL` を、手順 6 でコピーした URL に置き換えて実行します。
 
 ```bash
@@ -280,16 +301,17 @@ git remote add origin 自分のリポジトリのURL
 git push -u origin main
 ```
 
-1. GitHub の認証画面が開いた場合は、自分の個人用アカウントで認証します。
-2. ブラウザの GitHub リポジトリ画面を再読み込みします。
+1. ブラウザの GitHub リポジトリ画面を再読み込みします。
 
 **済んだ目印** リポジトリ名の横に **Private**、枝の選択欄に **main** と表示され、`src`、`scripts`、`README.md` などのファイルが並んでいます。
 
 **止まったら**
 
 - `No such remote` や `not a git repository` と出る。ZIP で取得したフォルダで作業しています。3-2 の手順 4 に戻り、`git clone` で取り直します。
-- `remote origin already exists` と出る。手順 7 を飛ばしています。手順 7 を実行してから手順 8 をやり直します。
-- push が認証で止まる。GitHub の認証画面がブラウザで開いていないか確認します。開いていなければ、ターミナルに出た URL を本人がブラウザで開きます。
+- `remote origin already exists` と出る。手順 7 を飛ばしています。手順 7 を実行してから手順 11 をやり直します。
+- `Username for 'https://github.com':` とユーザー名やパスワードを聞かれる。手順 8〜9 のログインが済んでいません。Ctrl + C で止め、`gh auth status` で `Logged in` と出るか確かめます。出なければ手順 8 から、出れば手順 10 の `gh auth setup-git` からやり直し、手順 11 の `git push -u origin main` だけをもう一度実行します。
+- `Permission denied` や `403` と出る。別の GitHub アカウントでログインしています。`gh auth status` で出たユーザー名が 3-1 で控えた自分のユーザー名と同じか確かめ、違えば `gh auth logout` してから手順 8 からやり直します。
+- `Logged in as` に出たユーザー名が自分のものでない。ブラウザで別のアカウントにログインしたまま承認しています。ブラウザの GitHub から一度ログアウトし、`gh auth logout` してから手順 8 からやり直します。
 
 
 

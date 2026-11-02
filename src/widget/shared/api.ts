@@ -222,6 +222,8 @@ export async function saveFavorite(pageSlug: string, selected: boolean): Promise
     method: "POST",
     headers: JSON_HEADERS,
     body: JSON.stringify({ action: "favorite", page: pageSlug, selected }),
+    // 星は先に立ててある。返事の前にページを移っても、送りかけた保存を打ち切らせない
+    keepalive: true,
   });
   return result.ok ? { ok: true, value: null } : result;
 }

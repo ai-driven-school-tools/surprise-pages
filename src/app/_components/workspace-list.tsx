@@ -170,6 +170,8 @@ export function WorkspaceList({
           page: row.page,
           selected: !row.favorite,
         }),
+        // 星は先に立ててある。返事の前にページを移っても、送りかけた保存を打ち切らせない
+        keepalive: true,
       });
       if (!response.ok) throw new Error();
       router.refresh();

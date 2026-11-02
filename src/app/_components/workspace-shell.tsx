@@ -97,6 +97,8 @@ function Shell({
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ action: "favorite", page: favorite.page, selected: false }),
+        // 行は先に消してある。返事の前にページを移っても、送りかけた保存を打ち切らせない
+        keepalive: true,
       });
       if (!response.ok) throw new Error();
       router.refresh();

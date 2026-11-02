@@ -1,0 +1,7 @@
+{
+  "note": "見出し行と区切り行でマスの数が違う。止めて聞く（既定は多いほうへそろえる）",
+  "apply_defaults": true,
+  "convert": true,
+  "expect_verify_ok": true,
+  "expect_body_contains": ["備考", "120000", "当日精算"]
+}

@@ -1,0 +1,12 @@
+{
+  "note": "作業ツリーがコミットと食い違うときは GitHub リンクを付けない",
+  "apply_defaults": false,
+  "convert": true,
+  "expect_verify_ok": true,
+  "expect_body_contains": ["作業中の内容", "docs/ops.md"],
+  "expect_body_missing": ["github.com", "data-source-commit", "data-source-repo"],
+  "provenance": {
+    "path": "docs/ops.md",
+    "dirty": true
+  }
+}

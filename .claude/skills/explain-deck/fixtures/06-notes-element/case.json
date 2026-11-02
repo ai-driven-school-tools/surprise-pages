@@ -1,0 +1,8 @@
+{
+  "note": "ノートに要素",
+  "expect_ok": false,
+  "expect_codes": [
+    "NOTES_HAS_ELEMENT"
+  ],
+  "embed": "ok"
+}

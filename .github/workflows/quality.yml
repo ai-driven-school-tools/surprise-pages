@@ -1,0 +1,166 @@
+# push と変更提案（PR）のたびに、手元の `pnpm verify` と同じ検査を回す。
+# 1 回 10 分前後・GitHub Actions の無料枠（月 2,000 分）に収まる構成にしてある。重い測定（速度・負荷）は入れない。
+name: Quality
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: quality-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+jobs:
+  checks:
+    # 検査表（tests/checks/）。2 台に分けて同時に走らせる（項目は同じ）
+    name: Contracts ${{ matrix.shard }}/2
+    runs-on: ubuntu-24.04
+    timeout-minutes: 8
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2]
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+      - uses: ./.github/actions/quality-setup
+      - run: node scripts/ci/run-checks.mjs --shard=${{ matrix.shard }}/2 --jobs=2
+  units:
+    name: Lint and unit tests
+    runs-on: ubuntu-24.04
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+      - uses: ./.github/actions/quality-setup
+      - run: pnpm lint
+      - run: pnpm test:runner
+  contracts:
+    name: Types and production build
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+      - uses: ./.github/actions/quality-setup
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9
+        with:
+          path: .next/cache
+          key: production-build-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}-${{ github.sha }}
+          restore-keys: production-build-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}-
+      - run: pnpm exec tsc --noEmit
+      - run: pnpm build
+        env:
+          NEXT_TELEMETRY_DISABLED: '1'
+  postgres:
+    # 本物の PostgreSQL で、初期化・本人の照合・権限・控えからの復旧を確かめる（tests/verify-postgres.mjs）
+    name: Real PostgreSQL
+    runs-on: ubuntu-24.04
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+      - uses: ./.github/actions/quality-setup
+      - name: Install PostgreSQL 18 client tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y postgresql-common ca-certificates
+          sudo /usr/share/postgresql-common/pgdg/apt.postgresql.org.sh -y
+          sudo apt-get update
+          sudo apt-get install -y postgresql-client-18
+      - run: pnpm test:postgres
+        env:
+          PAGES_TEST_PG_BIN_DIR: /usr/lib/postgresql/18/bin
+  browsers:
+    # ブラウザの通し検査（tests/e2e/・Playwright）。配布版として起こした使い捨てのアプリに対して、Chromium で回す
+    name: Browser tests ${{ matrix.shard }}/2
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2]
+    env:
+      PAGES_TEST_SHARDS: 'on'
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+      - uses: ./.github/actions/quality-setup
+        with:
+          browser: chromium
+      - run: pnpm exec playwright test --project=chromium --shard=${{ matrix.shard }}/2
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        if: failure()
+        with:
+          name: browser-failures-${{ matrix.shard }}
+          path: |
+            test-results/results.xml
+            test-results/**/*.png
+            test-results/**/*.zip
+          retention-days: 14
+  browser-tools:
+    # 本物のブラウザで見る単体の確認（スライドの読み込み・画像・発表者画面・清書の送り・共有カードの絵）
+    name: Reader and standalone checks
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    env:
+      # この仕事は Chromium だけ入れる。WebKit も回る検査（発表者画面・清書の送り）は Chromium に絞る
+      PAGES_TEST_BROWSER: chromium
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+      - uses: ./.github/actions/quality-setup
+        with:
+          browser: chromium
+      - run: pnpm test:deck-loading
+      - run: node --test tests/checks/browser/deck-image-quality.mjs
+      - run: pnpm test:presenter
+      - run: node tests/checks/browser/reading-scroll.mjs
+      - run: node tests/checks/browser/deck-card-image.mjs
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        if: failure()
+        with:
+          name: reader-failures
+          path: test-results/
+          retention-days: 14
+  windows:
+    # Windows のターミナルでも、投稿コマンド・設置の診断・単体テストが動く（受講生の Windows は WSL2 が本線だが、
+    # 素の Windows でも壊れていないことを機械で見る。WSL2 の中身は Ubuntu なので、上の Ubuntu の仕事が兼ねる）
+    name: Windows terminal
+    runs-on: windows-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+      - uses: ./.github/actions/quality-setup
+      - run: node bin/pages-publish.mjs --help
+      - name: Setup doctor stops with the guide when nothing is configured
+        shell: bash
+        run: |
+          set +e
+          out="$(node scripts/setup/personal.mjs doctor 2>&1)"
+          code=$?
+          set -e
+          printf '%s\n' "$out"
+          test "$code" = 1
+          grep -q "足りない設定" <<<"$out"
+          grep -q "3-9. サイトへ設定を渡し、起動する" <<<"$out"
+      - run: node tests/checks/check-cli-login.mjs
+      - run: node tests/checks/check-cli-login-remote.mjs
+      - run: node tests/checks/check-distribution.mjs
+      - run: node tests/checks/check-publish-token.mjs
+      - run: node tests/checks/check-publish-update.mjs
+      - run: node tests/checks/check-restricted-publish.mjs
+      # 単体テスト（pnpm test:runner）はサーバー側の部品の検査で、Ubuntu の仕事が回す。この仕事はターミナルの道具だけを見る
+  gate:
+    # 全部が通ったときだけ緑。GitHub の保護された枝の必須検査には、この 1 つだけを登録する
+    name: Quality gate
+    if: always()
+    needs: [checks, units, contracts, postgres, browsers, browser-tools, windows]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 1
+    steps:
+      - name: Require every job to succeed
+        env:
+          RESULTS: ${{ toJSON(needs) }}
+        run: |
+          node -e '
+            const results = JSON.parse(process.env.RESULTS);
+            const failed = Object.entries(results).filter(([, job]) => job.result !== "success").map(([name, job]) => `${name}: ${job.result}`);
+            if (failed.length) { console.error(`通らなかった検査: ${failed.join(", ")}`); process.exit(1); }
+            console.log("すべて通った");
+          '

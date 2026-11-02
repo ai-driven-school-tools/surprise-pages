@@ -1,0 +1,367 @@
+{
+  "date": "2026-09-18",
+  "baselineRevision": "e9de400",
+  "environment": {
+    "platform": "darwin",
+    "arch": "arm64",
+    "node": "v22.14.0"
+  },
+  "method": {
+    "slides": [
+      10,
+      30,
+      100
+    ],
+    "switches": 20,
+    "appearanceChanges": 8,
+    "percentile": 95,
+    "scope": "Local isolated database; text, SVG images, SVG charts, tables and video poster. Timing endpoints both inside browser. Correct requested color checked before paint completion sample."
+  },
+  "chromium": {
+    "before": [
+      {
+        "count": 10,
+        "switchP95": 185.70000004768372,
+        "appearanceP95": 2334.2000000476837,
+        "navReplacements": 20,
+        "selectionReloads": 0,
+        "appearanceReloads": 8,
+        "errors": []
+      },
+      {
+        "count": 30,
+        "switchP95": 266.09999990463257,
+        "appearanceP95": 2444.5,
+        "navReplacements": 20,
+        "selectionReloads": 0,
+        "appearanceReloads": 8,
+        "errors": []
+      },
+      {
+        "count": 100,
+        "switchP95": 458.10000014305115,
+        "appearanceP95": 1911.7999999523163,
+        "navReplacements": 20,
+        "selectionReloads": 0,
+        "appearanceReloads": 8,
+        "errors": []
+      }
+    ],
+    "after": [
+      {
+        "count": 10,
+        "switchP95": 32.90000009536743,
+        "appearanceP95": 36.5,
+        "navReplacements": 0,
+        "selectionReloads": 0,
+        "appearanceReloads": 0,
+        "errors": []
+      },
+      {
+        "count": 30,
+        "switchP95": 36,
+        "appearanceP95": 37,
+        "navReplacements": 0,
+        "selectionReloads": 0,
+        "appearanceReloads": 0,
+        "errors": []
+      },
+      {
+        "count": 100,
+        "switchP95": 33.60000014305115,
+        "appearanceP95": 63.30000019073486,
+        "navReplacements": 0,
+        "selectionReloads": 0,
+        "appearanceReloads": 0,
+        "errors": []
+      }
+    ]
+  },
+  "webkit": {
+    "after": [
+      {
+        "count": 10,
+        "switchP95": 81,
+        "appearanceP95": 82,
+        "navReplacements": 0,
+        "selectionReloads": 0,
+        "appearanceReloads": 0,
+        "errors": []
+      },
+      {
+        "count": 30,
+        "switchP95": 90,
+        "appearanceP95": 97,
+        "navReplacements": 0,
+        "selectionReloads": 0,
+        "appearanceReloads": 0,
+        "errors": []
+      },
+      {
+        "count": 100,
+        "switchP95": 101,
+        "appearanceP95": 145,
+        "navReplacements": 0,
+        "selectionReloads": 0,
+        "appearanceReloads": 0,
+        "errors": []
+      }
+    ]
+  },
+  "browserChecks": {
+    "chromium": {
+      "workflow": {
+        "engine": "chromium",
+        "results": [
+          {
+            "name": "1280pxで一枚全体と左右の操作欄が収まる",
+            "pass": true
+          },
+          {
+            "name": "保存応答をまたいで日本語を連続入力できる",
+            "pass": true
+          },
+          {
+            "name": "比較とグラフを追加して三枚を保存できる",
+            "pass": true
+          },
+          {
+            "name": "グラフを空欄・ゼロを含むデータで編集し直せる",
+            "pass": true
+          },
+          {
+            "name": "デザインを変えても同じ枚で編集を続けられる",
+            "pass": true
+          },
+          {
+            "name": "枚を複製・移動・削除し取り消せる",
+            "pass": true
+          },
+          {
+            "name": "私用ノートと読み手の補足が別々に保存される",
+            "pass": true
+          },
+          {
+            "name": "追加した文字が選択され、削除と取り消しができる",
+            "pass": true
+          },
+          {
+            "name": "現在の枚から発表し、編集画面へ戻る",
+            "pass": true
+          },
+          {
+            "name": "倍率操作へ移したキーボードの焦点を保持する",
+            "pass": true
+          },
+          {
+            "name": "画像の切り抜きを取消し、差し替えの取消し後も追加できる",
+            "pass": true
+          },
+          {
+            "name": "二人の変更の衝突を画面内で確認して復帰できる",
+            "pass": true
+          },
+          {
+            "name": "小さい画面では左右の欄を一つずつ開ける",
+            "pass": true
+          },
+          {
+            "name": "倍率を変えた後も選択枠が文字と一致する",
+            "pass": true
+          },
+          {
+            "name": "複数の要素をまとめて動かし、解除できる",
+            "pass": true
+          },
+          {
+            "name": "見出し・縮小画像・操作部品の位置と寸法が揃う",
+            "pass": true
+          },
+          {
+            "name": "隠した枚操作へキーボードで入り、説明と焦点を戻せる",
+            "pass": true
+          },
+          {
+            "name": "読み直しと印刷でも構成を保ち、発表者ノートを紙へ出さない",
+            "pass": true
+          },
+          {
+            "name": "実行エラーがない",
+            "pass": true
+          }
+        ],
+        "errors": []
+      },
+      "continuity": {
+        "engine": "chromium",
+        "results": [
+          {
+            "name": "入力中でも取り消しが即座に反映され、そのまま入力を続けられる",
+            "pass": true
+          },
+          {
+            "name": "連続配色でも本文・縮小表示・設定入力を保ち、最後の指定を表示する",
+            "pass": true
+          },
+          {
+            "name": "書体が失敗しても前の表示を保持し、別の配色へ復帰できる",
+            "pass": true
+          },
+          {
+            "name": "描画待ちの途中に入力しても、古い内容や編集対象へ戻らない",
+            "pass": true
+          },
+          {
+            "name": "遅れて届いた書体が新しい指定を上書きしない",
+            "pass": true
+          },
+          {
+            "name": "途中の描画が失敗しても再試行で完成した表示へ復帰する",
+            "pass": true
+          },
+          {
+            "name": "構成を読み直す間も前の資料が見え、準備後だけ入れ替わる",
+            "pass": true
+          },
+          {
+            "name": "入力中に届いた別の段落の変更も、入力終了後に中央へ反映する",
+            "pass": true
+          }
+        ],
+        "errors": []
+      }
+    },
+    "webkit": {
+      "workflow": {
+        "engine": "webkit",
+        "results": [
+          {
+            "name": "1280pxで一枚全体と左右の操作欄が収まる",
+            "pass": true
+          },
+          {
+            "name": "保存応答をまたいで日本語を連続入力できる",
+            "pass": true
+          },
+          {
+            "name": "比較とグラフを追加して三枚を保存できる",
+            "pass": true
+          },
+          {
+            "name": "グラフを空欄・ゼロを含むデータで編集し直せる",
+            "pass": true
+          },
+          {
+            "name": "デザインを変えても同じ枚で編集を続けられる",
+            "pass": true
+          },
+          {
+            "name": "枚を複製・移動・削除し取り消せる",
+            "pass": true
+          },
+          {
+            "name": "私用ノートと読み手の補足が別々に保存される",
+            "pass": true
+          },
+          {
+            "name": "追加した文字が選択され、削除と取り消しができる",
+            "pass": true
+          },
+          {
+            "name": "現在の枚から発表し、編集画面へ戻る",
+            "pass": true
+          },
+          {
+            "name": "倍率操作へ移したキーボードの焦点を保持する",
+            "pass": true
+          },
+          {
+            "name": "画像の切り抜きを取消し、差し替えの取消し後も追加できる",
+            "pass": true
+          },
+          {
+            "name": "二人の変更の衝突を画面内で確認して復帰できる",
+            "pass": true
+          },
+          {
+            "name": "小さい画面では左右の欄を一つずつ開ける",
+            "pass": true
+          },
+          {
+            "name": "倍率を変えた後も選択枠が文字と一致する",
+            "pass": true
+          },
+          {
+            "name": "複数の要素をまとめて動かし、解除できる",
+            "pass": true
+          },
+          {
+            "name": "見出し・縮小画像・操作部品の位置と寸法が揃う",
+            "pass": true
+          },
+          {
+            "name": "隠した枚操作へキーボードで入り、説明と焦点を戻せる",
+            "pass": true
+          },
+          {
+            "name": "読み直しと印刷でも構成を保ち、発表者ノートを紙へ出さない",
+            "pass": true
+          },
+          {
+            "name": "実行エラーがない",
+            "pass": true
+          }
+        ],
+        "errors": []
+      },
+      "continuity": {
+        "engine": "webkit",
+        "results": [
+          {
+            "name": "入力中でも取り消しが即座に反映され、そのまま入力を続けられる",
+            "pass": true
+          },
+          {
+            "name": "連続配色でも本文・縮小表示・設定入力を保ち、最後の指定を表示する",
+            "pass": true
+          },
+          {
+            "name": "書体が失敗しても前の表示を保持し、別の配色へ復帰できる",
+            "pass": true
+          },
+          {
+            "name": "描画待ちの途中に入力しても、古い内容や編集対象へ戻らない",
+            "pass": true
+          },
+          {
+            "name": "遅れて届いた書体が新しい指定を上書きしない",
+            "pass": true
+          },
+          {
+            "name": "途中の描画が失敗しても再試行で完成した表示へ復帰する",
+            "pass": true
+          },
+          {
+            "name": "構成を読み直す間も前の資料が見え、準備後だけ入れ替わる",
+            "pass": true
+          },
+          {
+            "name": "入力中に届いた別の段落の変更も、入力終了後に中央へ反映する",
+            "pass": true
+          }
+        ],
+        "errors": []
+      }
+    }
+  },
+  "verification": {
+    "command": "pnpm verify",
+    "checks": 6967,
+    "failures": 0,
+    "build": "passed",
+    "existingWarnings": {
+      "lint": 4,
+      "build": 1
+    }
+  }
+}

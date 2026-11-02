@@ -1,0 +1,42 @@
+{
+  "measuredCommits": [
+    "54886d5466e771b88912e74f998da45af9364e33",
+    "8867e7ac5b7fa29d178afbab407c35826d5b97f3"
+  ],
+  "runs": 3,
+  "dbRttMs": 30,
+  "dbWorkers": 2,
+  "dbCostMs": 30,
+  "rounds": 5,
+  "medians": {
+    "home-open": {
+      "shown": 511
+    },
+    "home-reopen": {
+      "shown": 465
+    },
+    "library-open": {
+      "shown": 475
+    },
+    "to-library": {
+      "shown": 264
+    },
+    "to-home": {
+      "shown": 50
+    },
+    "open-document": {
+      "body": 92,
+      "toolbox": 817
+    },
+    "back-home": {
+      "shown": 559
+    },
+    "open-deck": {
+      "deck": 291,
+      "toolbox": 351
+    },
+    "open-gallery": {
+      "shown": 641
+    }
+  }
+}

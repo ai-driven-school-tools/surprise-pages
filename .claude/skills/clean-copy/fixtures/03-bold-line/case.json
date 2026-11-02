@@ -1,0 +1,8 @@
+{
+  "note": "太字だけの 1 行。見出しに昇格させない（昇格させると原本に無い見出しが増える）",
+  "apply_defaults": false,
+  "convert": true,
+  "expect_verify_ok": true,
+  "expect_body_contains": ["<p class=\"mb-6\"><strong class=\"font-bold text-ads-text\">前提</strong></p>"],
+  "expect_body_missing": ["<h2 class=\"text-xl md:text-2xl font-bold text-ads-text mb-6\">前提</h2>"]
+}

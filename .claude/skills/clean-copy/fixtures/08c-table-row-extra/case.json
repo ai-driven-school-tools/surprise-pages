@@ -1,0 +1,7 @@
+{
+  "note": "本文行のマスが多い。止めて聞く（既定は列を増やして余った言葉を残す。落とさない）",
+  "apply_defaults": true,
+  "convert": true,
+  "expect_verify_ok": true,
+  "expect_body_contains": ["補充は 4 月"]
+}

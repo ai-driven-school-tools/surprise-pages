@@ -1,0 +1,7 @@
+{
+  "note": "1 文より長い引用。中央に寄せると狭い画面で崩れるので、全幅・左揃えにする",
+  "apply_defaults": false,
+  "convert": true,
+  "expect_verify_ok": true,
+  "expect_body_missing": ["inline-block text-left"]
+}

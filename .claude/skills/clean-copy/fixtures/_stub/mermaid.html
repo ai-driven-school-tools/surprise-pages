@@ -1,0 +1,23 @@
+<!--
+  図の「貼る一式」の**形だけ**を真似た、フィクスチャ専用の写し。
+
+  本物は src/templates/mermaid.html にあり、色も置き方も向こうが正本。
+  ここに本物を写さないのは、写した瞬間にどちらかが古くなるため。検査で要るのは
+  「最初の <script から最後の </script> までを、見本の <pre> を巻き込まずに取り出せるか」
+  だけなので、その形だけを置いてある。
+-->
+<script type="module">
+  import mermaid from "https://mermaid.invalid/mermaid.esm.min.mjs";
+  mermaid.initialize({ startOnLoad: true });
+</script>
+<style>
+  pre.mermaid { overflow-x: auto; }
+</style>
+<script>
+  /* 貼る一式は、ここまでをひとかたまりで貼る */
+</script>
+
+<pre class="mermaid">
+graph TD
+  A --> B
+</pre>

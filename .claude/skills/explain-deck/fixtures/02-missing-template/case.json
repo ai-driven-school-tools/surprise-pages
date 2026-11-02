@@ -1,0 +1,8 @@
+{
+  "note": "雛形が欠ける",
+  "expect_ok": false,
+  "expect_codes": [
+    "TEMPLATE_MISSING"
+  ],
+  "embed": "missing"
+}

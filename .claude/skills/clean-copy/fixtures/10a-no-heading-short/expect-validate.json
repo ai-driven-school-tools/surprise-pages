@@ -1,0 +1,16 @@
+{
+  "findings": [
+    {
+      "code": "NO_HEADING_SHORT",
+      "severity": "error",
+      "line": 1,
+      "detail": "見出しが 1 つも無く、69 字しかありません",
+      "default": "ファイル名（拡張子なし）を表題として先頭に立てる"
+    }
+  ],
+  "summary": {
+    "error": 1,
+    "fixable": 0,
+    "warn": 0
+  }
+}

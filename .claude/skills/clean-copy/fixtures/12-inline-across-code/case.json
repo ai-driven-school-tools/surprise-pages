@@ -1,0 +1,11 @@
+{
+  "note": "コード片をまたぐ強調。実際の社内文書で ** が字のまま残った事故の見張り",
+  "apply_defaults": false,
+  "convert": true,
+  "expect_verify_ok": true,
+  "expect_body_contains": [
+    "<strong class=\"font-bold text-ads-text\">自分で <code",
+    "<em class=\"not-italic font-bold text-ads-muted\"><code",
+    "**これは強調ではない**"
+  ]
+}

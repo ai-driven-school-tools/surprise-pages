@@ -1,0 +1,1095 @@
+<!--
+  スライド形式（deck）のページに貼る一式。**置き方・拡縮・操作の正本。**
+
+  1. <body> に data-deck を付け、<main data-deck-slides> を body の直下に置く
+  2. 1 枚ごとに <section data-deck-slide> を書く（1280×720 の構図。中は Tailwind / Lucide / Mermaid 自由）
+  3. スピーカーノートは、その枚の <section> の最後の子に <aside data-deck-notes> を 1 つ。中は <p> や <ul> だけ
+  4. 下の <style> と <script> の 2 つを、この順のまま **body の閉じの直前**（main のあと）に貼る
+
+  この一式の中に body や script の**閉じタグの字を書かない**こと（この但し書きも含む）。
+  配信は body の閉じを探して道具箱を差し込むので、コメントの中にあっても最初に見つかった
+  そこへ刺さる。script の閉じは HTML の解析器が文脈を見ずに拾うので、コメントの中でも
+  script が終わる。
+
+  属性の名前は src/lib/deck/deck.ts が正本で、検査表（tests/checks/check-deck.mjs）がここと突き合わせる。
+  書き写して直さないこと。額縁を持つページ（社内スキルの deck.html）も、ここを丸ごと貼るだけ。
+
+  どう見えるか:
+
+  - **縦並びが既定。** 全部の枚が上から順に並び、器の幅に合わせて 1 枚ずつ縮む。
+    コメント・編集・書き出し・版の見比べは、この形を前提に今までどおり動く。
+  - **枚は紙、ページは机。** 縦並びでは body の地を額縁の「面」（--ads-surface）にし、枚（stage）だけを
+    紙（--ads-bg）にする。枚は大きさの決まったキャンバスで、どこで切れるかがそのまま意味を持つのに、
+    紙の上に紙を置くと境が消える。線で囲むのは間に合わせで、机と紙の 2 つの色で持たせるのが本筋
+    （線は 1 本も足さない）。操作の列・ノート・枚数の字は机の上にある。プレゼンの枚の外も同じ机の色。
+    枚の中で背景を書けばそちらが勝つ（暗い枚など）。紙に刷るときは地を塗らない。
+  - **縮めるのは transform だけ。** 字も余白も図も画像も同じ倍率で縮むので、1 枚の構図は
+    1 ピクセルも組み替わらない。図（Mermaid）は本文の目盛りに乗せる決まりだが、スライドは
+    1 枚が完結した構図で、構図を保つこと自体が価値なので縮めてよい。
+    その代わり枚の中の字は 24px 以上と契約で決める（幅 390px では倍率 0.30。24px が 7px）。
+  - **プレゼンは人が始める。** <html data-deck-mode="present"> を立て、CSS だけで 1 枚ずつ出す。
+    DOM は動かさない（動かすとコメントの印と索引が外れる）。← → / Space / PgUp PgDn、
+    スワイプ、Esc で戻る。全画面 API があれば使い、無ければ（iPhone）画面いっぱいの偽の全画面。
+    道具箱はこの属性だけを見て隠れる。モードは URL に載せない——開いた人は必ず縦並びに着地する。
+  - **枚の深いリンクは #7。** コメントの #c=<uuid> と形が違うので衝突しない。それ以外のハッシュは読まない。
+  - **ノートは縦並びで既定表示、プレゼンと印刷では出さない。** /p/（門なし公開）では
+    サーバーが取り除く（src/lib/pages/content.ts の withoutDeckNotes）。ここでは触らない。
+  - **はみ出した枚には印を付けて見せるだけ。** 保存は止めない（元から壊れている枚の直しを封じない）。
+  - **紙は 1 枚 1 ページ・横長。** 倍率を 1 に戻し、ノートと添え物は刷らない。
+
+  枚の中で書かないもの（契約。スキルの検査が落とす）:
+  vw / vh / dvh / svh の単位（器ではなく画面を測ってしまう）、position: fixed / sticky
+  （transform の中で意味が変わる）、<script>、data-deck-slide の入れ子、20px 未満の字、dark: の分岐。
+
+  読み込み時に 1 度だけ DOM を組む: 各 section を <div data-deck-frame> > <div data-deck-stage> で包み、
+  aside を section の外（frame の中・stage の直後）へ出す。枚数や「はみ出し」の字は属性と
+  ::before / ::after で描く——文字を DOM に足すと、コメントの索引と書き出しに混ざる。
+-->
+<style>
+  /*
+   * 色は額縁の名前（--ads-*）を先に見て、無ければ OS の色に落ちる。
+   * 値にするのは下の script（色の名前は CSS からは条件分岐できない）。ここは受け取るだけ。
+   */
+  body[data-deck] {
+    --deck-k: 1;
+    --deck-present-k: 1;
+    /* 机。ページ側の body の地（.bg-ads-bg など class 1 つ）より強く、ページの地の色を上書きする */
+    background: var(--deck-surface);
+  }
+
+  main[data-deck-slides] {
+    display: flex;
+    flex-direction: column;
+    gap: 48px;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+  }
+
+  /* 操作の列。字だけで作り、線も面も敷かない（絵記号は Lucide と同じ形を SVG で持つ） */
+  [data-deck-toolbar] {
+    display: flex;
+    position: sticky;
+    top: 8px;
+    z-index: 10;
+    align-self: flex-start;
+    flex-wrap: wrap;
+    gap: 8px 24px;
+    align-items: center;
+    font-size: 14px;
+    line-height: 1.5;
+    color: var(--deck-muted);
+  }
+  [data-deck-toolbar] button,
+  [data-deck-exit] {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin: 0;
+    padding: 4px 0;
+    border: 0;
+    background: none;
+    font: inherit;
+    color: inherit;
+    cursor: pointer;
+  }
+  [data-deck-toolbar] button:hover,
+  [data-deck-toolbar] button:focus-visible,
+  [data-deck-exit]:hover,
+  [data-deck-exit]:focus-visible {
+    color: var(--deck-text);
+    outline: none;
+  }
+  [data-deck-toolbar] svg,
+  [data-deck-exit] svg {
+    width: 16px;
+    height: 16px;
+    flex: none;
+  }
+
+  [data-deck-toolbar][hidden], [data-deck-toolbar] [hidden] { display: none !important; }
+  [data-deck-toolbar].deck-step-entry { position: static; margin-top: 16px; }
+  [data-deck-toolbar].deck-step-controls { display: none; }
+  html[data-deck-mode="present"] [data-deck-toolbar].deck-step-controls {
+    display: flex;
+    position: fixed;
+    left: 50%;
+    top: calc(var(--deck-paper-bottom, 0px) + 12px);
+    bottom: auto;
+    transform: translateX(-50%);
+    z-index: 2147482600;
+    max-width: calc(100% - 24px);
+    width: max-content;
+    justify-content: center;
+    padding: 8px 12px;
+    border-radius: 8px;
+    color: var(--deck-text);
+    background: var(--deck-surface);
+  }
+  .deck-step-controls button { min-width: 44px; min-height: 44px; }
+  .deck-step-entry button { min-height: 44px; }
+  .deck-step-status { display: flex; flex-wrap: wrap; justify-content: center; gap: 4px 12px; }
+  .deck-step-slide { color: var(--deck-muted); }
+  @media (max-width: 600px) {
+    html[data-deck-mode="present"] [data-deck-toolbar].deck-step-controls {
+      display: grid;
+      grid-template-columns: 44px minmax(0, 1fr) 44px;
+      gap: 8px 24px;
+      width: calc(100% - 24px);
+      box-sizing: border-box;
+    }
+    .deck-step-status { grid-column: 1 / -1; grid-row: 1; }
+    .deck-step-back { grid-column: 1; grid-row: 2; }
+    .deck-step-whole { grid-column: 2; grid-row: 2; justify-self: center; }
+    .deck-step-next { grid-column: 3; grid-row: 2; }
+  }
+  [data-deck-toolbar] button:focus-visible,
+  [data-deck-exit]:focus-visible { outline: none; color: var(--deck-bg); background: var(--deck-text); border-radius: 4px; }
+  html[data-deck-mode="present"][data-deck-overview] .deck-step-controls { display: none; }
+
+  [data-deck-frame] {
+    position: relative;
+    margin: 0;
+    scroll-margin-top: 16px;
+  }
+
+  /*
+   * 器。幅いっぱい・16:9。中の 1 枚は 1280×720 のまま置き、倍率だけを掛ける。
+   * 添え物（枚数・はみ出し）は器の下の余白に ::before / ::after で描く。
+   */
+  [data-deck-stage] {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    margin: 0 0 28px;
+    /* 紙。机（body の地）との色の差だけで枚の境を見せる。線も影も足さない */
+    background: var(--deck-bg);
+  }
+  [data-deck-stage] > section[data-deck-slide] {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 1280px;
+    height: 720px;
+    margin: 0;
+    overflow: hidden;
+    transform-origin: 0 0;
+    transform: scale(var(--deck-k));
+  }
+  [data-deck-stage]::after {
+    content: attr(data-deck-index) " / " attr(data-deck-total);
+    position: absolute;
+    right: 0;
+    top: 100%;
+    margin-top: 6px;
+    font-size: 12px;
+    line-height: 1.5;
+    font-variant-numeric: tabular-nums;
+    color: var(--deck-muted);
+  }
+  [data-deck-frame][data-deck-overflow] > [data-deck-stage]::before {
+    content: "はみ出しています";
+    position: absolute;
+    left: 0;
+    top: 100%;
+    margin-top: 6px;
+    font-size: 12px;
+    line-height: 1.5;
+    color: var(--deck-muted);
+  }
+
+  /* ノート。添えの字で、枚の下に。器の幅いっぱいには広げない（行が長くなりすぎる） */
+  [data-deck-frame] > aside[data-deck-notes] {
+    margin: 0;
+    padding: 0;
+    max-width: 65ch;
+    font-size: 14px;
+    line-height: 1.8;
+    color: var(--deck-muted);
+  }
+  [data-deck-frame] > aside[data-deck-notes] > * {
+    margin: 0 0 8px;
+  }
+  [data-deck-frame] > aside[data-deck-notes] > :last-child {
+    margin-bottom: 0;
+  }
+  main[data-deck-slides][data-deck-notes-hidden] aside[data-deck-notes] {
+    display: none;
+  }
+
+  /*
+   * プレゼン。いまの 1 枚だけを画面いっぱいに出し、ほかは display: none で畳む。
+   * 節点は 1 つも動かさない——コメントの印（<mark>）は畳まれた枚の中に残っていて、戻れば
+   * そのまま見える。z-index は過去の版の帯（2147482000）より上、道具箱（2147483000）より下。
+   * 道具箱は自分で隠れる。
+   */
+  html[data-deck-mode="present"],
+  html[data-deck-mode="present"] body {
+    overflow: hidden;
+  }
+  html[data-deck-mode="present"] [data-deck-frame]:not([data-deck-current]),
+  html[data-deck-mode="present"] [data-deck-toolbar],
+  html[data-deck-mode="present"] aside[data-deck-notes],
+  html[data-deck-mode="present"] [data-deck-stage]::before,
+  html[data-deck-mode="present"] [data-deck-stage]::after {
+    display: none;
+  }
+  html[data-deck-mode="present"] [data-deck-frame][data-deck-current] {
+    position: fixed;
+    inset: 0;
+    z-index: 2147482500;
+    display: grid;
+    place-items: center;
+    margin: 0;
+    padding: 0 0 var(--deck-controls-reserve, 0px);
+    box-sizing: border-box;
+    /* 枚の外（比率の合わない画面の余り）も机の色。枚は紙のままなので、端がどこかは色で分かる */
+    background: var(--deck-surface);
+  }
+  html[data-deck-mode="present"] [data-deck-frame][data-deck-current] > [data-deck-stage] {
+    width: calc(1280px * var(--deck-present-k));
+    height: calc(720px * var(--deck-present-k));
+    aspect-ratio: auto;
+    margin: 0;
+  }
+  html[data-deck-mode="present"] [data-deck-frame][data-deck-current] > [data-deck-stage] > section[data-deck-slide] {
+    transform: scale(var(--deck-present-k));
+  }
+  [data-deck-exit] {
+    display: none;
+    position: fixed;
+    top: 12px;
+    right: 12px;
+    z-index: 2147482600;
+    padding: 8px;
+    color: var(--deck-muted);
+    background: var(--deck-surface);
+    border-radius: 8px;
+  }
+  html[data-deck-mode="present"] [data-deck-exit] {
+    display: inline-flex;
+  }
+  [data-deck-exit] svg {
+    width: 20px;
+    height: 20px;
+  }
+  [data-deck-focus-supplement] {
+    display: none;
+  }
+  [data-deck-focus-supplements] {
+    margin: 0;
+    padding: 0;
+    max-width: 65ch;
+    font-size: 14px;
+    line-height: 1.8;
+    color: var(--deck-muted);
+  }
+  [data-deck-focus-supplements] > * {
+    margin: 0 0 8px;
+  }
+  html[data-deck-mode="present"] [data-deck-current] > [data-deck-focus-supplement]:not([hidden]) {
+    display: block;
+    position: fixed;
+    left: 50%;
+    top: calc(var(--deck-paper-bottom, 0px) + var(--deck-controls-height, 0px) + 24px);
+    bottom: auto;
+    z-index: 2147482550;
+    max-width: min(65ch, calc(100% - 24px));
+    width: max-content;
+    max-height: 25%;
+    overflow: auto;
+    box-sizing: border-box;
+    margin: 0;
+    padding: 8px 12px;
+    transform: translateX(-50%);
+    font-size: 14px;
+    line-height: 1.5;
+    color: var(--deck-text);
+    background: var(--deck-surface);
+  }
+  html[data-deck-mode="present"][data-deck-overview] [data-deck-focus-supplement] {
+    display: none;
+  }
+  html[data-deck-mode="present"] [data-deck-focus-supplements] {
+    display: none;
+  }
+  [data-deck-focus-supplement-pages] {
+    display: none;
+  }
+
+  /* 一覧。いまの枚と焦点の段階を保ったまま縦並びへ戻し、同じ場所から再開する。 */
+  html[data-deck-mode="present"][data-deck-overview],
+  html[data-deck-mode="present"][data-deck-overview] body {
+    overflow: auto;
+  }
+  html[data-deck-mode="present"][data-deck-overview] [data-deck-frame] {
+    display: block;
+    position: relative;
+    inset: auto;
+    z-index: auto;
+    margin: 0;
+    background: transparent;
+  }
+  html[data-deck-mode="present"][data-deck-overview] [data-deck-frame] > [data-deck-stage] {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 16 / 9;
+    margin: 0 0 28px;
+  }
+  html[data-deck-mode="present"][data-deck-overview] [data-deck-stage] > section[data-deck-slide] {
+    transform: scale(var(--deck-k));
+  }
+
+  /*
+   * 紙。1 枚 1 ページ・横長。倍率を 1 に戻し、枚の外の物は刷らない。
+   * body の直下で main でないもの（額縁のヘッダやフッタ）も刷らない。
+   */
+  @media print {
+    @page {
+      size: 1280px 720px;
+      margin: 0;
+    }
+    html,
+    body[data-deck] {
+      margin: 0;
+      padding: 0;
+      overflow: visible;
+      background: none;
+    }
+    body[data-deck] > :not(main[data-deck-slides]) {
+      display: none !important;
+    }
+    main[data-deck-slides] {
+      display: block;
+      gap: 0;
+    }
+    [data-deck-frame] {
+      margin: 0;
+      break-after: page;
+      page-break-after: always;
+    }
+    [data-deck-frame]:last-child {
+      break-after: auto;
+      page-break-after: auto;
+    }
+    [data-deck-stage] {
+      width: 1280px;
+      height: 720px;
+      aspect-ratio: auto;
+      margin: 0;
+    }
+    [data-deck-stage] > section[data-deck-slide] {
+      transform: none;
+    }
+    [data-deck-toolbar],
+    [data-deck-exit],
+    [data-deck-focus-supplement],
+    aside[data-deck-notes],
+    [data-deck-stage]::before,
+    [data-deck-stage]::after {
+      display: none !important;
+    }
+    [data-deck-focus-supplements] {
+      display: none !important;
+    }
+    [data-deck-focus-supplement-pages]:not([hidden]) {
+      display: block !important;
+    }
+    [data-deck-focus-supplement-page] {
+      box-sizing: border-box;
+      width: 1280px;
+      min-height: 720px;
+      margin: 0;
+      padding: 64px;
+      break-after: page;
+      page-break-after: always;
+      color: var(--deck-text);
+      background: var(--deck-bg);
+      font-size: 20px;
+      line-height: 1.6;
+    }
+    [data-deck-focus-supplement-page]:last-child {
+      break-after: auto;
+      page-break-after: auto;
+    }
+    [data-deck-focus-supplement-page] h2 {
+      margin: 0 0 32px;
+      font-size: 32px;
+      line-height: 1.4;
+    }
+    [data-deck-focus-supplement-page] p {
+      margin: 0 0 16px;
+    }
+  }
+</style>
+<script>
+  (function deck() {
+    "use strict";
+    var MARK = "data-deck";
+    var SLIDES = "data-deck-slides";
+    var SLIDE = "data-deck-slide";
+    var NOTES = "data-deck-notes";
+    var MODE = "data-deck-mode";
+    var PRESENT = "present";
+    var FRAME = "data-deck-frame";
+    var STAGE = "data-deck-stage";
+    var CURRENT = "data-deck-current";
+    var OVERFLOW = "data-deck-overflow";
+    var TOOLBAR = "data-deck-toolbar";
+    var EXIT = "data-deck-exit";
+    var OVERVIEW = "data-deck-overview";
+    var NOTES_HIDDEN = "data-deck-notes-hidden";
+    var WIDTH = 1280;
+    var HEIGHT = 720;
+    var HASH = /^#(\d+)$/;
+    var SWIPE_MIN = 40;
+    var FOCUS_REQUEST = "surprise:deck-focus-request";
+    var FOCUS_READY = "surprise:deck-focus-ready";
+    var FOCUS_APPLY = "surprise:deck-focus-apply";
+    var FOCUS_SUPPLEMENT = "data-deck-focus-supplement";
+    var FOCUS_SUPPLEMENTS = "data-deck-focus-supplements";
+    var FOCUS_SUPPLEMENT_PAGES = "data-deck-focus-supplement-pages";
+
+    /* Lucide と同じ形。道具箱と絵記号をそろえる（play / notebook-text / x） */
+    var ICON_PLAY = '<path d="M5 5a2 2 0 0 1 3.008-1.728l11.997 6.998a2 2 0 0 1 .003 3.458l-12 7A2 2 0 0 1 5 19z"/>';
+    var ICON_NOTES =
+      '<path d="M2 6h4"/><path d="M2 10h4"/><path d="M2 14h4"/><path d="M2 18h4"/>' +
+      '<rect width="16" height="20" x="4" y="2" rx="2"/><path d="M9.5 8h5"/><path d="M9.5 12H16"/><path d="M9.5 16H14"/>';
+    var ICON_X = '<path d="M18 6 6 18"/><path d="m6 6 12 12"/>';
+
+    function icon(paths) {
+      return (
+        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" ' +
+        'stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+        paths +
+        "</svg>"
+      );
+    }
+
+    function ready(fn) {
+      if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", fn, { once: true });
+      } else {
+        fn();
+      }
+    }
+
+    /*
+     * 色。額縁が名前で持っていればそちら、無ければ OS の色（Canvas / CanvasText / GrayText）。
+     * 明暗はどちらも自分で見分ける（額縁の名前は暗い側の値も入れ替わっていて、OS の色は OS が入れ替える）。
+     */
+    function paintColors() {
+      var paint = getComputedStyle(document.documentElement);
+      var root = document.documentElement.style;
+      var pick = function (name, fallback) {
+        var named = paint.getPropertyValue(name).trim();
+        return named ? "rgb(" + named + ")" : fallback;
+      };
+      root.setProperty("--deck-text", pick("--ads-text", "CanvasText"));
+      root.setProperty("--deck-muted", pick("--ads-muted", "GrayText"));
+      root.setProperty("--deck-bg", pick("--ads-bg", "Canvas"));
+      /* 机。額縁に「面」が無ければ、紙に字の色を 6% だけ混ぜて作る（OS には机に当たる色が無い） */
+      root.setProperty("--deck-surface", pick("--ads-surface", "color-mix(in srgb, CanvasText 6%, Canvas)"));
+    }
+
+    function start() {
+      var body = document.body;
+      if (body === null || !body.hasAttribute(MARK)) return;
+      var main = body.querySelector("main[" + SLIDES + "]");
+      if (main === null || main.hasAttribute("data-deck-ready")) return;
+      main.setAttribute("data-deck-ready", "");
+      paintColors();
+
+      var sections = Array.prototype.slice.call(main.querySelectorAll("section[" + SLIDE + "]"));
+      var frames = [];
+      sections.forEach(function (section, at) {
+        var frame = document.createElement("div");
+        frame.setAttribute(FRAME, "");
+        var stage = document.createElement("div");
+        stage.setAttribute(STAGE, "");
+        stage.setAttribute("data-deck-index", String(at + 1));
+        stage.setAttribute("data-deck-total", String(sections.length));
+        section.parentNode.insertBefore(frame, section);
+        frame.appendChild(stage);
+        stage.appendChild(section);
+        var notes = section.querySelector(":scope > aside[" + NOTES + "]");
+        if (notes !== null) frame.appendChild(notes);
+        var supplement = document.createElement("p");
+        supplement.setAttribute(FOCUS_SUPPLEMENT, "");
+        supplement.hidden = true;
+        frame.appendChild(supplement);
+        var supplements = document.createElement("div");
+        supplements.setAttribute(FOCUS_SUPPLEMENTS, "");
+        supplements.hidden = true;
+        frame.appendChild(supplements);
+        frames.push(frame);
+      });
+      if (frames.length === 0) return;
+      var supplementPages = document.createElement("div");
+      supplementPages.setAttribute(FOCUS_SUPPLEMENT_PAGES, "");
+      supplementPages.hidden = true;
+      main.appendChild(supplementPages);
+
+      var comparing = new URLSearchParams(window.location.search).has("from");
+
+      /*
+       * 操作の列。字だけ。版の見比べ中はプレゼンに入れないので、その釦は出さない。
+       * class="no-print" は付けない——あれは道具箱が「ページの PDF ボタンの置き場」と読む印で、
+       * 付けるとここの釦が抜かれて書き出しの口に置き換わる。刷らないのは上の @media print が決める。
+       */
+      var toolbar = document.createElement("div");
+      toolbar.setAttribute(TOOLBAR, "");
+      var hasNotes = main.querySelector("aside[" + NOTES + "]") !== null;
+      var present = null;
+      if (!comparing) {
+        present = document.createElement("button");
+        present.type = "button";
+        present.innerHTML = icon(ICON_PLAY) + "<span>プレゼンを始める</span>";
+        toolbar.appendChild(present);
+      }
+      var notesToggle = null;
+      if (hasNotes) {
+        notesToggle = document.createElement("button");
+        notesToggle.type = "button";
+        toolbar.appendChild(notesToggle);
+      }
+      if (toolbar.childNodes.length > 0) main.insertBefore(toolbar, main.firstChild);
+
+      var exit = document.createElement("button");
+      exit.type = "button";
+      exit.setAttribute(EXIT, "");
+      exit.setAttribute("aria-label", "プレゼンを終える");
+      exit.innerHTML = icon(ICON_X);
+      body.appendChild(exit);
+
+      var stepControls = document.createElement("nav");
+      stepControls.setAttribute(TOOLBAR, "");
+      stepControls.className = "deck-step-controls";
+      stepControls.setAttribute("aria-label", "スライドと段階の移動");
+      var stepPrevious = document.createElement("button");
+      stepPrevious.type = "button"; stepPrevious.textContent = "前へ"; stepPrevious.className = "deck-step-back";
+      stepPrevious.addEventListener("click", function () { move(-1); });
+      var stepStatus = document.createElement("span");
+      stepStatus.className = "deck-step-status";
+      stepStatus.setAttribute("role", "status"); stepStatus.setAttribute("aria-live", "polite"); stepStatus.setAttribute("aria-atomic", "true");
+      var stepSlide = document.createElement("span"); stepSlide.className = "deck-step-slide";
+      var stepName = document.createElement("span"); stepName.className = "deck-step-name";
+      stepStatus.appendChild(stepSlide); stepStatus.appendChild(stepName);
+      var stepOverview = document.createElement("button");
+      stepOverview.type = "button"; stepOverview.textContent = "全体"; stepOverview.className = "deck-step-whole";
+      stepOverview.addEventListener("click", showStepOverview);
+      var stepNext = document.createElement("button");
+      stepNext.type = "button"; stepNext.textContent = "次へ"; stepNext.className = "deck-step-next";
+      stepNext.addEventListener("click", function () { move(1); });
+      [stepPrevious, stepStatus, stepOverview, stepNext].forEach(function (item) { stepControls.appendChild(item); });
+      body.appendChild(stepControls);
+      var stepEntries = frames.map(function (frame, index) {
+        var entry = document.createElement("div"); entry.setAttribute(TOOLBAR, ""); entry.className = "deck-step-entry";
+        var button = document.createElement("button"); button.type = "button";
+        button.addEventListener("click", function () { focusGuided = true; enterPresent(index + 1); });
+        entry.appendChild(button); entry.hidden = true;
+        var stage = frame.querySelector("[" + STAGE + "]");
+        if (stage) stage.before(entry); else frame.appendChild(entry);
+        return { holder: entry, button: button };
+      });
+
+      var stepMeasureKey = "";
+      var stepSourceRevision = 0;
+      var stepReservedHeight = 0;
+      var stepControlsHeight = 0;
+
+      function measureStepSpace(vw, vh) {
+        if (!inPresent()) return { reserve: 0, controls: 0 };
+        var currentFrame = frames[shown - 1];
+        if (!currentFrame || !currentFrame.hasAttribute(CURRENT)) return { reserve: 0, controls: 0 };
+        var key = [vw, vh, stepSourceRevision, focusGuided].join(":");
+        if (key === stepMeasureKey) return { reserve: stepReservedHeight, controls: stepControlsHeight };
+        // Measure only UI text, never another copy of the slide. The largest step fixes
+        // the paper size for the whole presentation, so a new annotation cannot shrink it.
+        var controlsProbe = stepControls.cloneNode(true);
+        controlsProbe.setAttribute("aria-hidden", "true"); controlsProbe.inert = true;
+        controlsProbe.style.visibility = "hidden"; controlsProbe.style.pointerEvents = "none";
+        Array.prototype.forEach.call(controlsProbe.querySelectorAll("button"), function (button) { button.hidden = false; });
+        body.appendChild(controlsProbe);
+        var supplementProbe = document.createElement("div");
+        supplementProbe.setAttribute(FOCUS_SUPPLEMENT, ""); supplementProbe.setAttribute("aria-hidden", "true");
+        supplementProbe.style.visibility = "hidden"; supplementProbe.style.pointerEvents = "none";
+        currentFrame.appendChild(supplementProbe);
+        var maxControls = 0;
+        var maxSupplement = 0;
+        function measure(step, at, steps, n) {
+          controlsProbe.querySelector(".deck-step-slide").textContent = String(n) + " / " + String(frames.length) + "枚";
+          controlsProbe.querySelector(".deck-step-name").textContent = stepLabel(step, at, steps);
+          var controls = controlsProbe.getBoundingClientRect().height;
+          var supplement = publicSupplement(step);
+          supplementProbe.textContent = supplement || "";
+          var height = supplement === null ? 0 : supplementProbe.getBoundingClientRect().height;
+          maxControls = Math.max(maxControls, controls);
+          maxSupplement = Math.max(maxSupplement, height);
+        }
+        measure(null, 0, [], 1);
+        if (focusGuided) frames.forEach(function (_frame, index) {
+          var steps = authoredStepsAt(index + 1);
+          steps.forEach(function (step, at) { measure(step, at, steps, index + 1); });
+        });
+        controlsProbe.remove(); supplementProbe.remove();
+        stepMeasureKey = key;
+        stepReservedHeight = Math.ceil(maxControls + 24 + (maxSupplement > 0 ? maxSupplement + 12 : 0));
+        stepControlsHeight = Math.ceil(maxControls);
+        return { reserve: stepReservedHeight, controls: stepControlsHeight };
+      }
+
+      function paintNotesToggle() {
+        if (notesToggle === null) return;
+        var hidden = main.hasAttribute(NOTES_HIDDEN);
+        notesToggle.innerHTML = icon(ICON_NOTES) + "<span>" + (hidden ? "ノートを表示" : "ノートを隠す") + "</span>";
+        notesToggle.setAttribute("aria-pressed", hidden ? "false" : "true");
+      }
+      if (notesToggle !== null) {
+        paintNotesToggle();
+        notesToggle.addEventListener("click", function () {
+          if (main.hasAttribute(NOTES_HIDDEN)) main.removeAttribute(NOTES_HIDDEN);
+          else main.setAttribute(NOTES_HIDDEN, "");
+          paintNotesToggle();
+        });
+      }
+
+      /* 倍率。器の幅から出す。全部の枚が同じ幅なので、測るのは器 1 つ */
+      function scaleToFit() {
+        var width = main.clientWidth;
+        if (width > 0) main.style.setProperty("--deck-k", String(width / WIDTH));
+        var vw = document.documentElement.clientWidth;
+        var vh = window.innerHeight;
+        if (vw > 0 && vh > 0) {
+          var space = measureStepSpace(vw, vh);
+          // Reserve the largest step for an unchanging paper size, but attach the
+          // supplement to the visible controls. Their top position cannot change
+          // their height, so this measurement does not feed a resize loop.
+          var actualControls = inPresent() ? stepControls.getBoundingClientRect().height : 0;
+          body.style.setProperty("--deck-controls-height", String(actualControls > 0 ? actualControls : space.controls) + "px");
+          body.style.setProperty("--deck-controls-reserve", String(space.reserve) + "px");
+          var presentScale = Math.min(vw / WIDTH, Math.max(1, vh - space.reserve) / HEIGHT);
+          main.style.setProperty("--deck-present-k", String(presentScale));
+          // Keep the controls attached to the paper even on tall screens or steps
+          // with no supplement. Reserving space must not create a gap above them.
+          body.style.setProperty("--deck-paper-bottom", String((vh - space.reserve + HEIGHT * presentScale) / 2) + "px");
+        }
+      }
+      scaleToFit();
+      if (typeof ResizeObserver === "function") {
+        var deckResize = new ResizeObserver(scaleToFit);
+        deckResize.observe(main); deckResize.observe(stepControls);
+      }
+      window.addEventListener("resize", scaleToFit);
+      if (document.fonts && document.fonts.ready) document.fonts.ready.then(function () { stepMeasureKey = ""; scaleToFit(); });
+
+      /* はみ出し。描き終わってから測る（字体や画像が届く前は高さが揺れる） */
+      function markOverflow() {
+        frames.forEach(function (frame) {
+          var section = frame.querySelector("section[" + SLIDE + "]");
+          if (section === null) return;
+          var over = section.scrollHeight > HEIGHT + 1 || section.scrollWidth > WIDTH + 1;
+          if (over) frame.setAttribute(OVERFLOW, "");
+          else frame.removeAttribute(OVERFLOW);
+        });
+      }
+      if (document.readyState === "complete") markOverflow();
+      else window.addEventListener("load", markOverflow, { once: true });
+
+      /* 枚の番号（1 始まり）。範囲の外は端に丸める */
+      function clamp(n) {
+        return Math.min(frames.length, Math.max(1, n));
+      }
+      function hashIndex() {
+        var found = HASH.exec(window.location.hash);
+        return found === null ? null : clamp(parseInt(found[1], 10));
+      }
+      /*
+       * いま読んでいる枚＝画面の上端より下にまん中がある、いちばん上の枚。
+       * 「画面のまん中に近い枚」にすると、狭い画面で開いた直後に 2 枚目から始まる
+       * （1 枚目が上に寄っていて、まん中には 2 枚目がいる）。開いた直後は 1 枚目から。
+       */
+      function nearestIndex() {
+        for (var at = 0; at < frames.length; at += 1) {
+          var rect = frames[at].getBoundingClientRect();
+          if (rect.top + rect.height / 2 >= 0) return at + 1;
+        }
+        return frames.length;
+      }
+      function startIndex() {
+        var linked = hashIndex();
+        if (linked !== null) {
+          var rect = frames[linked - 1].getBoundingClientRect();
+          if (rect.bottom > 0 && rect.top < window.innerHeight) return linked;
+        }
+        return nearestIndex();
+      }
+      /*
+       * ハッシュだけを渡さない。replaceState は相対の URL を文書の base（配信時に差し込まれる
+       * "/i/…/名前/" を指す札）から解くので、"#3" が "/i/…/名前/#3" になり、再読み込みで別の
+       * 場所を指す。いまの道筋と検索の字を付けて、絶対の道筋で書く。
+       * ここに base の札そのものを字で書かないこと——配信はその字の有無で札を差し込むか決める。
+       */
+      function writeHash(n) {
+        var next = "#" + String(n);
+        if (window.location.hash === next) return;
+        if (window.history && typeof window.history.replaceState === "function") {
+          window.history.replaceState(null, "", window.location.pathname + window.location.search + next);
+        } else {
+          window.location.hash = next;
+        }
+      }
+
+      var shown = 0;
+      var focusGuided = false;
+      var focusSlides = {};
+      var focusAt = {};
+      function inPresent() {
+        return document.documentElement.getAttribute(MODE) === PRESENT;
+      }
+      function slideIdAt(n) {
+        var section = frames[clamp(n) - 1].querySelector("section[" + SLIDE + "]");
+        return section === null ? "" : section.getAttribute("data-deck-id") || "";
+      }
+      function authoredStepsAt(n) {
+        var id = slideIdAt(n);
+        var found = Object.prototype.hasOwnProperty.call(focusSlides, id) ? focusSlides[id] : null;
+        return Array.isArray(found) ? found : [];
+      }
+      function stepsAt(n) { return focusGuided ? authoredStepsAt(n) : []; }
+      function publicSupplement(step) {
+        if (!step) return null;
+        var parts = [];
+        var values = [step.supplement].concat((Array.isArray(step.actions) ? step.actions : []).map(function (action) { return action && action.annotation; }));
+        values.forEach(function (value) {
+          if (typeof value !== "string" || !value.trim() || parts.indexOf(value.trim()) >= 0) return;
+          parts.push(value.trim());
+        });
+        return parts.join("\n") || null;
+      }
+      function isOverviewStep(step) {
+        return step && Array.isArray(step.actions) && step.actions.every(function (action) { return action.kind === "overview"; });
+      }
+      function stepLabel(step, at, steps) {
+        var title = step && typeof step.title === "string" && step.title.length ? step.title : step === null || isOverviewStep(step) ? "全体" : "段階 " + String(at + 1);
+        return steps.length ? title + (at < 0 ? " · " + String(steps.length) + "段階" : " · " + String(at + 1) + " / " + String(steps.length)) : "";
+      }
+      function paintStepControls(step, at, steps) {
+        stepSlide.textContent = String(shown) + " / " + String(frames.length) + "枚";
+        stepName.textContent = stepLabel(step, at, steps);
+        stepPrevious.hidden = shown === 1 && at <= 0;
+        stepNext.hidden = shown === frames.length && at >= steps.length - 1;
+        stepOverview.hidden = steps.length === 0;
+        stepOverview.setAttribute("aria-pressed", String(step === null || isOverviewStep(step)));
+      }
+      function paintStepEntries() {
+        stepEntries.forEach(function (entry, index) {
+          var steps = authoredStepsAt(index + 1);
+          entry.holder.hidden = comparing || steps.length === 0;
+          entry.button.textContent = "順に見る（" + String(steps.length) + "段階）";
+          entry.button.setAttribute("aria-label", String(index + 1) + "枚目を順に見る（" + String(steps.length) + "段階）");
+        });
+      }
+      function showStepOverview() {
+        var steps = stepsAt(shown);
+        var overview = steps.findIndex(isOverviewStep);
+        focusAt[slideIdAt(shown)] = overview;
+        announceFocus();
+      }
+      function announceFocus() {
+        var slideId = slideIdAt(shown);
+        var steps = stepsAt(shown);
+        var at = typeof focusAt[slideId] === "number" ? focusAt[slideId] : 0;
+        var step = inPresent() ? steps[at] || null : null;
+        var supplement = frames[shown - 1].querySelector("[" + FOCUS_SUPPLEMENT + "]");
+        if (supplement !== null) {
+          supplement.textContent = publicSupplement(step) || "";
+          supplement.hidden = supplement.textContent.length === 0;
+          if (!supplement.hidden && supplement.scrollHeight > supplement.clientHeight) supplement.setAttribute("tabindex", "0");
+          else supplement.removeAttribute("tabindex");
+        }
+        document.dispatchEvent(new CustomEvent(FOCUS_APPLY, { detail: {
+          slideId: slideId,
+          stepId: step === null ? null : step.id,
+          actions: step === null || !Array.isArray(step.actions) ? [] : step.actions,
+          supplement: publicSupplement(step),
+          progress: { index: step === null ? 0 : at + 1, total: steps.length },
+        } }));
+        paintStepControls(step, at, steps);
+        scaleToFit();
+      }
+      function enterFirstStep(n) {
+        var slideId = slideIdAt(n);
+        focusAt[slideId] = 0;
+      }
+      function paintReadingSupplements() {
+        supplementPages.replaceChildren();
+        frames.forEach(function (frame, at) {
+          var holder = frame.querySelector("[" + FOCUS_SUPPLEMENTS + "]");
+          if (holder === null) return;
+          holder.replaceChildren();
+          var id = slideIdAt(at + 1);
+          var found = Object.prototype.hasOwnProperty.call(focusSlides, id) ? focusSlides[id] : null;
+          var steps = Array.isArray(found) ? found : [];
+          steps.forEach(function (step) {
+            var supplement = publicSupplement(step);
+            if (supplement === null) return;
+            var line = document.createElement("p");
+            line.textContent = (typeof step.title === "string" && step.title.length > 0 ? step.title + ": " : "") + supplement;
+            holder.appendChild(line);
+          });
+          holder.hidden = holder.childNodes.length === 0;
+          if (holder.hidden) frame.removeAttribute("data-deck-has-focus-supplements");
+          else frame.setAttribute("data-deck-has-focus-supplements", "");
+          if (holder.hidden) return;
+          var page = document.createElement("section");
+          page.setAttribute("data-deck-focus-supplement-page", "");
+          var heading = document.createElement("h2");
+          var slide = frame.querySelector("section[" + SLIDE + "]");
+          var named = slide === null ? null : slide.querySelector("h1,h2,h3");
+          heading.textContent = "補足 — " + String(at + 1) + "枚目" + (named && named.textContent ? ": " + named.textContent.trim() : "");
+          page.appendChild(heading);
+          Array.prototype.forEach.call(holder.children, function (line) {
+            var copy = document.createElement("p");
+            copy.textContent = line.textContent || "";
+            page.appendChild(copy);
+          });
+          supplementPages.appendChild(page);
+        });
+        supplementPages.hidden = supplementPages.childNodes.length === 0;
+      }
+      function clearFocus(n) {
+        var supplement = frames[clamp(n) - 1].querySelector("[" + FOCUS_SUPPLEMENT + "]");
+        if (supplement !== null) { supplement.textContent = ""; supplement.hidden = true; }
+        document.dispatchEvent(new CustomEvent(FOCUS_APPLY, { detail: {
+          slideId: slideIdAt(n), stepId: null, actions: [], supplement: null,
+          progress: { index: 0, total: stepsAt(n).length },
+        } }));
+      }
+      function show(n, firstStep) {
+        var previous = shown;
+        shown = clamp(n);
+        if (previous > 0 && previous !== shown) clearFocus(previous);
+        if (firstStep) enterFirstStep(shown);
+        frames.forEach(function (frame, at) {
+          if (at + 1 === shown) frame.setAttribute(CURRENT, "");
+          else frame.removeAttribute(CURRENT);
+        });
+        writeHash(shown);
+        announceFocus();
+      }
+
+      function move(direction) {
+        var slideId = slideIdAt(shown);
+        var steps = stepsAt(shown);
+        var at = typeof focusAt[slideId] === "number" ? focusAt[slideId] : 0;
+        if (direction > 0 && at + 1 < steps.length) {
+          focusAt[slideId] = at + 1;
+          announceFocus();
+          return;
+        }
+        if (direction < 0 && at > 0 && steps.length > 0) {
+          focusAt[slideId] = at - 1;
+          announceFocus();
+          return;
+        }
+        var next = clamp(shown + direction);
+        if (next === shown) return;
+        if (direction < 0) {
+          var priorId = slideIdAt(next);
+          var priorSteps = stepsAt(next);
+          focusAt[priorId] = Math.max(0, priorSteps.length - 1);
+          show(next, false);
+        } else {
+          show(next, true);
+        }
+      }
+      function scrollTo(n) {
+        var frame = frames[clamp(n) - 1];
+        if (frame !== undefined && typeof frame.scrollIntoView === "function") {
+          frame.scrollIntoView({ block: "start" });
+        }
+      }
+
+      function enterPresent(n) {
+        if (comparing || inPresent()) return;
+        document.documentElement.setAttribute(MODE, PRESENT);
+        scaleToFit();
+        show(n, true);
+        var root = document.documentElement;
+        if (typeof root.requestFullscreen === "function") {
+          try {
+            var asked = root.requestFullscreen();
+            if (asked && typeof asked.catch === "function") asked.catch(function () {});
+          } catch (error) {
+            /* 全画面にできなくても、画面いっぱいの表示で足りる */
+          }
+        }
+        exit.focus();
+      }
+      function leavePresent() {
+        if (!inPresent()) return;
+        document.documentElement.removeAttribute(MODE);
+        frames.forEach(function (frame) {
+          frame.removeAttribute(CURRENT);
+        });
+        document.documentElement.removeAttribute(OVERVIEW);
+        frames.forEach(function (_frame, at) { clearFocus(at + 1); });
+        if (document.fullscreenElement && typeof document.exitFullscreen === "function") {
+          try {
+            var done = document.exitFullscreen();
+            if (done && typeof done.catch === "function") done.catch(function () {});
+          } catch (error) {
+            /* もう出ている */
+          }
+        }
+        scrollTo(shown);
+      }
+
+      /* 始めるのは、いま読んでいる枚から（#N で開いた直後なら、その枚が上にいる） */
+      if (present !== null) {
+        present.addEventListener("click", function () {
+          enterPresent(startIndex());
+        });
+      }
+      exit.addEventListener("click", leavePresent);
+
+      document.addEventListener("fullscreenchange", function () {
+        if (document.fullscreenElement === null && inPresent()) leavePresent();
+      });
+
+      function typing(target) {
+        if (!(target instanceof Element)) return false;
+        return target.closest("input, textarea, select, [contenteditable]") !== null;
+      }
+      document.addEventListener("keydown", function (event) {
+        if (!inPresent() || typing(event.target)) return;
+        var key = event.key;
+        // A long public supplement owns scrolling keys, but Escape must still
+        // leave presentation when fullscreen is unavailable or was declined.
+        if (key !== "Escape" && event.target instanceof Element && event.target.closest("[" + FOCUS_SUPPLEMENT + "][tabindex]")) return;
+        if ((key === "Enter" || key === " ") && event.target instanceof Element && event.target.closest("button, a[href]")) return;
+        if (key === "ArrowRight" || key === "ArrowDown" || key === "PageDown" || key === " " || key === "Enter") {
+          event.preventDefault();
+          move(1);
+        } else if (key === "ArrowLeft" || key === "ArrowUp" || key === "PageUp" || key === "Backspace") {
+          event.preventDefault();
+          move(-1);
+        } else if (key === "Home") {
+          event.preventDefault();
+          show(1, true);
+        } else if (key === "End") {
+          event.preventDefault();
+          show(frames.length, true);
+        } else if (key.toLowerCase() === "o") {
+          event.preventDefault();
+          if (document.documentElement.hasAttribute(OVERVIEW)) {
+            document.documentElement.removeAttribute(OVERVIEW);
+          } else {
+            document.documentElement.setAttribute(OVERVIEW, "");
+            scrollTo(shown);
+          }
+        } else if (key === "Escape") {
+          event.preventDefault();
+          leavePresent();
+        }
+      });
+
+      var touch = null;
+      document.addEventListener(
+        "touchstart",
+        function (event) {
+          if (!inPresent() || event.touches.length !== 1) return;
+          touch = { x: event.touches[0].clientX, y: event.touches[0].clientY };
+        },
+        { passive: true },
+      );
+      document.addEventListener(
+        "touchend",
+        function (event) {
+          if (!inPresent() || touch === null || event.changedTouches.length !== 1) return;
+          var dx = event.changedTouches[0].clientX - touch.x;
+          var dy = event.changedTouches[0].clientY - touch.y;
+          touch = null;
+          if (Math.abs(dx) < SWIPE_MIN || Math.abs(dx) < Math.abs(dy)) return;
+          move(dx < 0 ? 1 : -1);
+        },
+        { passive: true },
+      );
+
+      /* #N。プレゼン中はその枚を出し、縦並びではそこへ送る。#c=… は枚と読まない */
+      function slideLinkIndex(link) {
+        var id = link.getAttribute("data-dd-slide-link");
+        for (var index = 0; index < frames.length; index++) if (slideIdAt(index + 1) === id) return index + 1;
+        return null;
+      }
+      Array.prototype.forEach.call(document.querySelectorAll("a[data-dd-slide-link]"), function (link) {
+        var n = slideLinkIndex(link);
+        if (n === null) return;
+        var target = new URL(window.location.href);
+        target.hash = String(n);
+        link.href = target.href;
+      });
+      document.addEventListener("click", function (event) {
+        if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+        var link = event.target instanceof Element ? event.target.closest("a[data-dd-slide-link]") : null;
+        if (link === null) return;
+        event.preventDefault();
+        var n = slideLinkIndex(link);
+        if (n === null) return;
+        if (inPresent()) { document.documentElement.removeAttribute(OVERVIEW); show(n, true); }
+        else { writeHash(n); scrollTo(n); }
+      });
+
+      window.addEventListener("hashchange", function () {
+        var n = hashIndex();
+        if (n === null) return;
+        if (inPresent()) {
+          if (n !== shown) show(n, true);
+        } else {
+          scrollTo(n);
+        }
+      });
+      var initial = hashIndex();
+      if (initial !== null) {
+        ready(function () {
+          scrollTo(initial);
+        });
+      }
+
+      frames.forEach(function (frame, at) {
+        frame.addEventListener("click", function () {
+          if (!inPresent() || !document.documentElement.hasAttribute(OVERVIEW)) return;
+          document.documentElement.removeAttribute(OVERVIEW);
+          show(at + 1, false);
+        });
+      });
+
+      document.addEventListener(FOCUS_READY, function (event) {
+        var detail = event instanceof CustomEvent ? event.detail : null;
+        if (detail === null || typeof detail !== "object") return;
+        focusGuided = detail.guided === true;
+        stepSourceRevision += 1;
+        focusSlides = detail.slides && typeof detail.slides === "object" ? detail.slides : {};
+        paintReadingSupplements();
+        paintStepEntries();
+        if (inPresent()) {
+          enterFirstStep(shown);
+          announceFocus();
+        }
+      });
+      document.dispatchEvent(new CustomEvent(FOCUS_REQUEST));
+    }
+
+    /*
+     * 貼る場所は body の閉じの直前なので、ふつうは枚がもう全部ある——**その場で組む**。
+     * 道具箱（defer の script）は解析が終わってから走るので、必ずこちらが先になる。
+     * head に貼られたときだけ、解析が終わるのを待つ。
+     */
+    if (document.body !== null && document.body.querySelector("main[" + SLIDES + "]") !== null) {
+      start();
+    } else {
+      ready(start);
+    }
+  })();
+</script>

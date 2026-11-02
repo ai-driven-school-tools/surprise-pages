@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+# 本体は同じ場所の pages-publish.mjs（Node）。ここは呼び出し口。
+set -euo pipefail
+here="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+exec node "${here}/pages-publish.mjs" "$@"

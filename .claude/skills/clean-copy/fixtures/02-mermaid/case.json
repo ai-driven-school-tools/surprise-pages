@@ -1,0 +1,12 @@
+{
+  "note": "図（mermaid）。退避しないと中の行が段落に化けて、図が読めない四角で出る",
+  "apply_defaults": false,
+  "convert": true,
+  "expect_verify_ok": true,
+  "expect_body_contains": [
+    "<pre class=\"mermaid\">",
+    "  actor 書く人",
+    "書く人-&gt;&gt;清書: 原本を渡す"
+  ],
+  "expect_body_missing": ["<p class=\"text-ads-muted mb-6\">  actor"]
+}

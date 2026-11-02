@@ -1,0 +1,175 @@
+/* 1280 × 720. Geometry never depends on a palette or decoration.
+ * Outer margin 64; 12 columns / 24 gap; spacing 8, fine spacing 4.
+ * 1px rules join table rows; optical alignment is documented at its use. */
+body[data-deck] {
+  --deck-page-top: 40px;
+  --deck-page-side: 24px;
+  --deck-page-bottom: 80px;
+  margin: 0 auto;
+  padding: var(--deck-page-top) var(--deck-page-side) var(--deck-page-bottom);
+  max-width: 1328px;
+  font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Noto Sans JP", sans-serif;
+}
+:where(body[data-deck] section[data-deck-slide]) {
+  box-sizing: border-box;
+  isolation: isolate;
+  display: flex;
+  flex-direction: column;
+  padding: 64px;
+  font-family: var(--dd-font-body, inherit);
+  font-size: 28px;
+  line-height: 1.5;
+  font-weight: 400;
+  color: var(--dd-text);
+  background: var(--dd-bg);
+  color-scheme: only light;
+  font-feature-settings: "palt";
+  overflow-wrap: anywhere;
+}
+:where(body[data-deck] section[data-deck-slide]) *,
+:where(body[data-deck] section[data-deck-slide]) *::before,
+:where(body[data-deck] section[data-deck-slide]) *::after { box-sizing: border-box; }
+:where(body[data-deck] section[data-deck-slide]) :is(h1,h2,h3,p,figure,blockquote,ul,ol) { margin: 0; }
+:where(body[data-deck] section[data-deck-slide])::before {
+  content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none;
+  opacity: var(--dd-opacity); background-image: var(--dd-background-image, none);
+  background-size: var(--dd-background-size, 100% 100%); background-repeat: var(--dd-background-repeat, no-repeat); background-position: 50% 50%;
+}
+[data-deck-decoration="none"]::before { display: none; }
+[data-deck-motion="true"]::before { animation: dd-drift 24s ease-in-out infinite alternate; animation-play-state: var(--dd-play); }
+/* Pan the oversized paint, not a transformed element that expands scrollWidth. */
+@keyframes dd-drift { from { background-position: 0% 0%; } to { background-position: 100% 100%; } }
+[data-deck-decoration="diagonal"][data-deck-motion="true"]::before {
+  animation-name: dd-diagonal-drift;
+  animation-duration: 22s;
+}
+@keyframes dd-diagonal-drift {
+  from { background-position: 15% 65%, 70% 30%; }
+  to { background-position: 85% 20%, 20% 70%; }
+}
+/* Diagonal planes belong to covers. Reading slides use uninterrupted paper;
+ * role comes from the authored layout, never slide order. */
+section[data-deck-decoration="diagonal"]:not(:is([data-deck-authoring-layout="title"], [data-dd-format="title"], .dd-hero))::before,
+section[data-deck-decoration="diagonal"]:has(table, [data-dd-chart], .mermaid)::before {
+  display: none;
+  animation: none;
+}
+@media (prefers-reduced-motion: reduce) { [data-deck-motion][data-deck-decoration]::before { animation: none; } }
+@media print { [data-deck-motion][data-deck-decoration]::before { animation: none; } body[data-deck] { padding: 0; max-width: none; } }
+
+/* Typography and quiet ornaments belong to the completed style, not slide content. */
+body[data-deck] section[data-deck-slide] :is(h1,h2,.dd-title,.dd-display,.dd-statement) { font-family: var(--dd-font-heading, inherit); }
+[data-deck-ornament]:not([data-deck-ornament="none"]) :is(.dd-slide-heading,.dd-list-heading,.dd-cover-main) { position: relative; }
+[data-deck-ornament]:not([data-deck-ornament="none"]) :is(.dd-slide-heading,.dd-list-heading,.dd-cover-main)::after { content: ""; position: absolute; left: 0; top: -24px; pointer-events: none; color: currentColor; opacity: .25; }
+[data-deck-ornament="rule"] :is(.dd-slide-heading,.dd-list-heading,.dd-cover-main)::after { width: 80px; height: 2px; background: currentColor; }
+[data-deck-ornament="corner"] :is(.dd-slide-heading,.dd-list-heading,.dd-cover-main)::after { width: 32px; height: 12px; border-left: 1px solid; border-top: 1px solid; }
+
+/* Reading hierarchy: heading, argument, evidence, source. */
+.dd-overline { font-size: 20px; line-height: 1.45; font-weight: 500; letter-spacing: .06em; color: var(--dd-muted); }
+.dd-kicker { margin-bottom: 24px !important; font-size: 20px; line-height: 1.45; letter-spacing: .06em; color: var(--dd-muted); }
+.dd-slide-heading { display: flex; flex-direction: column; gap: 16px; flex: none; }
+.dd-composed { gap: 40px; }
+.dd-composed > .dd-body { padding-top: 0; gap: 24px; }
+.dd-composed-hero > .dd-body { max-width: 1056px; flex: none; gap: 24px; }
+.dd-composed-hero { justify-content: center; }
+.dd-composed-hero .dd-display { max-width: 100%; }
+.dd-title { font-size: 48px; line-height: 1.25; letter-spacing: -.025em; font-weight: 650; max-width: 1100px; text-wrap: balance; }
+.dd-display, .dd-hero > .dd-title { font-size: 80px; line-height: 1.2; letter-spacing: -.04em; font-weight: 650; text-wrap: balance; }
+.dd-statement { font-size: 64px; line-height: 1.3; letter-spacing: -.03em; font-weight: 600; text-wrap: balance; }
+.dd-subtitle { font-size: 32px; line-height: 1.5; color: var(--dd-muted); max-width: 960px; }
+.dd-label { font-size: 20px; line-height: 1.4; color: var(--dd-muted); }
+.dd-note { font-size: 20px; line-height: 1.5; color: var(--dd-muted); }
+.dd-footer { margin-top: auto !important; padding-top: 24px; display: flex; justify-content: space-between; gap: 24px; font-size: 20px; color: var(--dd-muted); }
+.dd-footer a { color: var(--dd-accent); text-underline-offset: .2em; }
+.dd-body { flex: 1; min-height: 0; display: flex; flex-direction: column; justify-content: center; gap: 32px; }
+.dd-title + .dd-body { padding-top: 16px; }
+.dd-grid { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 24px; align-items: start; }
+.dd-half { grid-column: span 6; min-width: 0; }
+.dd-third { grid-column: span 4; min-width: 0; }
+.dd-quarter { grid-column: span 3; min-width: 0; }
+.dd-wide { grid-column: span 7; min-width: 0; }
+.dd-narrow { grid-column: span 5; min-width: 0; }
+.dd-stack { display: flex; flex-direction: column; gap: 24px; }
+.dd-stack-tight { display: flex; flex-direction: column; gap: 12px; }
+.dd-section { font-size: 32px; line-height: 1.35; font-weight: 600; }
+.dd-number { font-size: 96px; line-height: 1.1; letter-spacing: -.04em; font-weight: 600; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.dd-number small { font-size: 32px; font-weight: 400; letter-spacing: 0; margin-left: 8px; }
+.dd-index { font-size: 20px; font-variant-numeric: tabular-nums; color: var(--dd-muted); }
+.dd-rule { padding-top: 24px; border-top: 1px solid var(--dd-border); }
+.dd-table { width: 100%; border-collapse: separate; border-spacing: 0; table-layout: fixed; font-size: 24px; line-height: 1.4; }
+.dd-table :is(th,td) { padding: 16px 16px 16px 0; text-align: left; vertical-align: top; border-bottom: 1px solid var(--dd-border); }
+.dd-table th { font-size: 20px; font-weight: 500; color: var(--dd-muted); }
+.dd-table .dd-numeric { text-align: right; padding-right: 0; font-variant-numeric: tabular-nums; }
+.dd-dense { font-size: 24px !important; }
+.dd-dense .dd-body { gap: 24px; }
+.dd-dense .dd-table { font-size: 20px; }
+.dd-dense .dd-table :is(th,td) { padding-top: 12px; padding-bottom: 12px; }
+.dd-list { padding: 0 0 0 28px; display: grid; gap: 16px; }
+.dd-list li::marker { color: var(--dd-muted); }
+.dd-image { display: block; width: 100%; height: 320px; object-fit: cover; border-radius: 0; }
+.dd-chart { display: grid; gap: 20px; }
+.dd-chart-row { display: grid; grid-template-columns: 160px minmax(0,1fr) 112px; gap: 24px; align-items: center; font-size: 24px; }
+.dd-bar { height: 24px; background: var(--dd-accent); }
+.dd-bar-secondary { background: var(--dd-secondary); }
+.dd-chart-value { text-align: right; font-variant-numeric: tabular-nums; }
+.dd-flow { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: 24px; }
+.dd-flow > * { border-top: 1px solid var(--dd-border); padding-top: 24px; }
+.dd-quote { padding: 0; font-size: 48px; line-height: 1.5; }
+.dd-diagram { width: 100%; height: 300px; overflow: visible; }
+/* Avoid size-dependent glyph hinting when a scaled SVG is repainted after a palette change. */
+.dd-diagram text { text-rendering: geometricPrecision; fill: var(--dd-text); font-family: inherit; font-size: 24px; }
+.dd-diagram :is(rect,path,line,circle) { stroke: var(--dd-muted); stroke-width: 1; fill: none; }
+@media (max-width: 600px) { body[data-deck] { --deck-page-top: 24px; --deck-page-side: 12px; --deck-page-bottom: 48px; } }
+
+/* Geometry is available before fonts and diagrams; only the content is concealed.
+ * Pseudo-elements cannot enter comments, selections or exported Markdown. */
+@media screen {
+  html:has(body[data-deck]), body[data-deck] {
+    background: var(--deck-surface, color-mix(in srgb, CanvasText 6%, Canvas));
+  }
+  html[data-deck-loading] main[data-deck-slides] > :not([data-deck-frame]),
+  html[data-deck-loading] [data-deck-frame] > :not([data-deck-stage]),
+  html[data-deck-loading] [data-deck-stage] > section { opacity: 0; pointer-events: none; }
+  html[data-deck-loading] [data-deck-stage]::before {
+    content: ""; position: absolute; inset: 0; pointer-events: none;
+    background-color: var(--deck-loading-paper, var(--deck-bg, Canvas));
+    background-image: linear-gradient(var(--deck-loading-line, color-mix(in srgb, CanvasText 8%, Canvas)), var(--deck-loading-line, color-mix(in srgb, CanvasText 8%, Canvas))), linear-gradient(var(--deck-loading-line, color-mix(in srgb, CanvasText 6%, Canvas)), var(--deck-loading-line, color-mix(in srgb, CanvasText 6%, Canvas)));
+    background-repeat: no-repeat; background-size: 48% 5%, 72% 3%; background-position: 10% 16%, 18% 32%;
+  }
+}
+
+/* School's typography and heading treatment apply to every shared composition.
+ * Keep the existing content geometry: tables, diagrams and photo captions retain
+ * their own hierarchy, and photo-overlay titles retain readable contrast. */
+[data-deck-typography="school"] { font-feature-settings: normal; }
+[data-deck-typography="school"] :is(h1,h2,.dd-title,.dd-display,.dd-statement) { font-weight: 800; }
+[data-deck-typography="school"] h3 { font-weight: 700; }
+[data-deck-slide][data-deck-ornament="school"] :is(.dd-slide-heading,.dd-list-heading)::after {
+  top: auto; bottom: -14px; width: 64%; height: 2px; opacity: 1;
+  background: linear-gradient(90deg,var(--dd-secondary),var(--dd-accent),transparent);
+}
+[data-deck-ornament="school"] :is(.dd-slide-heading,.dd-list-heading) :is(h1,h2),
+[data-deck-ornament="school"] > .dd-title {
+  color: var(--dd-accent);
+  background: linear-gradient(180deg,var(--dd-secondary),var(--dd-accent));
+  background-clip: text; -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+}
+[data-deck-ornament="school"]:is([data-dd-format="title"],[data-dd-format="divider"],[data-dd-format="qa"],.dd-hero) {
+  background: color-mix(in srgb,var(--dd-accent) 8%,var(--dd-bg));
+}
+
+/* A branded cover reads as one title/subtitle group below the logo band. */
+section[data-deck-typography="school"][data-deck-authoring-layout="title"] { justify-content: center; gap: 32px; }
+section[data-deck-typography="school"][data-deck-authoring-layout="title"] > .dd-body { flex: none; }
+
+/* Reserve a separate signature band, away from headlines and supporting content.
+ * Kept even while the image loads or is hidden, so geometry never jumps. */
+section[data-deck-typography="school"][data-dd-logo-safe~="school-bottom-right"] { padding-bottom: 96px; }
+
+/* A single reserve keeps the rule 12px below the heading, without growing the content block. */
+[data-deck-slide][data-deck-ornament="school"] :is(.dd-slide-heading,.dd-list-heading) { padding-bottom: 0; }
+/* Cover content starts below the brand. The mark is never attached to a headline. */
+section[data-deck-typography="school"][data-deck-brand-layout="cover"] { padding-top: 208px; }
+
+section[data-deck-typography="school"][data-deck-brand-layout="cover"][data-dd-layout="cover-horizon"] { grid-template-rows: minmax(0,1fr) 128px; gap: 32px; }
+section[data-deck-typography="school"][data-deck-brand-layout="cover"][data-dd-layout="cover-horizon"] .dd-message-image-title { font-size: 64px; }

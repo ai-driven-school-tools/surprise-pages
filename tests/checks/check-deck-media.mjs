@@ -1,0 +1,17 @@
+import assert from 'node:assert/strict';
+import {build} from 'esbuild';
+import {root,dir} from './paths.mjs';
+await build({stdin:{contents:`export * from './src/lib/deck/media/media';export * from './src/lib/deck/media/remote-media';export * from './src/lib/deck/edit/source';`,resolveDir:root},outfile:`${dir}/media.mjs`,bundle:true,format:'esm',platform:'node'});
+const api=await import(`${dir}/media.mjs`);
+for(const value of ['https://youtu.be/abcdefghijk','https://www.youtube.com/watch?v=abcdefghijk&t=5','https://youtube.com/shorts/abcdefghijk'])assert.equal(api.youtubeId(value),'abcdefghijk');console.log('OK  YouTubeの通常・短縮・Shortsリンクを同じ動画として扱う');
+for(const value of ['https://youtube.com.evil.test/watch?v=abcdefghijk','https://user:password@youtube.com/watch?v=abcdefghijk','javascript:alert(1)','https://youtube.com/watch?v=bad','http://youtube.com/watch?v=abcdefghijk'])assert.equal(api.youtubeId(value),null);console.log('OK  不明な埋め込み先・認証付きリンクを受け付けない');
+for(const address of ['127.0.0.1','10.1.1.1','172.16.0.1','192.168.0.1','169.254.169.254','100.64.1.1','::1','::ffff:127.0.0.1','fc00::1','fe80::1','2001:db8::1'])assert.equal(api.publicMediaAddress(address),false,address);assert.equal(api.publicMediaAddress('8.8.8.8'),true);assert.equal(api.publicMediaAddress('2606:4700:4700::1111'),true);console.log('OK  外部取り込みから内部ネットワークへ接続させない');
+await assert.rejects(()=>api.downloadRemoteMedia('https://127.0.0.1/private'));console.log('OK  内部URLは接続前に拒否する');
+const source=api.prepareDeckEdit('<body data-deck><main data-deck-slides><section data-deck-slide data-deck-node="slide"></section></main></body>').html;
+const op={kind:'insert',target:'slide',node:{id:'youtube-one',tag:'youtube',videoId:'abcdefghijk',label:'説明動画',style:{width:'720px',height:'405px'}}};
+const saved=api.applyDeckEditOperations(source,[op]);assert.match(saved.html,/data-deck-youtube="abcdefghijk"/);assert.ok(!saved.html.includes('<iframe'));assert.equal(api.applyDeckEditOperations(saved.html,saved.inverse).html,source);console.log('OK  外部動画は承認した動画の目印だけ保存し、取り消せる');
+assert.throws(()=>api.applyDeckEditOperations(source,[{...op,node:{...op.node,videoId:'" onload="alert(1)'}}]));console.log('OK  動画の指定から実行コードを持ち込めない');
+const video=api.applyDeckEditOperations(source,[{kind:'insert',target:'slide',node:{id:'movie',tag:'video',src:'_deck/media-original.mp4',poster:'_deck/media-original.jpg',label:'動画',style:{left:'12px'}}}]).html;
+const reference={kind:'video-source',target:'movie',before:{src:'_deck/media-original.mp4',poster:'_deck/media-original.jpg'},after:{src:'_deck/media-small.mp4',poster:'_deck/media-small.jpg'}};
+const converted=api.applyDeckEditOperations(video,[reference]);assert.match(converted.html,/left:12px/);assert.equal(api.applyDeckEditOperations(converted.html,converted.inverse).html,video);console.log('OK  圧縮結果だけを置き換え配置を保ち、原本に戻せる');
+assert.throws(()=>api.applyDeckEditOperations(converted.html,[{...reference,after:{...reference.after,src:'_deck/media-other.mp4'}}]));console.log('OK  差し替え済みの動画を古い変換結果で上書きしない');

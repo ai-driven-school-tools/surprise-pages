@@ -1,0 +1,845 @@
+{
+  "date": "2026-09-14",
+  "baseCommit": "ae12892005300657276c68cd60beeaf58987a96c",
+  "verification": {
+    "command": "pnpm verify",
+    "checks": 6362,
+    "failedChecks": 0,
+    "lintErrors": 0,
+    "existingLintWarnings": 4,
+    "build": "passed"
+  },
+  "visual": [
+    {
+      "browser": "chromium",
+      "width": 1390,
+      "slides": [
+        {
+          "id": "opening",
+          "widthBefore": 1280,
+          "widthAfter": 1280,
+          "changedPixels": 0,
+          "geometryEqual": true,
+          "maxGeometryDelta": 0
+        },
+        {
+          "id": "product-hero",
+          "widthBefore": 1280,
+          "widthAfter": 1280,
+          "changedPixels": 0,
+          "geometryEqual": true,
+          "maxGeometryDelta": 0
+        },
+        {
+          "id": "cutout",
+          "widthBefore": 1280,
+          "widthAfter": 1280,
+          "changedPixels": 0,
+          "geometryEqual": true,
+          "maxGeometryDelta": 0
+        },
+        {
+          "id": "before-after",
+          "widthBefore": 1280,
+          "widthAfter": 1280,
+          "changedPixels": 0,
+          "geometryEqual": true,
+          "maxGeometryDelta": 0
+        },
+        {
+          "id": "journey",
+          "widthBefore": 1280,
+          "widthAfter": 1280,
+          "changedPixels": 0,
+          "geometryEqual": true,
+          "maxGeometryDelta": 0
+        },
+        {
+          "id": "kpis",
+          "widthBefore": 1280,
+          "widthAfter": 1280,
+          "changedPixels": 0,
+          "geometryEqual": true,
+          "maxGeometryDelta": 0
+        },
+        {
+          "id": "barriers",
+          "widthBefore": 1280,
+          "widthAfter": 1280,
+          "changedPixels": 0,
+          "geometryEqual": true,
+          "maxGeometryDelta": 0
+        },
+        {
+          "id": "activation",
+          "widthBefore": 1280,
+          "widthAfter": 1280,
+          "changedPixels": 0,
+          "geometryEqual": true,
+          "maxGeometryDelta": 0
+        },
+        {
+          "id": "comparison",
+          "widthBefore": 1280,
+          "widthAfter": 1280,
+          "changedPixels": 0,
+          "geometryEqual": true,
+          "maxGeometryDelta": 0
+        },
+        {
+          "id": "report",
+          "widthBefore": 1280,
+          "widthAfter": 1280,
+          "changedPixels": 0,
+          "geometryEqual": true,
+          "maxGeometryDelta": 0
+        },
+        {
+          "id": "sequence",
+          "widthBefore": 1280,
+          "widthAfter": 1280,
+          "changedPixels": 0,
+          "geometryEqual": true,
+          "maxGeometryDelta": 0
+        },
+        {
+          "id": "state",
+          "widthBefore": 1280,
+          "widthAfter": 1280,
+          "changedPixels": 0,
+          "geometryEqual": true,
+          "maxGeometryDelta": 0
+        },
+        {
+          "id": "branch",
+          "widthBefore": 1280,
+          "widthAfter": 1280,
+          "changedPixels": 0,
+          "geometryEqual": true,
+          "maxGeometryDelta": 0
+        },
+        {
+          "id": "try-it",
+          "widthBefore": 1280,
+          "widthAfter": 1280,
+          "changedPixels": 0,
+          "geometryEqual": true,
+          "maxGeometryDelta": 0
+        },
+        {
+          "id": "closing",
+          "widthBefore": 1280,
+          "widthAfter": 1280,
+          "changedPixels": 0,
+          "geometryEqual": true,
+          "maxGeometryDelta": 0
+        }
+      ],
+      "errors": []
+    },
+    {
+      "browser": "chromium",
+      "width": 390,
+      "slides": [
+        {
+          "id": "opening",
+          "widthBefore": 366,
+          "widthAfter": 366,
+          "changedPixels": 0,
+          "geometryEqual": true,
+          "maxGeometryDelta": 0
+        },
+        {
+          "id": "product-hero",
+          "widthBefore": 366,
+          "widthAfter": 366,
+          "changedPixels": 0,
+          "geometryEqual": true,
+          "maxGeometryDelta": 0
+        },
+        {
+          "id": "cutout",
+          "widthBefore": 366,
+          "widthAfter": 366,
+          "changedPixels": 0,
+          "geometryEqual": true,
+          "maxGeometryDelta": 0
+        },
+        {
+          "id": "before-after",
+          "widthBefore": 366,
+          "widthAfter": 366,
+          "changedPixels": 0,
+          "geometryEqual": true,
+          "maxGeometryDelta": 0
+        },
+        {
+          "id": "journey",
+          "widthBefore": 366,
+          "widthAfter": 366,
+          "changedPixels": 0,
+          "geometryEqual": true,
+          "maxGeometryDelta": 0
+        },
+        {
+          "id": "kpis",
+          "widthBefore": 366,
+          "widthAfter": 366,
+          "changedPixels": 0,
+          "geometryEqual": true,
+          "maxGeometryDelta": 0
+        },
+        {
+          "id": "barriers",
+          "widthBefore": 366,
+          "widthAfter": 366,
+          "changedPixels": 0,
+          "geometryEqual": true,
+          "maxGeometryDelta": 0
+        },
+        {
+          "id": "activation",
+          "widthBefore": 366,
+          "widthAfter": 366,
+          "changedPixels": 0,
+          "geometryEqual": true,
+          "maxGeometryDelta": 0
+        },
+        {
+          "id": "comparison",
+          "widthBefore": 366,
+          "widthAfter": 366,
+          "changedPixels": 0,
+          "geometryEqual": true,
+          "maxGeometryDelta": 0
+        },
+        {
+          "id": "report",
+          "widthBefore": 366,
+          "widthAfter": 366,
+          "changedPixels": 0,
+          "geometryEqual": true,
+          "maxGeometryDelta": 0
+        },
+        {
+          "id": "sequence",
+          "widthBefore": 366,
+          "widthAfter": 366,
+          "changedPixels": 0,
+          "geometryEqual": true,
+          "maxGeometryDelta": 0
+        },
+        {
+          "id": "state",
+          "widthBefore": 366,
+          "widthAfter": 366,
+          "changedPixels": 0,
+          "geometryEqual": true,
+          "maxGeometryDelta": 0
+        },
+        {
+          "id": "branch",
+          "widthBefore": 366,
+          "widthAfter": 366,
+          "changedPixels": 0,
+          "geometryEqual": true,
+          "maxGeometryDelta": 0
+        },
+        {
+          "id": "try-it",
+          "widthBefore": 366,
+          "widthAfter": 366,
+          "changedPixels": 0,
+          "geometryEqual": true,
+          "maxGeometryDelta": 0.009999999999999787
+        },
+        {
+          "id": "closing",
+          "widthBefore": 366,
+          "widthAfter": 366,
+          "changedPixels": 0,
+          "geometryEqual": true,
+          "maxGeometryDelta": 0
+        }
+      ],
+      "errors": []
+    },
+    {
+      "browser": "webkit",
+      "width": 1390,
+      "slides": [
+        {
+          "id": "opening",
+          "widthBefore": 1280,
+          "widthAfter": 1280,
+          "changedPixels": 0,
+          "geometryEqual": true,
+          "maxGeometryDelta": 0
+        },
+        {
+          "id": "product-hero",
+          "widthBefore": 1280,
+          "widthAfter": 1280,
+          "changedPixels": 0,
+          "geometryEqual": true,
+          "maxGeometryDelta": 0
+        },
+        {
+          "id": "cutout",
+          "widthBefore": 1280,
+          "widthAfter": 1280,
+          "changedPixels": 0,
+          "geometryEqual": true,
+          "maxGeometryDelta": 0
+        },
+        {
+          "id": "before-after",
+          "widthBefore": 1280,
+          "widthAfter": 1280,
+          "changedPixels": 0,
+          "geometryEqual": true,
+          "maxGeometryDelta": 0
+        },
+        {
+          "id": "journey",
+          "widthBefore": 1280,
+          "widthAfter": 1280,
+          "changedPixels": 0,
+          "geometryEqual": true,
+          "maxGeometryDelta": 0
+        },
+        {
+          "id": "kpis",
+          "widthBefore": 1280,
+          "widthAfter": 1280,
+          "changedPixels": 0,
+          "geometryEqual": true,
+          "maxGeometryDelta": 0
+        },
+        {
+          "id": "barriers",
+          "widthBefore": 1280,
+          "widthAfter": 1280,
+          "changedPixels": 0,
+          "geometryEqual": true,
+          "maxGeometryDelta": 0
+        },
+        {
+          "id": "activation",
+          "widthBefore": 1280,
+          "widthAfter": 1280,
+          "changedPixels": 0,
+          "geometryEqual": true,
+          "maxGeometryDelta": 0
+        },
+        {
+          "id": "comparison",
+          "widthBefore": 1280,
+          "widthAfter": 1280,
+          "changedPixels": 0,
+          "geometryEqual": true,
+          "maxGeometryDelta": 0
+        },
+        {
+          "id": "report",
+          "widthBefore": 1280,
+          "widthAfter": 1280,
+          "changedPixels": 0,
+          "geometryEqual": true,
+          "maxGeometryDelta": 0
+        },
+        {
+          "id": "sequence",
+          "widthBefore": 1280,
+          "widthAfter": 1280,
+          "changedPixels": 0,
+          "geometryEqual": true,
+          "maxGeometryDelta": 0
+        },
+        {
+          "id": "state",
+          "widthBefore": 1280,
+          "widthAfter": 1280,
+          "changedPixels": 0,
+          "geometryEqual": true,
+          "maxGeometryDelta": 0
+        },
+        {
+          "id": "branch",
+          "widthBefore": 1280,
+          "widthAfter": 1280,
+          "changedPixels": 0,
+          "geometryEqual": true,
+          "maxGeometryDelta": 0
+        },
+        {
+          "id": "try-it",
+          "widthBefore": 1280,
+          "widthAfter": 1280,
+          "changedPixels": 0,
+          "geometryEqual": true,
+          "maxGeometryDelta": 0
+        },
+        {
+          "id": "closing",
+          "widthBefore": 1280,
+          "widthAfter": 1280,
+          "changedPixels": 0,
+          "geometryEqual": true,
+          "maxGeometryDelta": 0
+        }
+      ],
+      "errors": []
+    },
+    {
+      "browser": "webkit",
+      "width": 390,
+      "slides": [
+        {
+          "id": "opening",
+          "widthBefore": 366,
+          "widthAfter": 366,
+          "changedPixels": 0,
+          "geometryEqual": true,
+          "maxGeometryDelta": 0
+        },
+        {
+          "id": "product-hero",
+          "widthBefore": 366,
+          "widthAfter": 366,
+          "changedPixels": 0,
+          "geometryEqual": true,
+          "maxGeometryDelta": 0
+        },
+        {
+          "id": "cutout",
+          "widthBefore": 366,
+          "widthAfter": 366,
+          "changedPixels": 0,
+          "geometryEqual": true,
+          "maxGeometryDelta": 0
+        },
+        {
+          "id": "before-after",
+          "widthBefore": 366,
+          "widthAfter": 366,
+          "changedPixels": 0,
+          "geometryEqual": true,
+          "maxGeometryDelta": 0
+        },
+        {
+          "id": "journey",
+          "widthBefore": 366,
+          "widthAfter": 366,
+          "changedPixels": 0,
+          "geometryEqual": true,
+          "maxGeometryDelta": 0
+        },
+        {
+          "id": "kpis",
+          "widthBefore": 366,
+          "widthAfter": 366,
+          "changedPixels": 0,
+          "geometryEqual": true,
+          "maxGeometryDelta": 0
+        },
+        {
+          "id": "barriers",
+          "widthBefore": 366,
+          "widthAfter": 366,
+          "changedPixels": 0,
+          "geometryEqual": true,
+          "maxGeometryDelta": 0
+        },
+        {
+          "id": "activation",
+          "widthBefore": 366,
+          "widthAfter": 366,
+          "changedPixels": 0,
+          "geometryEqual": true,
+          "maxGeometryDelta": 0
+        },
+        {
+          "id": "comparison",
+          "widthBefore": 366,
+          "widthAfter": 366,
+          "changedPixels": 0,
+          "geometryEqual": true,
+          "maxGeometryDelta": 0
+        },
+        {
+          "id": "report",
+          "widthBefore": 366,
+          "widthAfter": 366,
+          "changedPixels": 0,
+          "geometryEqual": true,
+          "maxGeometryDelta": 0
+        },
+        {
+          "id": "sequence",
+          "widthBefore": 366,
+          "widthAfter": 366,
+          "changedPixels": 0,
+          "geometryEqual": true,
+          "maxGeometryDelta": 0
+        },
+        {
+          "id": "state",
+          "widthBefore": 366,
+          "widthAfter": 366,
+          "changedPixels": 0,
+          "geometryEqual": true,
+          "maxGeometryDelta": 0
+        },
+        {
+          "id": "branch",
+          "widthBefore": 366,
+          "widthAfter": 366,
+          "changedPixels": 0,
+          "geometryEqual": true,
+          "maxGeometryDelta": 0
+        },
+        {
+          "id": "try-it",
+          "widthBefore": 366,
+          "widthAfter": 366,
+          "changedPixels": 0,
+          "geometryEqual": true,
+          "maxGeometryDelta": 0
+        },
+        {
+          "id": "closing",
+          "widthBefore": 366,
+          "widthAfter": 366,
+          "changedPixels": 0,
+          "geometryEqual": true,
+          "maxGeometryDelta": 0
+        }
+      ],
+      "errors": []
+    }
+  ],
+  "interaction": {
+    "chromium": {
+      "count": 28,
+      "errors": 0,
+      "checks": [
+        "編集開始で構図の大きさを維持",
+        "その場で文字入力できる",
+        "既存の改行要素を保持",
+        "2人目に文字変更が届く",
+        "元に戻す操作で元の文章へ戻る",
+        "やり直す操作で文字変更が戻る",
+        "通信切断中も入力を維持",
+        "再接続後2人目に下書きが届く",
+        "新しい文字を追加できる",
+        "矢印キーで原寸1px移動する",
+        "疑似IMEで確定文字だけ保存",
+        "画像を正規のアップロード口から追加",
+        "画像をドラッグで縦横比を保って拡大",
+        "画像の切り抜き位置をドラッグで調整",
+        "画像の変更が2人目へ届く",
+        "最後の枚の余白を選んで同じ枚へ文字を追加",
+        "画像の送信中が画面に出る",
+        "画像の送信中は完了できない",
+        "最後の枚へ画像も追加できる",
+        "Escapeで編集の操作欄へ戻れる",
+        "最後の要素からTabで操作欄へ戻れる",
+        "最初の要素からShiftTabで操作欄へ戻れる",
+        "長文の入力中も周囲の配置が1pxも動かない",
+        "入りきらない文字を明確に知らせる",
+        "長文の全体を残して同じ文字箱内で続きを編集できる",
+        "保存後も周囲の配置が1pxも動かない",
+        "長文が欠けずに共同編集者へ保存される",
+        "長文を元に戻すと元の文章と配置へ戻る"
+      ],
+      "recordSha256": "9ed9c5e3a86604840c69b6239d47df4f40923cd9754d199712c184485691619c",
+      "localRecord": "/private/tmp/deck-editor-qa/typing-regression-chromium/results.json"
+    },
+    "webkit": {
+      "count": 28,
+      "errors": 0,
+      "checks": [
+        "編集開始で構図の大きさを維持",
+        "その場で文字入力できる",
+        "既存の改行要素を保持",
+        "2人目に文字変更が届く",
+        "元に戻す操作で元の文章へ戻る",
+        "やり直す操作で文字変更が戻る",
+        "通信切断中も入力を維持",
+        "再接続後2人目に下書きが届く",
+        "新しい文字を追加できる",
+        "矢印キーで原寸1px移動する",
+        "疑似IMEで確定文字だけ保存",
+        "画像を正規のアップロード口から追加",
+        "画像をドラッグで縦横比を保って拡大",
+        "画像の切り抜き位置をドラッグで調整",
+        "画像の変更が2人目へ届く",
+        "最後の枚の余白を選んで同じ枚へ文字を追加",
+        "画像の送信中が画面に出る",
+        "画像の送信中は完了できない",
+        "最後の枚へ画像も追加できる",
+        "Escapeで編集の操作欄へ戻れる",
+        "最後の要素からTabで操作欄へ戻れる",
+        "最初の要素からShiftTabで操作欄へ戻れる",
+        "長文の入力中も周囲の配置が1pxも動かない",
+        "入りきらない文字を明確に知らせる",
+        "長文の全体を残して同じ文字箱内で続きを編集できる",
+        "保存後も周囲の配置が1pxも動かない",
+        "長文が欠けずに共同編集者へ保存される",
+        "長文を元に戻すと元の文章と配置へ戻る"
+      ],
+      "recordSha256": "65753cc315fb3d88a6fd384eecaf723f62c2fe2a376d97cb6e2a0473cbaefd75",
+      "localRecord": "/private/tmp/deck-editor-qa/typing-regression-webkit/results.json"
+    }
+  },
+  "focus": {
+    "stepsPerBrowser": 18,
+    "clearStatesPerBrowser": 7,
+    "missingTargets": 0,
+    "errors": 0
+  },
+  "localEvidenceRoot": "/private/tmp/deck-editor-qa",
+  "artifacts": [
+    {
+      "folder": "parity-release/chromium-1390",
+      "pngCount": 30,
+      "manifestSha256": "8693b9d396265cc0bfc50e2b03a0cc8f2c04635d31ec44aa07be849c5534e7f9"
+    },
+    {
+      "folder": "parity-release/chromium-390",
+      "pngCount": 30,
+      "manifestSha256": "70c9bb4c606760d8aaa5b0a186c1b4142b27c5ae6bb8e1e374b439411ec6b6e6"
+    },
+    {
+      "folder": "parity-release/webkit-1390",
+      "pngCount": 30,
+      "manifestSha256": "c55730eb8af659ad349984bf8544ec9551b42b7f3a5f3210d87f122de7b666b7"
+    },
+    {
+      "folder": "parity-release/webkit-390",
+      "pngCount": 30,
+      "manifestSha256": "02b06cf92a8255f31f88e46301a617e72d60eb88fe89d27d238d49a4028fb52f"
+    },
+    {
+      "folder": "focus-final/chromium",
+      "pngCount": 25,
+      "manifestSha256": "d0526bab00879967a25515090ce2212c10f55881a74b82a2f57cc6ca4a54b87b"
+    },
+    {
+      "folder": "focus-final/webkit",
+      "pngCount": 25,
+      "manifestSha256": "ef4030eb77e5e4025c86f960912faac62cf8d7c48442e2fd881ad6aee617dcaa"
+    },
+    {
+      "folder": "interaction-release-chromium",
+      "pngCount": 7,
+      "manifestSha256": "021c0459ab405cbf53db8e5088bb95d213709f682dca5fdbbe62ade2f649f966"
+    },
+    {
+      "folder": "interaction-release-webkit",
+      "pngCount": 7,
+      "manifestSha256": "7f9ec662e6f26e779426e420b0d6e96074c567d8756f3c1c782835e58b0dd7b6"
+    }
+  ],
+  "limits": [
+    "IME was tested with synthetic composition events, not the macOS input method.",
+    "Local PostgreSQL and real permission predicates were tested; production authentication and storage were not modified.",
+    "Original complex containers, new paragraph breaks, free text-box resizing, slide reorder and same-position CRDT merging are not implemented."
+  ],
+  "typingFollowUp": {
+    "date": "2026-09-14",
+    "baselineCommit": "0a3744bace7e66dc8af107a9f8b4e464f1da8b6d",
+    "supportedConditions": 24,
+    "floatConditionsSafelyRejected": 4,
+    "glyphsMeasuredAtBaseline": 304,
+    "fontChanges": 0,
+    "maximumInputVsReadbackGlyphDelta": 0,
+    "maximumInputVsReadbackBoxDelta": 0,
+    "maximumNeighbourDelta": 0,
+    "phases": [
+      "before",
+      "entered",
+      "identical replacement",
+      "first key",
+      "next frames",
+      "editing ended",
+      "all deleted",
+      "retyped"
+    ],
+    "cases": [
+      {
+        "browser": "chromium",
+        "width": 1390,
+        "case": "float-wrap",
+        "pass": true
+      },
+      {
+        "browser": "chromium",
+        "width": 1390,
+        "case": "heading",
+        "pass": true
+      },
+      {
+        "browser": "chromium",
+        "width": 1390,
+        "case": "padded-caption",
+        "pass": true
+      },
+      {
+        "browser": "chromium",
+        "width": 1390,
+        "case": "badge",
+        "pass": true
+      },
+      {
+        "browser": "chromium",
+        "width": 1390,
+        "case": "footer",
+        "pass": true
+      },
+      {
+        "browser": "chromium",
+        "width": 1390,
+        "case": "strong",
+        "pass": true
+      },
+      {
+        "browser": "chromium",
+        "width": 1390,
+        "case": "content-box-border",
+        "pass": true
+      },
+      {
+        "browser": "chromium",
+        "width": 390,
+        "case": "float-wrap",
+        "pass": true
+      },
+      {
+        "browser": "chromium",
+        "width": 390,
+        "case": "heading",
+        "pass": true
+      },
+      {
+        "browser": "chromium",
+        "width": 390,
+        "case": "padded-caption",
+        "pass": true
+      },
+      {
+        "browser": "chromium",
+        "width": 390,
+        "case": "badge",
+        "pass": true
+      },
+      {
+        "browser": "chromium",
+        "width": 390,
+        "case": "footer",
+        "pass": true
+      },
+      {
+        "browser": "chromium",
+        "width": 390,
+        "case": "strong",
+        "pass": true
+      },
+      {
+        "browser": "chromium",
+        "width": 390,
+        "case": "content-box-border",
+        "pass": true
+      },
+      {
+        "browser": "webkit",
+        "width": 1390,
+        "case": "float-wrap",
+        "pass": true
+      },
+      {
+        "browser": "webkit",
+        "width": 1390,
+        "case": "heading",
+        "pass": true
+      },
+      {
+        "browser": "webkit",
+        "width": 1390,
+        "case": "padded-caption",
+        "pass": true
+      },
+      {
+        "browser": "webkit",
+        "width": 1390,
+        "case": "badge",
+        "pass": true
+      },
+      {
+        "browser": "webkit",
+        "width": 1390,
+        "case": "footer",
+        "pass": true
+      },
+      {
+        "browser": "webkit",
+        "width": 1390,
+        "case": "strong",
+        "pass": true
+      },
+      {
+        "browser": "webkit",
+        "width": 1390,
+        "case": "content-box-border",
+        "pass": true
+      },
+      {
+        "browser": "webkit",
+        "width": 390,
+        "case": "float-wrap",
+        "pass": true
+      },
+      {
+        "browser": "webkit",
+        "width": 390,
+        "case": "heading",
+        "pass": true
+      },
+      {
+        "browser": "webkit",
+        "width": 390,
+        "case": "padded-caption",
+        "pass": true
+      },
+      {
+        "browser": "webkit",
+        "width": 390,
+        "case": "badge",
+        "pass": true
+      },
+      {
+        "browser": "webkit",
+        "width": 390,
+        "case": "footer",
+        "pass": true
+      },
+      {
+        "browser": "webkit",
+        "width": 390,
+        "case": "strong",
+        "pass": true
+      },
+      {
+        "browser": "webkit",
+        "width": 390,
+        "case": "content-box-border",
+        "pass": true
+      }
+    ],
+    "syntheticImeConditions": 4,
+    "nativeOsImeVerified": false,
+    "measurementsSha256": "376d0fff3accefbc9b06f727535ff67a887d5b0335a6a819a0714e2fe0f70a1d",
+    "localMeasurements": "/private/tmp/deck-editor-qa/typing-final/results.json"
+  }
+}

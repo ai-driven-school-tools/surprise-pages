@@ -1,0 +1,7 @@
+{
+  "note": "普通の見出し・段落・強調・箇条書き・表・リンク。何も直さずに通ること",
+  "apply_defaults": false,
+  "convert": true,
+  "expect_verify_ok": true,
+  "expect_body_contains": ["運用の手引き", "42", "config/app.yml"]
+}

@@ -1,0 +1,8 @@
+{
+  "note": "main が body の直下でない",
+  "expect_ok": false,
+  "expect_codes": [
+    "MAIN_NOT_DIRECT"
+  ],
+  "embed": "ok"
+}

@@ -1,0 +1,16 @@
+{
+  "findings": [
+    {
+      "code": "UNCLOSED_FENCE",
+      "severity": "error",
+      "line": 5,
+      "detail": "``` で開いた囲みが、最後まで閉じられていません",
+      "default": "末尾で閉じたことにして出す"
+    }
+  ],
+  "summary": {
+    "error": 1,
+    "fixable": 0,
+    "warn": 0
+  }
+}

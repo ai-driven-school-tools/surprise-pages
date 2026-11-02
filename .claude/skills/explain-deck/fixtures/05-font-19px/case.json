@@ -1,0 +1,8 @@
+{
+  "note": "19px の字",
+  "expect_ok": false,
+  "expect_codes": [
+    "FONT_TOO_SMALL"
+  ],
+  "embed": "ok"
+}

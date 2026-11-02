@@ -1,0 +1,8 @@
+{
+  "note": "生 HTML。style / script / 外部読み込み / 焼き込んだ色は落として報告し、それ以外は通す",
+  "apply_defaults": false,
+  "convert": true,
+  "expect_verify_ok": true,
+  "expect_body_contains": ["締め切りは 5 月 8 日です。", "<br>"],
+  "expect_body_missing": ["alert(", "#ff0000", "extra.css"]
+}

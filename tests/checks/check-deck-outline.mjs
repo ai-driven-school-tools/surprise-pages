@@ -1,0 +1,18 @@
+import assert from 'node:assert/strict';
+import {build} from 'esbuild';
+import {root,dir} from './paths.mjs';
+await build({stdin:{contents:`export * from './src/lib/deck/outline';export * from './src/lib/deck/edit/source';`,resolveDir:root},outfile:`${dir}/outline.mjs`,bundle:true,format:'esm',platform:'node'});
+const api=await import(`${dir}/outline.mjs`);
+const flat=['a','b','c','d'].map(id=>({id,parent:null}));
+const nested=api.moveOutline(flat,['b'],'a','inside');assert.deepEqual(nested,[{id:'a',parent:null},{id:'b',parent:'a'},{id:'c',parent:null},{id:'d',parent:null}]);console.log('OK  スライドを親の子へ移動する');
+const grandchild=api.moveOutline(nested,['c'],'b','inside');assert.equal(api.outlineDepth(grandchild,'c'),3);assert.throws(()=>api.moveOutline(grandchild,['d'],'c','inside'),/3段/);console.log('OK  孫まで作れて4段目を拒否する');
+assert.throws(()=>api.moveOutline(grandchild,['a'],'c','inside'),/自分自身/);console.log('OK  自分の子孫へ移動して循環させない');
+const moved=api.moveOutline(grandchild,['a','b'],'d','after');assert.deepEqual(moved.map(row=>row.id),['d','a','b','c']);assert.equal(moved[2].parent,'a');console.log('OK  親と子を同時選択しても子孫を一度だけ一緒に動かす');
+const out=api.moveOutline(grandchild,['b'],'a','after');assert.deepEqual(out,[{id:'a',parent:null},{id:'b',parent:null},{id:'c',parent:'b'},{id:'d',parent:null}]);console.log('OK  階層を戻しても孫との関係を維持する');
+assert.throws(()=>api.validateOutline([{id:'a',parent:'missing'}]));assert.throws(()=>api.validateOutline([...flat,{id:'a',parent:null}]));console.log('OK  不明な親や重複した目印を受け付けない');
+const html=api.prepareDeckEdit(`<body data-deck><main data-deck-slides>${flat.map(({id})=>`<section data-deck-slide data-deck-node="${id}"><p data-deck-node="text-${id}">${id}</p></section>`).join('')}</main></body>`).html;
+const op={kind:'outline',target:'deck-root',before:flat,after:grandchild};
+const saved=api.applyDeckEditOperations(html,[op]);assert.deepEqual(api.deckSourceOutline(saved.html),grandchild);assert.equal(api.applyDeckEditOperations(saved.html,saved.inverse).html,html);console.log('OK  親子関係と順序を保存し一度に取り消せる');
+assert.equal(api.applyDeckEditOperations(saved.html,[op]).html,saved.html);console.log('OK  並び替えの再送で重複しない');
+assert.throws(()=>api.applyDeckEditOperations(saved.html,[{...op,after:moved}]),/変更されました/);console.log('OK  他者の並び替えを後勝ちで上書きしない');
+assert.ok(saved.html.includes('<p data-deck-node="text-b">b</p>'));console.log('OK  親子整理でスライドの本文を書き換えない');

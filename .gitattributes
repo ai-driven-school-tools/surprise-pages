@@ -1,0 +1,7 @@
+# 改行は LF にそろえる（Windows の取得でも検査の印・スクリプトがそのまま動く）。二進のファイルは git が自動で見分ける
+* text=auto eol=lf
+*.woff2 binary
+*.png binary
+*.jpg binary
+*.webp binary
+*.ico binary

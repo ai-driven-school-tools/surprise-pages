@@ -1,0 +1,7 @@
+{
+  "note": "番号リスト。いつも ol で出す（大きな数字の見せ方にはしない。あれは解釈が入る）",
+  "apply_defaults": false,
+  "convert": true,
+  "expect_verify_ok": true,
+  "expect_body_contains": ["<ol class=", "<ul class="]
+}

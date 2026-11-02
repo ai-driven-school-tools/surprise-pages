@@ -1,0 +1,8 @@
+{
+  "note": "vw を使った枚",
+  "expect_ok": false,
+  "expect_codes": [
+    "USES_VIEWPORT_UNITS"
+  ],
+  "embed": "ok"
+}

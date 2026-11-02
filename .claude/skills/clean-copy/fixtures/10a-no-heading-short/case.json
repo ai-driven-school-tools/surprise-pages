@@ -1,0 +1,7 @@
+{
+  "note": "見出しが無く 2000 字に届かない短文。止めて聞く（既定はファイル名を表題にする）",
+  "apply_defaults": true,
+  "convert": true,
+  "expect_verify_ok": true,
+  "expect_body_contains": ["<h1 class=", "3 階の小会議室"]
+}

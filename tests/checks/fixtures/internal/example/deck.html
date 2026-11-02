@@ -1,0 +1,1523 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Deck の見本</title>
+    <style>
+      :root { color-scheme: light dark; }
+      body {
+        margin: 0 auto;
+        padding: 48px 24px 96px;
+        max-width: 960px;
+        font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Noto Sans JP", sans-serif;
+        line-height: 1.6;
+      }
+      /* 枚の中。字は 24px 以上（幅 390px の画面で倍率 0.30 になる前提の下限） */
+      section[data-deck-slide] {
+        box-sizing: border-box;
+        padding: 72px 96px;
+        font-size: 28px;
+      }
+      section[data-deck-slide] h1 { margin: 0 0 24px; font-size: 56px; line-height: 1.25; }
+      section[data-deck-slide] h2 { margin: 0 0 32px; font-size: 44px; line-height: 1.25; }
+      section[data-deck-slide] p { margin: 0 0 16px; }
+      section[data-deck-slide] ul { margin: 0; padding-left: 1.2em; }
+      section[data-deck-slide] li { margin: 0 0 12px; }
+      .two { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; }
+    </style>
+  </head>
+  <body data-deck>
+    <main data-deck-slides>
+      <section data-deck-slide>
+        <h1>Pages にスライドを載せる</h1>
+        <p>1 枚の HTML が正本。縦に並び、プレゼンにもなる。</p>
+        <aside data-deck-notes>
+          <p>最初の枚。ここは話す人のためのメモで、聞く人の画面には出ない。</p>
+        </aside>
+      </section>
+
+      <section data-deck-slide>
+        <h2>決めたこと</h2>
+        <ul>
+          <li>正本は HTML（Marp は採らない）</li>
+          <li>1280×720 を transform で縮める</li>
+          <li>ノートは aside、公開では取り除く</li>
+        </ul>
+        <aside data-deck-notes>
+          <p>Marp を退けた理由は 4 つ。狙いと逆向き、実行部が食い合う、拡縮の癖、既存の直線に乗らない。</p>
+          <ul>
+            <li>PPTX が要るときだけ Marp が勝つ</li>
+          </ul>
+        </aside>
+      </section>
+
+      <section data-deck-slide>
+        <h2>縦並びとプレゼン</h2>
+        <div class="two">
+          <div>
+            <p>縦並びが既定。コメントも編集もここで。</p>
+          </div>
+          <div>
+            <p>プレゼンは人が始める。道具箱は隠れる。</p>
+          </div>
+        </div>
+      </section>
+
+      <section data-deck-slide>
+        <h2>流れ</h2>
+        <pre class="mermaid">
+flowchart LR
+  A[書く] --> B[検査] --> C[投稿]
+        </pre>
+        <aside data-deck-notes>
+          <p>図の元の文は描かれる前に控える。書き出しでは元の文が出る。</p>
+        </aside>
+      </section>
+
+      <section data-deck-slide data-fixture-tall>
+        <h2>はみ出す枚</h2>
+        <p>この枚は意図的に 720px を超える量の文章を持っている。</p>
+        <p>実行部は描き終わってから高さを測り、超えていれば印を立てる。</p>
+        <p>構図は overflow: hidden で保つ。保存は止めない。</p>
+        <p>元から壊れている枚の直しを封じないため。</p>
+        <p>はみ出している、とだけ添えの字で告げる。</p>
+        <p>直すのは書いた人の判断。</p>
+        <p>機械は量で断らない。</p>
+        <p>印は器の下の添えの字で、枚の中には何も足さない。</p>
+        <p>紙に刷るときも、はみ出した分は切れたまま出る。</p>
+        <p>プレゼンでも同じ。構図が保たれることのほうが大事。</p>
+        <p>ここまでで 720px を超える。</p>
+        <p>この行は枚の外にいて、画面には出ない。</p>
+      </section>
+
+      <section data-deck-slide>
+        <h2>おわり</h2>
+        <p>#6 でこの枚を指せる。</p>
+        <aside data-deck-notes>
+          <p>最後の枚。質問を受ける。</p>
+        </aside>
+      </section>
+    </main>
+    <!--
+      ここから下は src/templates/deck.html の一式をそのまま写したもの。
+      **字下げも含めて 1 文字も変えない**（check-deck が写しと正本を突き合わせる）。
+      直すときは正本のほうを直して、この写しを取り直す。
+    -->
+<style>
+  /*
+   * 色は額縁の名前（--ads-*）を先に見て、無ければ OS の色に落ちる。
+   * 値にするのは下の script（色の名前は CSS からは条件分岐できない）。ここは受け取るだけ。
+   */
+  body[data-deck] {
+    --deck-k: 1;
+    --deck-present-k: 1;
+    /* 机。ページ側の body の地（.bg-ads-bg など class 1 つ）より強く、ページの地の色を上書きする */
+    background: var(--deck-surface);
+  }
+
+  main[data-deck-slides] {
+    display: flex;
+    flex-direction: column;
+    gap: 48px;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+  }
+
+  /* Papers have fixed dimensions; skipping offscreen children cannot move
+     notes or deep-link destinations. Printing still lays out every paper. */
+  @media screen {
+    html:not([data-deck-mode="present"]) section[data-deck-slide] {
+      content-visibility: auto;
+      contain-intrinsic-size: 1280px 720px;
+    }
+  }
+
+  /*
+   * 操作の列。字だけ。線は足さない。
+   * sticky で紙の上に乗るので、机の色を連れて本文と重ねない。
+   * 先は溶かして紙を見せる（帯の硬さを出さない。図の overflow と同じ語彙）。
+   * 幅を中身に合わせると折りたたみが効かず、狭い器では釦が題に重なる。
+   */
+  [data-deck-toolbar] {
+    display: flex;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    flex-wrap: wrap;
+    gap: 8px 24px;
+    align-items: center;
+    font-size: 14px;
+    line-height: 1.5;
+    color: var(--deck-muted);
+  }
+  [data-deck-toolbar]:not(.deck-step-controls):not(.deck-step-entry) {
+    align-self: stretch;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    overflow: visible;
+    background: var(--deck-surface);
+    padding: 8px 0 0;
+  }
+  [data-deck-toolbar]:not(.deck-step-controls):not(.deck-step-entry)::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 100%;
+    height: 24px;
+    pointer-events: none;
+    background-image: linear-gradient(to bottom, var(--deck-surface), transparent);
+  }
+  [data-deck-toolbar] button,
+  [data-deck-exit] {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin: 0;
+    padding: 4px 0;
+    border: 0;
+    background: none;
+    font: inherit;
+    color: inherit;
+    cursor: pointer;
+    white-space: nowrap;
+    flex: none;
+  }
+  [data-deck-toolbar] button:hover,
+  [data-deck-toolbar] button:focus-visible,
+  [data-deck-exit]:hover,
+  [data-deck-exit]:focus-visible {
+    color: var(--deck-text);
+    outline: none;
+  }
+  [data-deck-toolbar] svg,
+  [data-deck-exit] svg {
+    width: 16px;
+    height: 16px;
+    flex: none;
+  }
+
+  [data-deck-toolbar][hidden], [data-deck-toolbar] [hidden] { display: none !important; }
+  [data-deck-toolbar].deck-step-entry { position: static; margin-top: 16px; }
+  [data-deck-toolbar].deck-step-controls { display: none; }
+  html[data-deck-mode="present"] [data-deck-toolbar].deck-step-controls {
+    display: flex;
+    position: fixed;
+    left: 50%;
+    top: calc(var(--deck-paper-bottom, 0px) + 12px);
+    bottom: auto;
+    transform: translateX(-50%);
+    z-index: 2147482600;
+    max-width: calc(100% - 24px);
+    width: max-content;
+    justify-content: center;
+    padding: 8px 12px;
+    border-radius: 8px;
+    color: var(--deck-text);
+    background: var(--deck-surface);
+  }
+  .deck-step-controls button { min-width: 44px; min-height: 44px; }
+  .deck-step-entry button { min-height: 44px; }
+  .deck-step-status { display: flex; flex-wrap: wrap; justify-content: center; gap: 4px 12px; }
+  .deck-step-slide { color: var(--deck-muted); }
+  @media (max-width: 600px) {
+    [data-deck-toolbar]:not(.deck-step-controls):not(.deck-step-entry) button {
+      min-height: 44px;
+    }
+    html[data-deck-mode="present"] [data-deck-toolbar].deck-step-controls {
+      display: grid;
+      grid-template-columns: 44px minmax(0, 1fr) 44px;
+      gap: 8px 24px;
+      width: calc(100% - 24px);
+      box-sizing: border-box;
+    }
+    .deck-step-status { grid-column: 1 / -1; grid-row: 1; }
+    .deck-step-back { grid-column: 1; grid-row: 2; }
+    .deck-step-whole { grid-column: 2; grid-row: 2; justify-self: center; }
+    .deck-step-next { grid-column: 3; grid-row: 2; }
+  }
+  [data-deck-toolbar] button:focus-visible,
+  [data-deck-exit]:focus-visible { outline: none; color: var(--deck-bg); background: var(--deck-text); border-radius: 4px; }
+  html[data-deck-mode="present"][data-deck-overview] .deck-step-controls { display: none; }
+
+  [data-deck-frame] {
+    position: relative;
+    margin: 0;
+    scroll-margin-top: 16px;
+  }
+
+  /*
+   * 器。幅いっぱい・16:9。中の 1 枚は 1280×720 のまま置き、倍率だけを掛ける。
+   * 添え物（枚数・はみ出し）は器の下の余白に ::before / ::after で描く。
+   */
+  [data-deck-stage] {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    /*
+     * 下の余白は番号の居場所。番号は紙のすぐ下（8px）に置き、次の紙までは
+     * その倍以上空ける。28px だと番号の下が 4px しか残らず、次の紙に付いて見えた。
+     */
+    margin: 0 0 56px;
+    /* 紙。机（body の地）との色の差だけで枚の境を見せる。線も影も足さない */
+    background: var(--deck-bg);
+  }
+  [data-deck-stage] > section[data-deck-slide] {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 1280px;
+    height: 720px;
+    margin: 0;
+    overflow: hidden;
+    transform-origin: 0 0;
+    transform: scale(var(--deck-k));
+  }
+  [data-deck-stage]::after {
+    content: attr(data-deck-index) " / " attr(data-deck-total);
+    position: absolute;
+    right: 0;
+    top: 100%;
+    margin-top: 8px;
+    font-size: 12px;
+    line-height: 1.5;
+    font-variant-numeric: tabular-nums;
+    color: var(--deck-muted);
+  }
+  [data-deck-frame][data-deck-overflow] > [data-deck-stage]::before {
+    content: "はみ出しています";
+    position: absolute;
+    left: 0;
+    top: 100%;
+    margin-top: 8px;
+    font-size: 12px;
+    line-height: 1.5;
+    color: var(--deck-muted);
+  }
+
+  /* ノート。添えの字で、枚の下に。器の幅いっぱいには広げない（行が長くなりすぎる） */
+  [data-deck-frame] > aside[data-deck-notes] {
+    margin: 0;
+    padding: 0;
+    max-width: 65ch;
+    font-size: 14px;
+    line-height: 1.8;
+    color: var(--deck-muted);
+  }
+  [data-deck-frame] > aside[data-deck-notes] > * {
+    margin: 0 0 8px;
+  }
+  [data-deck-frame] > aside[data-deck-notes] > :last-child {
+    margin-bottom: 0;
+  }
+  main[data-deck-slides][data-deck-notes-hidden] aside[data-deck-notes] {
+    display: none;
+  }
+
+  /*
+   * プレゼン。いまの 1 枚だけを画面いっぱいに出し、ほかは display: none で畳む。
+   * 節点は 1 つも動かさない——コメントの印（<mark>）は畳まれた枚の中に残っていて、戻れば
+   * そのまま見える。z-index は過去の版の帯（2147482000）より上、道具箱（2147483000）より下。
+   * 道具箱は自分で隠れる。
+   */
+  html[data-deck-mode="present"],
+  html[data-deck-mode="present"] body {
+    overflow: hidden;
+  }
+  html[data-deck-mode="present"] [data-deck-frame]:not([data-deck-current]),
+  html[data-deck-mode="present"] [data-deck-toolbar],
+  html[data-deck-mode="present"] aside[data-deck-notes],
+  html[data-deck-mode="present"] [data-deck-stage]::before,
+  html[data-deck-mode="present"] [data-deck-stage]::after {
+    display: none;
+  }
+  html[data-deck-mode="present"] [data-deck-frame][data-deck-current] {
+    position: fixed;
+    inset: 0;
+    z-index: 2147482500;
+    display: grid;
+    place-items: center;
+    margin: 0;
+    padding: 0 0 var(--deck-controls-reserve, 0px);
+    box-sizing: border-box;
+    /* 枚の外（比率の合わない画面の余り）も机の色。枚は紙のままなので、端がどこかは色で分かる */
+    background: var(--deck-surface);
+  }
+  html[data-deck-mode="present"] [data-deck-frame][data-deck-current] > [data-deck-stage] {
+    width: calc(1280px * var(--deck-present-k));
+    height: calc(720px * var(--deck-present-k));
+    aspect-ratio: auto;
+    margin: 0;
+  }
+  html[data-deck-mode="present"] [data-deck-frame][data-deck-current] > [data-deck-stage] > section[data-deck-slide] {
+    transform: scale(var(--deck-present-k));
+  }
+  [data-deck-exit] {
+    display: none;
+    position: fixed;
+    top: 12px;
+    right: 12px;
+    z-index: 2147482600;
+    padding: 8px;
+    color: var(--deck-muted);
+    background: var(--deck-surface);
+    border-radius: 8px;
+  }
+  html[data-deck-mode="present"] [data-deck-exit] {
+    display: inline-flex;
+  }
+  [data-deck-exit] svg {
+    width: 20px;
+    height: 20px;
+  }
+  [data-deck-focus-supplement] {
+    display: none;
+  }
+  [data-deck-focus-supplements] {
+    margin: 0;
+    padding: 0;
+    max-width: 65ch;
+    font-size: 14px;
+    line-height: 1.8;
+    color: var(--deck-muted);
+  }
+  [data-deck-focus-supplements] > * {
+    margin: 0 0 8px;
+  }
+  html[data-deck-mode="present"] [data-deck-current] > [data-deck-focus-supplement]:not([hidden]) {
+    display: block;
+    position: fixed;
+    left: 50%;
+    top: calc(var(--deck-paper-bottom, 0px) + var(--deck-controls-height, 0px) + 24px);
+    bottom: auto;
+    z-index: 2147482550;
+    max-width: min(65ch, calc(100% - 24px));
+    width: max-content;
+    max-height: 25%;
+    overflow: auto;
+    box-sizing: border-box;
+    margin: 0;
+    padding: 8px 12px;
+    transform: translateX(-50%);
+    font-size: 14px;
+    line-height: 1.5;
+    color: var(--deck-text);
+    background: var(--deck-surface);
+  }
+  html[data-deck-mode="present"][data-deck-overview] [data-deck-focus-supplement] {
+    display: none;
+  }
+  html[data-deck-mode="present"] [data-deck-focus-supplements] {
+    display: none;
+  }
+  [data-deck-focus-supplement-pages] {
+    display: none;
+  }
+
+  /*
+   * 一覧。読む画面でもプレゼンでも同じ格子。枚は紙のまま、マスの幅で縮める。
+   * プレゼンで畳んだ枚を戻す指定は、畳む指定より後ろに置く。
+   */
+  html[data-deck-overview],
+  html[data-deck-overview] body {
+    overflow: auto;
+  }
+  html[data-deck-overview] main[data-deck-slides] {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 48px 16px;
+    align-items: start;
+  }
+  html[data-deck-overview] [data-deck-frame],
+  html[data-deck-mode="present"][data-deck-overview] [data-deck-frame] {
+    display: block;
+    position: relative;
+    inset: auto;
+    z-index: auto;
+    margin: 0;
+    background: transparent;
+  }
+  html[data-deck-overview] [data-deck-frame] > [data-deck-stage],
+  html[data-deck-mode="present"][data-deck-overview] [data-deck-frame] > [data-deck-stage] {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 16 / 9;
+    margin: 0;
+  }
+  html[data-deck-overview] [data-deck-stage] > section[data-deck-slide],
+  html[data-deck-mode="present"][data-deck-overview] [data-deck-stage] > section[data-deck-slide] {
+    transform: scale(var(--deck-grid-k, var(--deck-k)));
+  }
+  html[data-deck-overview] aside[data-deck-notes],
+  html[data-deck-overview] [data-deck-focus-supplement],
+  html[data-deck-overview] [data-deck-focus-supplements],
+  html[data-deck-overview] .deck-step-entry {
+    display: none;
+  }
+  html[data-deck-overview] [data-deck-frame][data-deck-current] > [data-deck-stage]::after {
+    color: var(--deck-text);
+  }
+  @media screen {
+    html[data-deck-overview] [data-deck-frame][data-deck-skip] {
+      display: none;
+    }
+  }
+
+  /*
+   * 紙。1 枚 1 ページ・横長。倍率を 1 に戻し、枚の外の物は刷らない。
+   * body の直下で main でないもの（額縁のヘッダやフッタ）も刷らない。
+   */
+  @media print {
+    @page {
+      size: 1280px 720px;
+      margin: 0;
+    }
+    html,
+    body[data-deck] {
+      margin: 0;
+      padding: 0;
+      overflow: visible;
+      background: none;
+    }
+    body[data-deck] > :not(main[data-deck-slides]) {
+      display: none !important;
+    }
+    main[data-deck-slides],
+    html[data-deck-overview] main[data-deck-slides] {
+      display: block;
+      gap: 0;
+    }
+    [data-deck-frame] {
+      margin: 0;
+      break-after: page;
+      page-break-after: always;
+    }
+    [data-deck-frame]:last-child {
+      break-after: auto;
+      page-break-after: auto;
+    }
+    [data-deck-stage] {
+      width: 1280px;
+      height: 720px;
+      aspect-ratio: auto;
+      margin: 0;
+    }
+    [data-deck-stage] > section[data-deck-slide] {
+      transform: none;
+    }
+    [data-deck-toolbar],
+    [data-deck-exit],
+    [data-deck-focus-supplement],
+    aside[data-deck-notes],
+    [data-deck-stage]::before,
+    [data-deck-stage]::after {
+      display: none !important;
+    }
+    [data-deck-focus-supplements] {
+      display: none !important;
+    }
+    [data-deck-focus-supplement-pages]:not([hidden]) {
+      display: block !important;
+    }
+    [data-deck-focus-supplement-page] {
+      box-sizing: border-box;
+      width: 1280px;
+      min-height: 720px;
+      margin: 0;
+      padding: 64px;
+      break-after: page;
+      page-break-after: always;
+      color: var(--deck-text);
+      background: var(--deck-bg);
+      font-size: 20px;
+      line-height: 1.6;
+    }
+    [data-deck-focus-supplement-page]:last-child {
+      break-after: auto;
+      page-break-after: auto;
+    }
+    [data-deck-focus-supplement-page] h2 {
+      margin: 0 0 32px;
+      font-size: 32px;
+      line-height: 1.4;
+    }
+    [data-deck-focus-supplement-page] p {
+      margin: 0 0 16px;
+    }
+  }
+</style>
+<script>
+  (function deck() {
+    "use strict";
+    var MARK = "data-deck";
+    var SLIDES = "data-deck-slides";
+    var SLIDE = "data-deck-slide";
+    var SKIP = "data-deck-skip";
+    var NOTES = "data-deck-notes";
+    var MODE = "data-deck-mode";
+    var PRESENT = "present";
+    var FRAME = "data-deck-frame";
+    var STAGE = "data-deck-stage";
+    var CURRENT = "data-deck-current";
+    var OVERFLOW = "data-deck-overflow";
+    var TOOLBAR = "data-deck-toolbar";
+    var EXIT = "data-deck-exit";
+    var OVERVIEW = "data-deck-overview";
+    var NOTES_HIDDEN = "data-deck-notes-hidden";
+    var WIDTH = 1280;
+    var HEIGHT = 720;
+    var HASH = /^#(\d+)$/;
+    var SWIPE_MIN = 40;
+    var FOCUS_REQUEST = "surprise:deck-focus-request";
+    var FOCUS_READY = "surprise:deck-focus-ready";
+    var FOCUS_APPLY = "surprise:deck-focus-apply";
+    var FOCUS_SUPPLEMENT = "data-deck-focus-supplement";
+    var FOCUS_SUPPLEMENTS = "data-deck-focus-supplements";
+    var FOCUS_SUPPLEMENT_PAGES = "data-deck-focus-supplement-pages";
+
+    /* Lucide と同じ形。道具箱と絵記号をそろえる（play / notebook-text / x） */
+    var ICON_PLAY = '<path d="M5 5a2 2 0 0 1 3.008-1.728l11.997 6.998a2 2 0 0 1 .003 3.458l-12 7A2 2 0 0 1 5 19z"/>';
+    var ICON_NOTES =
+      '<path d="M2 6h4"/><path d="M2 10h4"/><path d="M2 14h4"/><path d="M2 18h4"/>' +
+      '<rect width="16" height="20" x="4" y="2" rx="2"/><path d="M9.5 8h5"/><path d="M9.5 12H16"/><path d="M9.5 16H14"/>';
+    var ICON_X = '<path d="M18 6 6 18"/><path d="m6 6 12 12"/>';
+    var ICON_GRID =
+      '<rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/>' +
+      '<rect width="7" height="7" x="14" y="14" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/>';
+
+    function icon(paths) {
+      return (
+        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" ' +
+        'stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+        paths +
+        "</svg>"
+      );
+    }
+
+    function ready(fn) {
+      if (document.readyState === "loading") {
+        var parsed = function () {
+          if (document.readyState === "loading") return;
+          document.removeEventListener("readystatechange", parsed);
+          fn();
+        };
+        document.addEventListener("readystatechange", parsed);
+      } else {
+        fn();
+      }
+    }
+
+    /*
+     * 色。額縁が名前で持っていればそちら、無ければ OS の色（Canvas / CanvasText / GrayText）。
+     * 明暗はどちらも自分で見分ける（額縁の名前は暗い側の値も入れ替わっていて、OS の色は OS が入れ替える）。
+     */
+    function paintColors() {
+      var paint = getComputedStyle(document.documentElement);
+      var root = document.documentElement.style;
+      var pick = function (name, fallback) {
+        var named = paint.getPropertyValue(name).trim();
+        return named ? "rgb(" + named + ")" : fallback;
+      };
+      root.setProperty("--deck-text", pick("--ads-text", "CanvasText"));
+      root.setProperty("--deck-muted", pick("--ads-muted", "GrayText"));
+      root.setProperty("--deck-bg", pick("--ads-bg", "Canvas"));
+      /* 机。額縁に「面」が無ければ、紙に字の色を 6% だけ混ぜて作る（OS には机に当たる色が無い） */
+      root.setProperty("--deck-surface", pick("--ads-surface", "color-mix(in srgb, CanvasText 6%, Canvas)"));
+    }
+
+    function start() {
+      var body = document.body;
+      if (body === null || !body.hasAttribute(MARK)) return;
+      var main = body.querySelector("main[" + SLIDES + "]");
+      if (main === null || main.hasAttribute("data-deck-ready")) return;
+      var editingLayout = window.frameElement !== null && window.frameElement.hasAttribute("data-deck-editor-preview");
+      if (editingLayout) {
+        // The workspace will show one paper. Avoid laying out every offscreen
+        // paper while its iframe is still preparing; geometry reads can still
+        // materialize an individual chart when needed.
+        var preparingStyle = document.createElement("style");
+        preparingStyle.setAttribute("data-deck-preview-containment", "");
+        preparingStyle.setAttribute("data-deck-canvas-chrome", "");
+        preparingStyle.textContent = "[data-deck-frame]{content-visibility:auto;contain-intrinsic-size:auto 720px}";
+        document.head.appendChild(preparingStyle);
+      }
+      main.setAttribute("data-deck-ready", "");
+      paintColors();
+
+      var sections = [], frames = [];
+      function collectFrames() {
+        sections = Array.prototype.slice.call(main.querySelectorAll("section[" + SLIDE + "]"));
+        frames = sections.map(function (section, at) {
+          var frame = section.closest("[" + FRAME + "]");
+          var stage;
+          if (!frame) {
+            frame = document.createElement("div"); frame.setAttribute(FRAME, "");
+            stage = document.createElement("div"); stage.setAttribute(STAGE, "");
+            section.parentNode.insertBefore(frame, section); frame.appendChild(stage); stage.appendChild(section);
+          } else stage = frame.querySelector("[" + STAGE + "]");
+          frame.toggleAttribute(SKIP, section.getAttribute(SKIP) === "true");
+          stage.setAttribute("data-deck-index", String(at + 1));
+          stage.setAttribute("data-deck-total", String(sections.length));
+          var notes = section.querySelector(":scope > aside[" + NOTES + "]");
+          if (notes !== null) { var old = frame.querySelector(":scope > aside[" + NOTES + "]"); if (old) old.remove(); frame.appendChild(notes); }
+          if (!frame.querySelector("[" + FOCUS_SUPPLEMENT + "]")) {
+            var supplement = document.createElement("p"); supplement.setAttribute(FOCUS_SUPPLEMENT, ""); supplement.hidden = true; frame.appendChild(supplement);
+            var supplements = document.createElement("div"); supplements.setAttribute(FOCUS_SUPPLEMENTS, ""); supplements.hidden = true; frame.appendChild(supplements);
+          }
+          return frame;
+        });
+      }
+      collectFrames();
+      var supplementPages = document.createElement("div");
+      supplementPages.setAttribute(FOCUS_SUPPLEMENT_PAGES, "");
+      supplementPages.hidden = true;
+      main.appendChild(supplementPages);
+
+      var comparing = new URLSearchParams(window.location.search).has("from");
+
+      /*
+       * 操作の列。字だけ。版の見比べ中はプレゼンに入れないので、その釦は出さない。
+       * class="no-print" は付けない——あれは道具箱が「ページの PDF ボタンの置き場」と読む印で、
+       * 付けるとここの釦が抜かれて書き出しの口に置き換わる。刷らないのは上の @media print が決める。
+       */
+      var toolbar = document.createElement("div");
+      toolbar.setAttribute(TOOLBAR, "");
+      // Keep the rule with navigation so an explicitly upgraded stock script
+      // also hides skipped papers in an older template's presentation overview.
+      var skipStyle = document.createElement("style");
+      skipStyle.textContent = '@media screen { html[data-deck-overview] [data-deck-frame][data-deck-skip], html[data-deck-mode="present"][data-deck-overview] [data-deck-frame][data-deck-skip] { display: none; } html[data-deck-overview] main[data-deck-slides] { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 48px 16px; align-items: start; } html[data-deck-overview] [data-deck-frame], html[data-deck-mode="present"][data-deck-overview] [data-deck-frame] { display: block; position: relative; inset: auto; z-index: auto; margin: 0; background: transparent; } html[data-deck-overview] [data-deck-frame] > [data-deck-stage], html[data-deck-mode="present"][data-deck-overview] [data-deck-frame] > [data-deck-stage] { width: 100%; height: auto; aspect-ratio: 16 / 9; margin: 0; } html[data-deck-overview] [data-deck-stage] > section[data-deck-slide], html[data-deck-mode="present"][data-deck-overview] [data-deck-stage] > section[data-deck-slide] { transform: scale(var(--deck-grid-k, var(--deck-k))); } html[data-deck-overview] aside[data-deck-notes], html[data-deck-overview] [data-deck-focus-supplement], html[data-deck-overview] [data-deck-focus-supplements], html[data-deck-overview] .deck-step-entry { display: none; } html[data-deck-overview] [data-deck-frame][data-deck-current] > [data-deck-stage]::after { color: var(--deck-text); } }';
+      toolbar.appendChild(skipStyle);
+      var present = null;
+      if (!comparing) {
+        present = document.createElement("button");
+        present.type = "button";
+        present.innerHTML = icon(ICON_PLAY) + "<span>プレゼンを始める</span>";
+        toolbar.appendChild(present);
+      }
+      var gridButton = document.createElement("button");
+      gridButton.type = "button";
+      gridButton.innerHTML = icon(ICON_GRID) + "<span>一覧</span>";
+      function paintGridButton() {
+        var open = document.documentElement.hasAttribute(OVERVIEW);
+        gridButton.setAttribute("aria-pressed", open ? "true" : "false");
+        var label = gridButton.querySelector("span");
+        if (label) label.textContent = open ? "一覧を閉じる" : "一覧";
+      }
+      function toggleOverview() {
+        var root = document.documentElement;
+        var open = root.hasAttribute(OVERVIEW);
+        if (open) root.removeAttribute(OVERVIEW);
+        else root.setAttribute(OVERVIEW, "");
+        if (!inPresent()) {
+          var n = shown > 0 ? shown : startIndex();
+          frames.forEach(function (frame, at) {
+            if (!open && at + 1 === n) frame.setAttribute(CURRENT, "");
+            else frame.removeAttribute(CURRENT);
+          });
+          if (!open) shown = n;
+        }
+        paintGridButton();
+        scaleToFit();
+        scheduleImages();
+        if (!open) scrollTo(shown > 0 ? shown : startIndex());
+      }
+      paintGridButton();
+      gridButton.addEventListener("click", function () { toggleOverview(); });
+      var notesToggle = document.createElement("button");
+      notesToggle.type = "button";
+      function refreshToolbar() {
+        if (present) { present.hidden = frames.length === 0; present.disabled = playableIndexes().length === 0; present.title = present.disabled ? "すべてのスライドがスキップされています。1枚以上解除してください" : ""; }
+        if (main.querySelector("aside[" + NOTES + "]") !== null) {
+          if (notesToggle.parentNode !== toolbar) toolbar.appendChild(notesToggle);
+          if (!toolbar.parentNode) main.insertBefore(toolbar, main.firstChild);
+        } else notesToggle.remove();
+        toolbar.appendChild(gridButton);
+      }
+      refreshToolbar();
+      if (toolbar.childNodes.length > 0) main.insertBefore(toolbar, main.firstChild);
+
+      var exit = document.createElement("button");
+      exit.type = "button";
+      exit.setAttribute(EXIT, "");
+      exit.setAttribute("aria-label", "プレゼンを終える");
+      exit.innerHTML = icon(ICON_X);
+      body.appendChild(exit);
+
+      var stepControls = document.createElement("nav");
+      stepControls.setAttribute(TOOLBAR, "");
+      stepControls.className = "deck-step-controls";
+      stepControls.setAttribute("aria-label", "スライドと段階の移動");
+      var stepPrevious = document.createElement("button");
+      stepPrevious.type = "button"; stepPrevious.textContent = "前へ"; stepPrevious.className = "deck-step-back";
+      stepPrevious.addEventListener("click", function () { move(-1); });
+      var stepStatus = document.createElement("span");
+      stepStatus.className = "deck-step-status";
+      stepStatus.setAttribute("role", "status"); stepStatus.setAttribute("aria-live", "polite"); stepStatus.setAttribute("aria-atomic", "true");
+      var stepSlide = document.createElement("span"); stepSlide.className = "deck-step-slide";
+      var stepName = document.createElement("span"); stepName.className = "deck-step-name";
+      stepStatus.appendChild(stepSlide); stepStatus.appendChild(stepName);
+      var stepOverview = document.createElement("button");
+      stepOverview.type = "button"; stepOverview.textContent = "全体"; stepOverview.className = "deck-step-whole";
+      stepOverview.addEventListener("click", showStepOverview);
+      var stepNext = document.createElement("button");
+      stepNext.type = "button"; stepNext.textContent = "次へ"; stepNext.className = "deck-step-next";
+      stepNext.addEventListener("click", function () { move(1); });
+      [stepPrevious, stepStatus, stepOverview, stepNext].forEach(function (item) { stepControls.appendChild(item); });
+      body.appendChild(stepControls);
+      function makeStepEntry(frame, index) {
+        var entry = document.createElement("div"); entry.setAttribute(TOOLBAR, ""); entry.className = "deck-step-entry";
+        var button = document.createElement("button"); button.type = "button";
+        button.addEventListener("click", function () { focusGuided = true; enterPresent(index + 1); });
+        entry.appendChild(button); entry.hidden = true;
+        var stage = frame.querySelector("[" + STAGE + "]");
+        if (stage) stage.before(entry); else frame.appendChild(entry);
+        return { holder: entry, button: button };
+      }
+      var stepEntries = frames.map(makeStepEntry);
+
+      var stepMeasureKey = "";
+      var stepSourceRevision = 0;
+      var stepReservedHeight = 0;
+      var stepControlsHeight = 0;
+
+      function measureStepSpace(vw, vh) {
+        if (!inPresent()) return { reserve: 0, controls: 0 };
+        var currentFrame = frames[shown - 1];
+        if (!currentFrame || !currentFrame.hasAttribute(CURRENT)) return { reserve: 0, controls: 0 };
+        var key = [vw, vh, stepSourceRevision, focusGuided].join(":");
+        if (key === stepMeasureKey) return { reserve: stepReservedHeight, controls: stepControlsHeight };
+        // Measure only UI text, never another copy of the slide. The largest step fixes
+        // the paper size for the whole presentation, so a new annotation cannot shrink it.
+        var controlsProbe = stepControls.cloneNode(true);
+        controlsProbe.setAttribute("aria-hidden", "true"); controlsProbe.inert = true;
+        controlsProbe.style.visibility = "hidden"; controlsProbe.style.pointerEvents = "none";
+        Array.prototype.forEach.call(controlsProbe.querySelectorAll("button"), function (button) { button.hidden = false; });
+        body.appendChild(controlsProbe);
+        var supplementProbe = document.createElement("div");
+        supplementProbe.setAttribute(FOCUS_SUPPLEMENT, ""); supplementProbe.setAttribute("aria-hidden", "true");
+        supplementProbe.style.visibility = "hidden"; supplementProbe.style.pointerEvents = "none";
+        currentFrame.appendChild(supplementProbe);
+        var maxControls = 0;
+        var maxSupplement = 0;
+        function measure(step, at, steps, n) {
+          controlsProbe.querySelector(".deck-step-slide").textContent = String(n) + " / " + String(frames.length) + "枚";
+          controlsProbe.querySelector(".deck-step-name").textContent = stepLabel(step, at, steps);
+          var controls = controlsProbe.getBoundingClientRect().height;
+          var supplement = publicSupplement(step);
+          supplementProbe.textContent = supplement || "";
+          var height = supplement === null ? 0 : supplementProbe.getBoundingClientRect().height;
+          maxControls = Math.max(maxControls, controls);
+          maxSupplement = Math.max(maxSupplement, height);
+        }
+        measure(null, 0, [], 1);
+        if (focusGuided) frames.forEach(function (_frame, index) {
+          var steps = authoredStepsAt(index + 1);
+          steps.forEach(function (step, at) { measure(step, at, steps, index + 1); });
+        });
+        controlsProbe.remove(); supplementProbe.remove();
+        stepMeasureKey = key;
+        stepReservedHeight = Math.ceil(maxControls + 24 + (maxSupplement > 0 ? maxSupplement + 12 : 0));
+        stepControlsHeight = Math.ceil(maxControls);
+        return { reserve: stepReservedHeight, controls: stepControlsHeight };
+      }
+
+      function paintNotesToggle() {
+        if (notesToggle === null) return;
+        var hidden = main.hasAttribute(NOTES_HIDDEN);
+        notesToggle.innerHTML = icon(ICON_NOTES) + "<span>" + (hidden ? "ノートを表示" : "ノートを隠す") + "</span>";
+        notesToggle.setAttribute("aria-pressed", hidden ? "false" : "true");
+      }
+      if (notesToggle !== null) {
+        paintNotesToggle();
+        notesToggle.addEventListener("click", function () {
+          if (main.hasAttribute(NOTES_HIDDEN)) main.removeAttribute(NOTES_HIDDEN);
+          else main.setAttribute(NOTES_HIDDEN, "");
+          paintNotesToggle();
+        });
+      }
+
+      // The editor owns the child document's dimensions, including preparation.
+      // Its parent can resize the iframe after this child's resize delivery.
+      var imageFrame = 0;
+      function restoreImage(img, high, lazy) {
+        var loading = lazy ? "lazy" : "eager";
+        var priority = high ? "high" : "low";
+        if (img.loading !== loading) img.loading = loading;
+        if (img.decoding !== "async") img.decoding = "async";
+        if (img.getAttribute("fetchpriority") !== priority) img.setAttribute("fetchpriority", priority);
+      }
+      function restoreAllImages() {
+        frames.forEach(function (frame) {
+          Array.prototype.forEach.call(frame.querySelectorAll("img"), function (img) { restoreImage(img, false, true); });
+        });
+      }
+      function wantedSlides() {
+        var want = [];
+        var overview = document.documentElement.hasAttribute(OVERVIEW);
+        if (inPresent() && !overview) {
+          if (shown > 0) want.push(shown);
+          var next = nextPlayable(1);
+          if (next !== null && want.indexOf(next) < 0) want.push(next);
+          return want;
+        }
+        var vh = window.innerHeight || 0;
+        var visible = [];
+        frames.forEach(function (frame, at) {
+          var rect = frame.getBoundingClientRect();
+          var pad = overview ? rect.height : 0;
+          if (rect.bottom > -pad && rect.top < vh + pad) visible.push(at + 1);
+        });
+        if (visible.length === 0) visible.push(shown > 0 ? shown : nearestIndex());
+        visible.forEach(function (n) { if (want.indexOf(n) < 0) want.push(n); });
+        if (!overview) {
+          var ahead = visible[visible.length - 1] + 1;
+          if (ahead <= frames.length) want.push(ahead);
+        }
+        return want;
+      }
+      function primarySlide(want) {
+        if (inPresent() && !document.documentElement.hasAttribute(OVERVIEW)) return shown;
+        var best = want[0] || 1;
+        var bestDistance = Infinity;
+        var mid = (window.innerHeight || 0) / 2;
+        want.forEach(function (n) {
+          var frame = frames[n - 1];
+          if (!frame || typeof frame.getBoundingClientRect !== "function") return;
+          var rect = frame.getBoundingClientRect();
+          var distance = Math.abs(rect.top + rect.height / 2 - mid);
+          if (distance < bestDistance) { bestDistance = distance; best = n; }
+        });
+        return best;
+      }
+      function syncImages() {
+        if (editingLayout) return;
+        var want = wantedSlides();
+        var primary = primarySlide(want);
+        frames.forEach(function (frame, at) {
+          var keep = want.indexOf(at + 1) >= 0;
+          Array.prototype.forEach.call(frame.querySelectorAll("img"), function (img) {
+            // Keep the source stable: clearing it discards a decoded image and
+            // can cancel an in-flight fetch just before the reader reaches it.
+            // Native lazy loading manages distant images (including srcset and
+            // picture sources); the current and next slide are eager.
+            restoreImage(img, at + 1 === primary, !keep);
+          });
+        });
+      }
+      function scheduleImages() {
+        if (editingLayout) return;
+        if (typeof window.requestAnimationFrame !== "function") { syncImages(); return; }
+        if (imageFrame) return;
+        imageFrame = window.requestAnimationFrame(function () {
+          imageFrame = 0;
+          syncImages();
+        });
+      }
+      document.addEventListener("scroll", scheduleImages, true);
+      function ownsLayout() { return !document.deckEditorOpen && (!editingLayout || inPresent()); }
+      function syncSizeObserver() {
+        if (deckResize) {
+          deckResize.disconnect();
+          if (ownsLayout()) { deckResize.observe(main); deckResize.observe(stepControls); }
+        }
+        if (!ownsLayout() && geometryFrame) { window.cancelAnimationFrame(geometryFrame); geometryFrame = 0; }
+      }
+      /* 倍率。器の幅から出す。準備の最初の一度だけは編集用でも測る。 */
+      function scaleToFit(initial) {
+        if (!ownsLayout() && initial !== true) return;
+        var width = main.clientWidth;
+        if (width > 0) main.style.setProperty("--deck-k", String(width / WIDTH));
+        if (document.documentElement.hasAttribute(OVERVIEW)) {
+          var cell = frames[0] && frames[0].querySelector("[" + STAGE + "]");
+          var cellWidth = cell ? cell.clientWidth : 0;
+          if (cellWidth > 0) main.style.setProperty("--deck-grid-k", String(cellWidth / WIDTH));
+        }
+        var vw = document.documentElement.clientWidth;
+        var vh = window.innerHeight;
+        if (vw > 0 && vh > 0) {
+          var space = measureStepSpace(vw, vh);
+          // Reserve the largest step for an unchanging paper size, but attach the
+          // supplement to the visible controls. Their top position cannot change
+          // their height, so this measurement does not feed a resize loop.
+          var actualControls = inPresent() ? stepControls.getBoundingClientRect().height : 0;
+          body.style.setProperty("--deck-controls-height", String(actualControls > 0 ? actualControls : space.controls) + "px");
+          body.style.setProperty("--deck-controls-reserve", String(space.reserve) + "px");
+          var presentScale = Math.min(vw / WIDTH, Math.max(1, vh - space.reserve) / HEIGHT);
+          main.style.setProperty("--deck-present-k", String(presentScale));
+          // Keep the controls attached to the paper even on tall screens or steps
+          // with no supplement. Reserving space must not create a gap above them.
+          body.style.setProperty("--deck-paper-bottom", String((vh - space.reserve + HEIGHT * presentScale) / 2) + "px");
+        }
+      }
+      if (!editingLayout) scaleToFit(true);
+      var deckResize = null;
+      if (typeof ResizeObserver === "function") {
+        // Never resize an observed ancestor during resize delivery. Editing can
+        // change the paper's containing block in the same frame (WebKit).
+        deckResize = new ResizeObserver(scheduleGeometry);
+        syncSizeObserver();
+      }
+      window.addEventListener("resize", scaleToFit);
+      if (document.fonts && document.fonts.ready) document.fonts.ready.then(function () { stepMeasureKey = ""; scaleToFit(); });
+
+      /* はみ出し。描き終わってから測る（字体や画像が届く前は高さが揺れる） */
+      function markPaperOverflow(section) {
+        var frame = section.closest("[" + FRAME + "]");
+        if (!frame) return;
+        var bounds = section.getBoundingClientRect();
+        // An auto-skipped paper reports its intrinsic size, not its contents.
+        // Keep the last result until that paper is actually on screen again.
+        if (!bounds.width || !bounds.height || bounds.bottom < 0 || bounds.top > window.innerHeight) return;
+        // Materialize only this visible paper before reading its overflow;
+        // Chromium can deliver scrolling before auto-containment is revealed.
+        if (section.firstElementChild) section.firstElementChild.getBoundingClientRect();
+        var over = section.scrollHeight > HEIGHT + 1 || section.scrollWidth > WIDTH + 1;
+        if (over) frame.setAttribute(OVERFLOW, "");
+        else frame.removeAttribute(OVERFLOW);
+      }
+      function markOverflow() {
+        if (!ownsLayout()) return;
+        frames.forEach(function (frame) {
+          var section = frame.querySelector("section[" + SLIDE + "]");
+          if (section === null) return;
+          markPaperOverflow(section);
+        });
+      }
+      if (document.readyState === "complete") markOverflow();
+      else window.addEventListener("load", markOverflow, { once: true });
+      // Font choices and direct editing can change content after window.load.
+      // Observe the papers, not the frames we annotate or main's scale style.
+      var geometryFrame = 0;
+      function scheduleGeometry() {
+        if (!ownsLayout() || geometryFrame) return;
+        geometryFrame = window.requestAnimationFrame(function () {
+          geometryFrame = 0;
+          if (!ownsLayout()) return;
+          stepMeasureKey = ""; scaleToFit(); markOverflow();
+        });
+      }
+      if (typeof MutationObserver === "function") {
+        var contentGeometry = new MutationObserver(scheduleGeometry);
+        sections.forEach(function (section) {
+          contentGeometry.observe(section, { subtree: true, childList: true, characterData: true, attributes: true, attributeFilter: ["style", "class"] });
+        });
+      }
+      if (document.fonts && document.fonts.addEventListener) document.fonts.addEventListener("loadingdone", scheduleGeometry);
+      var paperVisibility = typeof IntersectionObserver === "function" ? new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+          if (entry.isIntersecting) window.requestAnimationFrame(function () {
+            if (ownsLayout() && entry.target.isConnected) markPaperOverflow(entry.target);
+          });
+        });
+      }) : null;
+      if (paperVisibility) sections.forEach(function (section) { paperVisibility.observe(section); });
+      var overflowFrame = 0;
+      document.addEventListener("scroll", function () {
+        if (!ownsLayout() || overflowFrame) return;
+        overflowFrame = window.requestAnimationFrame(function () {
+          overflowFrame = 0;
+          if (ownsLayout()) markOverflow();
+        });
+      }, true);
+
+
+      /* 枚の番号（1 始まり）。範囲の外は端に丸める */
+      function clamp(n) {
+        return Math.min(frames.length, Math.max(1, n));
+      }
+      function playableIndexes() {
+        return sections.reduce(function (indexes, section, at) {
+          if (section.getAttribute(SKIP) !== "true") indexes.push(at + 1);
+          return indexes;
+        }, []);
+      }
+      function playableAt(n) {
+        var indexes = playableIndexes();
+        return indexes.find(function (index) { return index >= n; }) || indexes[indexes.length - 1] || null;
+      }
+      function nextPlayable(direction) {
+        var indexes = playableIndexes();
+        if (direction < 0) indexes.reverse();
+        return indexes.find(function (index) { return direction > 0 ? index > shown : index < shown; }) || null;
+      }
+      function hashIndex() {
+        var found = HASH.exec(window.location.hash);
+        return found === null ? null : clamp(parseInt(found[1], 10));
+      }
+      /*
+       * いま読んでいる枚＝画面の上端より下にまん中がある、いちばん上の枚。
+       * 「画面のまん中に近い枚」にすると、狭い画面で開いた直後に 2 枚目から始まる
+       * （1 枚目が上に寄っていて、まん中には 2 枚目がいる）。開いた直後は 1 枚目から。
+       */
+      function nearestIndex() {
+        for (var at = 0; at < frames.length; at += 1) {
+          var rect = frames[at].getBoundingClientRect();
+          if (rect.top + rect.height / 2 >= 0) return at + 1;
+        }
+        return frames.length;
+      }
+      function startIndex() {
+        var linked = hashIndex();
+        if (linked !== null) {
+          var rect = frames[linked - 1].getBoundingClientRect();
+          if (rect.bottom > 0 && rect.top < window.innerHeight) return linked;
+        }
+        return nearestIndex();
+      }
+      /*
+       * ハッシュだけを渡さない。replaceState は相対の URL を文書の base（配信時に差し込まれる
+       * "/internal/…/名前/" を指す札）から解くので、"#3" が "/internal/…/名前/#3" になり、再読み込みで別の
+       * 場所を指す。いまの道筋と検索の字を付けて、絶対の道筋で書く。
+       * ここに base の札そのものを字で書かないこと——配信はその字の有無で札を差し込むか決める。
+       */
+      function writeHash(n) {
+        // Embedded editing previews have no navigable document URL. Their owner keeps the current slide.
+        if (window.location.protocol === "about:") return;
+        var next = "#" + String(n);
+        if (window.location.hash === next) return;
+        if (window.history && typeof window.history.replaceState === "function") {
+          window.history.replaceState(null, "", window.location.pathname + window.location.search + next);
+        } else {
+          window.location.hash = next;
+        }
+      }
+
+      var shown = 0;
+      var focusGuided = false;
+      var focusSlides = {};
+      var focusAt = {};
+      function inPresent() {
+        return document.documentElement.getAttribute(MODE) === PRESENT;
+      }
+      function slideIdAt(n) {
+        var section = frames[clamp(n) - 1].querySelector("section[" + SLIDE + "]");
+        return section === null ? "" : section.getAttribute("data-deck-id") || "";
+      }
+      function authoredStepsAt(n) {
+        var id = slideIdAt(n);
+        var found = Object.prototype.hasOwnProperty.call(focusSlides, id) ? focusSlides[id] : null;
+        return Array.isArray(found) ? found : [];
+      }
+      function stepsAt(n) { return focusGuided ? authoredStepsAt(n) : []; }
+      function publicSupplement(step) {
+        if (!step) return null;
+        var parts = [];
+        var values = [step.supplement].concat((Array.isArray(step.actions) ? step.actions : []).map(function (action) { return action && action.annotation; }));
+        values.forEach(function (value) {
+          if (typeof value !== "string" || !value.trim() || parts.indexOf(value.trim()) >= 0) return;
+          parts.push(value.trim());
+        });
+        return parts.join("\n") || null;
+      }
+      function isOverviewStep(step) {
+        return step && Array.isArray(step.actions) && step.actions.every(function (action) { return action.kind === "overview"; });
+      }
+      function stepLabel(step, at, steps) {
+        var title = step && typeof step.title === "string" && step.title.length ? step.title : step === null || isOverviewStep(step) ? "全体" : "段階 " + String(at + 1);
+        return steps.length ? title + (at < 0 ? " · " + String(steps.length) + "段階" : " · " + String(at + 1) + " / " + String(steps.length)) : "";
+      }
+      function paintStepControls(step, at, steps) {
+        stepSlide.textContent = String(shown) + " / " + String(frames.length) + "枚";
+        stepName.textContent = stepLabel(step, at, steps);
+        stepPrevious.hidden = nextPlayable(-1) === null && at <= 0;
+        stepNext.hidden = nextPlayable(1) === null && at >= steps.length - 1;
+        stepOverview.hidden = steps.length === 0;
+        stepOverview.setAttribute("aria-pressed", String(step === null || isOverviewStep(step)));
+      }
+      function paintStepEntries() {
+        stepEntries.forEach(function (entry, index) {
+          var steps = authoredStepsAt(index + 1);
+          entry.holder.hidden = comparing || steps.length === 0 || sections[index].getAttribute(SKIP) === "true";
+          entry.button.textContent = "順に見る（" + String(steps.length) + "段階）";
+          entry.button.setAttribute("aria-label", String(index + 1) + "枚目を順に見る（" + String(steps.length) + "段階）");
+        });
+      }
+      function showStepOverview() {
+        var steps = stepsAt(shown);
+        var overview = steps.findIndex(isOverviewStep);
+        focusAt[slideIdAt(shown)] = overview;
+        announceFocus();
+      }
+      function announceFocus() {
+        var slideId = slideIdAt(shown);
+        var steps = stepsAt(shown);
+        var at = typeof focusAt[slideId] === "number" ? focusAt[slideId] : 0;
+        var step = inPresent() ? steps[at] || null : null;
+        var supplement = frames[shown - 1].querySelector("[" + FOCUS_SUPPLEMENT + "]");
+        if (supplement !== null) {
+          supplement.textContent = publicSupplement(step) || "";
+          supplement.hidden = supplement.textContent.length === 0;
+          if (!supplement.hidden && supplement.scrollHeight > supplement.clientHeight) supplement.setAttribute("tabindex", "0");
+          else supplement.removeAttribute("tabindex");
+        }
+        document.dispatchEvent(new CustomEvent(FOCUS_APPLY, { detail: {
+          slideId: slideId,
+          stepId: step === null ? null : step.id,
+          actions: step === null || !Array.isArray(step.actions) ? [] : step.actions,
+          supplement: publicSupplement(step),
+          progress: { index: step === null ? 0 : at + 1, total: steps.length },
+        } }));
+        paintStepControls(step, at, steps);
+        scaleToFit();
+      }
+      function enterFirstStep(n) {
+        var slideId = slideIdAt(n);
+        focusAt[slideId] = 0;
+      }
+      function paintReadingSupplements() {
+        supplementPages.replaceChildren();
+        frames.forEach(function (frame, at) {
+          var holder = frame.querySelector("[" + FOCUS_SUPPLEMENTS + "]");
+          if (holder === null) return;
+          holder.replaceChildren();
+          var id = slideIdAt(at + 1);
+          var found = Object.prototype.hasOwnProperty.call(focusSlides, id) ? focusSlides[id] : null;
+          var steps = Array.isArray(found) ? found : [];
+          steps.forEach(function (step) {
+            var supplement = publicSupplement(step);
+            if (supplement === null) return;
+            var line = document.createElement("p");
+            line.textContent = (typeof step.title === "string" && step.title.length > 0 ? step.title + ": " : "") + supplement;
+            holder.appendChild(line);
+          });
+          holder.hidden = holder.childNodes.length === 0;
+          if (holder.hidden) frame.removeAttribute("data-deck-has-focus-supplements");
+          else frame.setAttribute("data-deck-has-focus-supplements", "");
+          if (holder.hidden) return;
+          var page = document.createElement("section");
+          page.setAttribute("data-deck-focus-supplement-page", "");
+          var heading = document.createElement("h2");
+          var slide = frame.querySelector("section[" + SLIDE + "]");
+          var named = slide === null ? null : slide.querySelector("h1,h2,h3");
+          heading.textContent = "補足 — " + String(at + 1) + "枚目" + (named && named.textContent ? ": " + named.textContent.trim() : "");
+          page.appendChild(heading);
+          Array.prototype.forEach.call(holder.children, function (line) {
+            var copy = document.createElement("p");
+            copy.textContent = line.textContent || "";
+            page.appendChild(copy);
+          });
+          supplementPages.appendChild(page);
+        });
+        supplementPages.hidden = supplementPages.childNodes.length === 0;
+      }
+      function clearFocus(n) {
+        var supplement = frames[clamp(n) - 1].querySelector("[" + FOCUS_SUPPLEMENT + "]");
+        if (supplement !== null) { supplement.textContent = ""; supplement.hidden = true; }
+        document.dispatchEvent(new CustomEvent(FOCUS_APPLY, { detail: {
+          slideId: slideIdAt(n), stepId: null, actions: [], supplement: null,
+          progress: { index: 0, total: stepsAt(n).length },
+        } }));
+      }
+      function show(n, firstStep) {
+        var target = inPresent() ? playableAt(clamp(n)) : clamp(n);
+        if (target === null) { leavePresent(); return; }
+        var previous = shown;
+        shown = target;
+        if (previous > 0 && previous !== shown) clearFocus(previous);
+        if (firstStep) enterFirstStep(shown);
+        frames.forEach(function (frame, at) {
+          if (at + 1 === shown) frame.setAttribute(CURRENT, "");
+          else frame.removeAttribute(CURRENT);
+        });
+        writeHash(shown);
+        announceFocus();
+        scheduleImages();
+      }
+
+      function move(direction) {
+        var slideId = slideIdAt(shown);
+        var steps = stepsAt(shown);
+        var at = typeof focusAt[slideId] === "number" ? focusAt[slideId] : 0;
+        if (direction > 0 && at + 1 < steps.length) {
+          focusAt[slideId] = at + 1;
+          announceFocus();
+          return;
+        }
+        if (direction < 0 && at > 0 && steps.length > 0) {
+          focusAt[slideId] = at - 1;
+          announceFocus();
+          return;
+        }
+        var next = nextPlayable(direction);
+        if (next === null) return;
+        if (direction < 0) {
+          var priorId = slideIdAt(next);
+          var priorSteps = stepsAt(next);
+          focusAt[priorId] = Math.max(0, priorSteps.length - 1);
+          show(next, false);
+        } else {
+          show(next, true);
+        }
+      }
+      function scrollTo(n) {
+        var frame = frames[clamp(n) - 1];
+        if (frame !== undefined && typeof frame.scrollIntoView === "function") {
+          frame.scrollIntoView({ block: "start" });
+        }
+      }
+
+      function enterPresent(n, embedded) {
+        if (comparing || inPresent() || playableIndexes().length === 0) return;
+        document.documentElement.setAttribute(MODE, PRESENT);
+        syncSizeObserver();
+        scaleToFit();
+        show(n, true);
+        var root = document.documentElement;
+        if (!embedded && typeof root.requestFullscreen === "function") {
+          try {
+            var asked = root.requestFullscreen();
+            if (asked && typeof asked.catch === "function") asked.catch(function () {});
+          } catch (error) {
+            /* 全画面にできなくても、画面いっぱいの表示で足りる */
+          }
+        }
+        exit.focus();
+      }
+      function leavePresent() {
+        if (!inPresent()) return;
+        document.documentElement.removeAttribute(MODE);
+        syncSizeObserver();
+        frames.forEach(function (frame) {
+          frame.removeAttribute(CURRENT);
+        });
+        document.documentElement.removeAttribute(OVERVIEW);
+        paintGridButton();
+        frames.forEach(function (_frame, at) { clearFocus(at + 1); });
+        if (document.fullscreenElement && typeof document.exitFullscreen === "function") {
+          try {
+            var done = document.exitFullscreen();
+            if (done && typeof done.catch === "function") done.catch(function () {});
+          } catch (error) {
+            /* もう出ている */
+          }
+        }
+        scrollTo(shown);
+      }
+
+      /* 始めるのは、いま読んでいる枚から（#N で開いた直後なら、その枚が上にいる） */
+      if (present !== null) {
+        present.addEventListener("click", function () {
+          enterPresent(startIndex());
+        });
+      }
+      exit.addEventListener("click", leavePresent);
+
+      document.addEventListener("fullscreenchange", function () {
+        if (document.fullscreenElement === null && inPresent()) leavePresent();
+      });
+
+      function typing(target) {
+        if (!(target instanceof Element)) return false;
+        return target.closest("input, textarea, select, [contenteditable]") !== null;
+      }
+      document.addEventListener("keydown", function (event) {
+        if (!inPresent() || typing(event.target)) return;
+        var key = event.key;
+        if (key !== "Escape" && event.target instanceof Element && event.target.closest("video, audio")) return;
+        // A long public supplement owns scrolling keys, but Escape must still
+        // leave presentation when fullscreen is unavailable or was declined.
+        if (key !== "Escape" && event.target instanceof Element && event.target.closest("[" + FOCUS_SUPPLEMENT + "][tabindex]")) return;
+        if ((key === "Enter" || key === " ") && event.target instanceof Element && event.target.closest("button, a[href]")) return;
+        if (key === "ArrowRight" || key === "ArrowDown" || key === "PageDown" || key === " " || key === "Enter") {
+          event.preventDefault();
+          move(1);
+        } else if (key === "ArrowLeft" || key === "ArrowUp" || key === "PageUp" || key === "Backspace") {
+          event.preventDefault();
+          move(-1);
+        } else if (key === "Home") {
+          event.preventDefault();
+          show(1, true);
+        } else if (key === "End") {
+          event.preventDefault();
+          show(frames.length, true);
+        } else if (key.toLowerCase() === "o") {
+          event.preventDefault();
+          toggleOverview();
+        } else if (key === "Escape") {
+          event.preventDefault();
+          leavePresent();
+        }
+      });
+
+      var touch = null;
+      document.addEventListener(
+        "touchstart",
+        function (event) {
+          if (!inPresent() || event.touches.length !== 1) return;
+          touch = { x: event.touches[0].clientX, y: event.touches[0].clientY };
+        },
+        { passive: true },
+      );
+      document.addEventListener(
+        "touchend",
+        function (event) {
+          if (!inPresent() || touch === null || event.changedTouches.length !== 1) return;
+          var dx = event.changedTouches[0].clientX - touch.x;
+          var dy = event.changedTouches[0].clientY - touch.y;
+          touch = null;
+          if (Math.abs(dx) < SWIPE_MIN || Math.abs(dx) < Math.abs(dy)) return;
+          move(dx < 0 ? 1 : -1);
+        },
+        { passive: true },
+      );
+
+      /* #N。プレゼン中はその枚を出し、縦並びではそこへ送る。#c=… は枚と読まない */
+      function slideLinkIndex(link) {
+        var id = link.getAttribute("data-dd-slide-link");
+        for (var index = 0; index < frames.length; index++) if (slideIdAt(index + 1) === id) return index + 1;
+        return null;
+      }
+      Array.prototype.forEach.call(document.querySelectorAll("a[data-dd-slide-link]"), function (link) {
+        var n = slideLinkIndex(link);
+        if (n === null) return;
+        var target = new URL(window.location.href);
+        target.hash = String(n);
+        link.href = target.href;
+      });
+      document.addEventListener("click", function (event) {
+        if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+        var link = event.target instanceof Element ? event.target.closest("a[data-dd-slide-link]") : null;
+        if (link === null) return;
+        event.preventDefault();
+        var n = slideLinkIndex(link);
+        if (n === null) return;
+        if (inPresent()) { document.documentElement.removeAttribute(OVERVIEW); show(n, true); }
+        else { writeHash(n); scrollTo(n); }
+      });
+
+      window.addEventListener("hashchange", function () {
+        var n = hashIndex();
+        if (n === null) return;
+        if (inPresent()) {
+          if (n !== shown) show(n, true);
+        } else {
+          scrollTo(n);
+        }
+      });
+      var initial = hashIndex();
+      var initialSettled = false;
+      function settleInitial() {
+        if (initialSettled) return;
+        initialSettled = true;
+        scaleToFit();
+        if (initial !== null && !(document.deckLoading && document.deckLoading.interacted)) scrollTo(initial);
+      }
+      if (!document.documentElement.hasAttribute("data-deck-loading")) ready(settleInitial);
+
+      main.addEventListener("click", function (event) {
+        if (!document.documentElement.hasAttribute(OVERVIEW)) return;
+        if (!(event.target instanceof Element) || event.target.closest("button, a[href]")) return;
+        var frame = event.target.closest("[" + FRAME + "]");
+        var at = frames.indexOf(frame); if (at < 0) return;
+        document.documentElement.removeAttribute(OVERVIEW);
+        paintGridButton();
+        if (inPresent()) show(at + 1, false);
+        else {
+          frames.forEach(function (item) { item.removeAttribute(CURRENT); });
+          writeHash(at + 1);
+          scrollTo(at + 1);
+          scheduleImages();
+        }
+      });
+      scheduleImages();
+      // The presenter delegates all movement (including guided steps) to this runtime.
+      // Only stable slide identities cross the boundary; indexes remain internal.
+      document.deckPresentation = {
+        state: function () {
+          var section = sections[shown - 1];
+          var id = section && section.getAttribute("data-deck-node");
+          var focus = section && section.getAttribute("data-deck-id");
+          return { id: id || null, step: focusAt[focus] || 0, active: inPresent() };
+        },
+        select: function (id, step) {
+          var at = sections.findIndex(function (section) { return section.getAttribute("data-deck-node") === id && section.getAttribute(SKIP) !== "true"; });
+          if (at < 0) return false;
+          if (!inPresent()) enterPresent(at + 1, true);
+          var focus = slideIdAt(at + 1);
+          focusAt[focus] = Math.max(0, Math.min(Number.isInteger(step) ? step : 0, Math.max(0, stepsAt(at + 1).length - 1)));
+          show(at + 1, false);
+          return true;
+        },
+        move: function (direction) { if (inPresent() && (direction === 1 || direction === -1)) move(direction); },
+        stop: leavePresent
+      };
+      document.deckLayout = { settleInitial: settleInitial, suspend: function () {
+        syncSizeObserver();
+        if (ownsLayout()) scheduleGeometry();
+      }, setEditing: function (value) {
+        editingLayout = value;
+        if (value) restoreAllImages();
+        else scheduleImages();
+        syncSizeObserver();
+        if (ownsLayout()) scaleToFit();
+      }, refresh: function () {
+        var active = frames[shown - 1];
+        var activeId = active && active.querySelector("section[" + SLIDE + "]").getAttribute("data-deck-node");
+        collectFrames();
+        if (paperVisibility) { paperVisibility.disconnect(); sections.forEach(function (section) { paperVisibility.observe(section); }); }
+        var at = sections.findIndex(function (section) { return section.getAttribute("data-deck-node") === activeId; });
+        shown = at >= 0 ? at + 1 : Math.max(1, Math.min(shown, frames.length));
+        stepEntries.forEach(function (entry) { entry.holder.remove(); });
+        stepEntries = frames.map(makeStepEntry);
+        if (contentGeometry) { contentGeometry.disconnect(); sections.forEach(function (section) { contentGeometry.observe(section, {subtree:true,childList:true,characterData:true,attributes:true,attributeFilter:["style","class"]}); }); }
+        refreshToolbar();
+        if (inPresent()) show(shown, false);
+        paintReadingSupplements(); paintStepEntries(); scheduleGeometry();
+        Array.prototype.forEach.call(document.querySelectorAll("a[data-dd-slide-link]"), function (link) {
+          var n = slideLinkIndex(link); if (n === null) return;
+          var target = new URL(window.location.href); target.hash = String(n); link.href = target.href;
+        });
+        scheduleImages();
+      }};
+
+      document.addEventListener(FOCUS_READY, function (event) {
+        var detail = event instanceof CustomEvent ? event.detail : null;
+        if (detail === null || typeof detail !== "object") return;
+        focusGuided = detail.guided === true;
+        stepSourceRevision += 1;
+        focusSlides = detail.slides && typeof detail.slides === "object" ? detail.slides : {};
+        paintReadingSupplements();
+        paintStepEntries();
+        if (inPresent()) {
+          enterFirstStep(shown);
+          announceFocus();
+        }
+      });
+      document.dispatchEvent(new CustomEvent(FOCUS_REQUEST));
+      if (document.documentElement.hasAttribute("data-deck-loading")) {
+        // Notes and reading supplements now exist. Fonts inside fixed papers
+        // cannot move these frames, so the initial destination is stable.
+        settleInitial();
+        frames.forEach(function (frame) {
+          var stage = frame.querySelector("[" + STAGE + "]");
+          var section = frame.querySelector("section[" + SLIDE + "]");
+          if (!stage || !section) return;
+          var appearance = window.getComputedStyle(section);
+          stage.style.setProperty("--deck-loading-paper", appearance.getPropertyValue("--dd-bg") || "Canvas");
+          stage.style.setProperty("--deck-loading-line", appearance.getPropertyValue("--dd-surface") || "color-mix(in srgb, CanvasText 8%, Canvas)");
+        });
+      }
+      /* DECK_MEDIA_START */
+(()=>{var I="data-deck-video-src";function K(e){e.autoplay=!1,e.pause(),e.preload="none";for(let r of[e,...e.querySelectorAll("source")]){let y=r.getAttribute("src");y!==null&&(r.setAttribute(I,y),r.removeAttribute("src"))}e.load()}var V="data-deck";var D="data-deck-youtube-view";var N=new RegExp(`<body\\b[^>]*\\s${V}(?:[\\s=>/]|$)`,"i");function Y(e){return typeof e=="string"&&/^[\w-]{11}$/.test(e)}var O="pointer-events:auto;font:inherit;line-height:inherit;cursor:pointer;border:0;border-radius:8px;padding:12px 24px;background:var(--dd-text,CanvasText);color:var(--dd-bg,Canvas);text-decoration:none",H="pointer-events:auto;font:inherit;color:inherit;text-underline-offset:4px";function R(e){let r=e.defaultView;if(!r||e.body.hasAttribute("data-deck-youtube-ready"))return;e.body.setAttribute("data-deck-youtube-ready","");let y=e.createElement("style");y.textContent=`@media print { [${D}]{display:none!important;} }`,e.head.append(y);let l=new Map,x=null;function M(){return r.YT?.Player?Promise.resolve():(x??(x=new Promise((o,t)=>{let i=r.onYouTubeIframeAPIReady,d=e.createElement("script");d.src="https://www.youtube.com/iframe_api",d.referrerPolicy="strict-origin-when-cross-origin";let m=()=>{x=null,clearTimeout(f),d.remove(),t(new Error("YouTube\u306B\u63A5\u7D9A\u3067\u304D\u307E\u305B\u3093"))},f=setTimeout(m,15e3);r.onYouTubeIframeAPIReady=()=>{i?.(),clearTimeout(f),o()},d.onerror=m,e.head.append(d)})),x)}function b(o){let t=l.get(o);!t||!t.player&&!t.holder.firstChild&&!t.button.disabled||(t.generation++,clearTimeout(t.timer),t.player?.destroy(),t.player=null,t.holder.replaceChildren(),t.holder.style.pointerEvents="none",t.idle())}function _(o){let t=o.getBoundingClientRect();return o.isConnected&&!e.hidden&&!e.documentElement.hasAttribute("data-deck-overview")&&t.width>0&&t.height>0&&t.bottom>0&&t.top<r.innerHeight&&(e.documentElement.getAttribute("data-deck-mode")!=="present"||!!o.closest("[data-deck-current]"))}function v(){for(let o of l.keys())_(o)||b(o)}function A(){for(let i of e.querySelectorAll("[data-deck-youtube]")){let g=function(){f.textContent=i.getAttribute("aria-label")||"YouTube\u52D5\u753B",a.textContent="",a.hidden=!0,n.hidden=!1,n.disabled=!1,n.textContent="\u518D\u751F",n.setAttribute("aria-label","YouTube\u3092\u518D\u751F"),u.textContent="YouTube\u3067\u958B\u304F",u.style.cssText=H},h=function(s){let T=e.activeElement===n||E.contains(e.activeElement);b(i),a.hidden=!1,s==="connection"?(f.textContent="YouTube\u306B\u63A5\u7D9A\u3067\u304D\u307E\u305B\u3093\u3067\u3057\u305F",a.textContent="\u901A\u4FE1\u3092\u78BA\u8A8D\u3057\u3066\u304B\u3089\u3001\u3082\u3046\u4E00\u5EA6\u304A\u8A66\u3057\u304F\u3060\u3055\u3044\u3002",n.textContent="\u3082\u3046\u4E00\u5EA6\u8A66\u3059",n.setAttribute("aria-label","YouTube\u306E\u518D\u751F\u3092\u518D\u8A66\u884C")):(n.hidden=!0,u.style.cssText=O,f.textContent=s==="blocked"?"YouTube\u3067\u518D\u751F\u3057\u3066\u304F\u3060\u3055\u3044":s==="missing"?"\u52D5\u753B\u3092\u898B\u3064\u3051\u3089\u308C\u307E\u305B\u3093":"\u3053\u306E\u30DA\u30FC\u30B8\u3067\u306F\u518D\u751F\u3067\u304D\u307E\u305B\u3093",a.textContent=s==="blocked"?"\u6295\u7A3F\u8005\u306E\u8A2D\u5B9A\u306B\u3088\u308A\u3001\u3053\u306E\u30DA\u30FC\u30B8\u5185\u3067\u306F\u518D\u751F\u3067\u304D\u307E\u305B\u3093\u3002":s==="missing"?"\u524A\u9664\u3055\u308C\u305F\u304B\u3001\u975E\u516C\u958B\u306B\u5909\u66F4\u3055\u308C\u305F\u53EF\u80FD\u6027\u304C\u3042\u308A\u307E\u3059\u3002":"YouTube\u3092\u958B\u304F\u3068\u3001\u52D5\u753B\u306E\u72B6\u614B\u3092\u78BA\u8A8D\u3067\u304D\u307E\u3059\u3002",u.textContent=s==="missing"?"YouTube\u3067\u78BA\u8A8D":"YouTube\u3067\u958B\u304F"),T&&(n.hidden?u:n).focus()};var o=g,t=h;let d=i.getAttribute("data-deck-youtube");if(l.has(i)||!Y(d))continue;let m=e.createElement("div");m.setAttribute(D,""),m.style.cssText="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none;font-size:20px;line-height:1.5;background:var(--dd-surface,Canvas);color:var(--dd-text,CanvasText);gap:16px;text-align:center;padding:32px";let f=e.createElement("span");f.style.fontWeight="600";let a=e.createElement("span");a.setAttribute("role","status"),a.style.maxWidth="90%";let C=e.createElement("div");C.style.cssText="display:flex;gap:24px;align-items:center;justify-content:center;flex-wrap:wrap";let n=e.createElement("button");n.type="button",n.style.cssText=O;let u=e.createElement("a");u.href=`https://www.youtube.com/watch?v=${d}`,u.target="_blank",u.rel="noopener noreferrer";let E=e.createElement("div");E.style.cssText="position:absolute;inset:0;pointer-events:none";let c={player:null,generation:0,holder:E,button:n,idle:g};l.set(i,c),u.addEventListener("click",()=>b(i)),n.onclick=async()=>{g();let s=++c.generation;n.disabled=!0,a.hidden=!1,a.textContent="YouTube\u306B\u63A5\u7D9A\u3057\u3066\u3044\u307E\u3059\u2026";try{if(await M(),s!==c.generation||!_(i))return;let T=e.createElement("div");E.replaceChildren(T),E.style.pointerEvents="auto";let L=r.YT?.Player;if(!L)throw new Error("Player unavailable");c.player=new L(T,{videoId:d,host:"https://www.youtube-nocookie.com",playerVars:{origin:new URL(e.baseURI).origin,playsinline:1,rel:0},events:{onReady:({target:p})=>{if(s!==c.generation){p.destroy();return}clearTimeout(c.timer),n.hidden=!0,n.disabled=!1,a.hidden=!0,p.playVideo()},onError:({data:p})=>{s===c.generation&&h(p===100?"missing":p===101||p===150?"blocked":p===5?"connection":"environment")},onStateChange:({data:p})=>{if(!(p!==1||s!==c.generation)){for(let k of l.keys())k!==i&&b(k);if(e.deckPauseVideos)e.deckPauseVideos();else for(let k of e.querySelectorAll("video"))K(k)}}}});let w=E.querySelector("iframe");w&&(w.style.cssText="width:100%;height:100%;border:0",w.referrerPolicy="strict-origin-when-cross-origin"),c.timer=setTimeout(()=>{s===c.generation&&n.disabled&&h("connection")},15e3)}catch{s===c.generation&&h("connection")}},g(),C.append(n,u),m.append(f,a,C,E),i.append(m)}for(let i of l.keys())i.isConnected||(b(i),l.delete(i));v()}let P=new r.MutationObserver(A);P.observe(e.body,{childList:!0,subtree:!0,attributes:!0,attributeFilter:["data-deck-current","data-studio-active"]});let S=new r.MutationObserver(v);S.observe(e.documentElement,{attributes:!0,attributeFilter:["data-deck-mode","data-deck-overview"]}),r.addEventListener("beforeprint",()=>{for(let o of l.keys())b(o)}),e.addEventListener("visibilitychange",v),e.addEventListener("scroll",v,{capture:!0,passive:!0}),r.addEventListener("resize",v),e.addEventListener("play",o=>{if(o.target instanceof r.HTMLVideoElement)for(let t of l.keys())b(t)},!0),r.addEventListener("pagehide",()=>{for(let o of l.keys())b(o);P.disconnect(),S.disconnect()}),A()}R(document);})();
+/* DECK_MEDIA_END */
+      document.dispatchEvent(new CustomEvent("surprise:deck-layout-ready"));
+    }
+
+    /*
+     * 貼る場所は body の閉じの直前なので、ふつうは枚がもう全部ある——**その場で組む**。
+     * 道具箱（defer の script）は解析が終わってから走るので、必ずこちらが先になる。
+     * head に貼られたときだけ、解析が終わるのを待つ。
+     */
+    if (document.body !== null && document.body.querySelector("main[" + SLIDES + "]") !== null) {
+      start();
+    } else {
+      ready(start);
+    }
+  })();
+</script>
+    <p data-source-note data-source-repo="example-org/handbook" data-source-path="decks/intro.html" data-source-commit="a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0" data-source-committed-at="2026-09-06T18:21:00+09:00">decks/intro.html</p>
+  </body>
+</html>

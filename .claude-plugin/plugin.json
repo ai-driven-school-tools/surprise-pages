@@ -1,0 +1,8 @@
+{
+  "name": "pages",
+  "description": "清書・図解・スライド・ページを読むの 4 つのスキル",
+  "author": {
+    "name": "Pages"
+  },
+  "skills": "./.claude/skills"
+}

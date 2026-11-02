@@ -1,0 +1,74 @@
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# dependencies
+/node_modules
+/.pnp
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/versions
+
+# testing
+/coverage
+/.test-runtime/
+/.test-build/
+/test-results/
+/playwright-report/
+
+# next.js
+/.next/
+/out/
+
+# production
+/build
+
+# misc
+.DS_Store
+*.pem
+
+# debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# env files (can opt-in for committing if needed)
+.env*
+
+# vercel
+.vercel
+
+# typescript
+*.tsbuildinfo
+next-env.d.ts
+
+!.env.example
+# 手元の開発をステージングへ向ける設定。中身は 1Password の参照（op://）だけで値は無い
+!.env.staging-dev.op
+.env*.local
+
+# ページ本体は git に置かない（正本は Supabase の pages / page_revisions）
+/content/
+
+/.pages-site.json
+/dist/
+/backups/
+/.swc
+
+# スキルの Python が作る控え
+**/__pycache__/
+**/.pytest_cache/
+
+# Ephemeral identity files created by the official CI authentication action
+gha-creds-*.json
+
+
+# スライドの共有カードの絵が実行時に読む Chromium と書体の写し（scripts/build/deck-card.mjs が組み立てのたびに作る）
+/.deck-card-runtime/
+
+# 清書スキルの手元実行が作る控え（投稿の成果物。リポジトリには入れない）
+page-out/
+clean-copy-report.json
+clean-copy-work.md

@@ -1,0 +1,74 @@
+/** Real editor, save API and disposable database; never writes to production. */
+import assert from 'node:assert/strict';
+import { spawn } from 'node:child_process';
+import { mkdir, readFile, writeFile } from 'node:fs/promises';
+const { chromium, webkit } = await import(process.env.PLAYWRIGHT_MODULE ?? 'playwright');
+const output='/tmp/deck-skip-qa';
+await mkdir(output,{recursive:true});
+const template=await readFile('src/templates/deck.html','utf8');
+const navigation=template.slice(template.indexOf('-->')+3).match(/<script>[\s\S]*?<\/script>/)[0];
+const legacy=JSON.parse(await readFile('src/templates/deck-navigation-legacy.json','utf8'))[0];
+const sample=await readFile('tests/checks/fixtures/internal/example/deck-design-presentation.html','utf8');
+await writeFile(`${output}/legacy.html`,sample.replace(navigation,()=>legacy));
+for(const [name,engine] of [['chromium',chromium],['webkit',webkit]].filter(([name])=>!process.env.ENGINE||name===process.env.ENGINE)){
+ const server=spawn(process.execPath,['scripts/dev/preview-deck-editor.mjs'],{env:{...process.env,PORT:'0',DECK_EDIT_SAMPLE:`${output}/legacy.html`},stdio:['ignore','pipe','pipe']});
+ let logs='',browser;
+ server.stderr.on('data',data=>logs+=data);
+ try{
+  const url=await new Promise((resolve,reject)=>{const timeout=setTimeout(()=>reject(Error(logs||'preview timeout')),30000);server.stdout.on('data',data=>{const match=String(data).match(/http:\/\/127\.0\.0\.1:\d+/);if(match){clearTimeout(timeout);resolve(match[0]);}});server.once('exit',()=>{clearTimeout(timeout);reject(Error(logs));});});
+  browser=await engine.launch({headless:true,...(name==='chromium'?{channel:'chrome'}:{})});
+  const page=await browser.newPage({viewport:{width:1440,height:1000},reducedMotion:'reduce'});
+  page.setDefaultTimeout(30000);
+  const errors=[];page.on('pageerror',e=>errors.push(e.message));
+  const open=async()=>{await page.goto(url+'/?edit=1');await page.locator('.ds-slide').first().waitFor();};
+  const frame=page.frameLocator('iframe.edit-frame');
+  const saved=async()=>{await page.locator('.deck-edit-status').filter({hasText:'保存済み'}).waitFor();};
+  const menu=async label=>{await page.getByRole('button',{name:'スライドの操作',exact:true}).click();await page.getByRole('menuitem',{name:label+' — スライド',exact:true}).click();await saved();};
+  await open();
+  const count=await page.locator('.ds-slide').count();assert.ok(count>3);
+  await page.locator('.ds-slide').nth(1).click();await menu('発表でスキップ');
+  await page.locator('.ds-slide[data-skipped]').waitFor();
+  assert.equal(await frame.locator('section[data-deck-slide]').nth(1).getAttribute('data-deck-skip'),'true');
+  await page.getByRole('button',{name:'元に戻す',exact:true}).click();await saved();
+  assert.equal(await page.locator('.ds-slide[data-skipped]').count(),0);
+  await page.getByRole('button',{name:'やり直す',exact:true}).click();await saved();
+  await page.locator('.ds-slide[data-skipped]').waitFor();
+  await open();
+  assert.equal(await page.locator('.ds-slide[data-skipped]').count(),1);
+  await page.locator('.ds-slide').nth(2).click({modifiers:['Shift']});await menu('発表でスキップ');
+  assert.equal(await page.locator('.ds-slide[data-skipped]').count(),3); // Reload selects first; add third to selection.
+  await page.screenshot({path:`${output}/${name}-skipped.png`});
+  await page.locator('.ds-slide').first().click();
+  await page.getByRole('button',{name:'発表',exact:true}).click();
+  await frame.locator('html[data-deck-mode="present"]').waitFor();
+  const shown=()=>frame.locator('[data-deck-current] [data-deck-stage]').getAttribute('data-deck-index');
+  assert.equal(await shown(),'4');
+  await frame.locator('[data-deck-exit]').click();
+  await page.locator('.ds-slide').first().click();
+  for(let i=1;i<count;i++)await page.locator('.ds-slide').nth(i).click({modifiers:['Shift']});
+  await menu('発表でスキップ');
+  assert.equal(await page.locator('.ds-slide[data-skipped]').count(),count);
+  await page.getByRole('button',{name:'発表',exact:true}).click();
+  await page.getByText('すべてのスライドがスキップされています。1枚以上解除してください',{exact:true}).waitFor();
+  assert.equal(await frame.locator('html[data-deck-mode="present"]').count(),0);
+  await menu('スキップを解除');assert.equal(await page.locator('.ds-slide[data-skipped]').count(),0);
+  await page.locator('.ds-slide').nth(1).click();await menu('発表でスキップ');
+  await page.goto(url+'/reader');
+  await page.locator('[data-deck-frame]').first().waitFor();
+  const start=page.getByRole('button',{name:'プレゼンを始める',exact:true});await start.click();
+  const current=()=>page.locator('[data-deck-current] [data-deck-stage]').getAttribute('data-deck-index');
+  assert.equal(await current(),'1');
+  await page.keyboard.press('ArrowRight');assert.equal(await current(),'3');
+  await page.keyboard.press('ArrowLeft');assert.equal(await current(),'1');
+  await page.keyboard.press('o');assert.equal(await page.locator('[data-deck-frame][data-deck-skip]').isVisible(),false);
+  await page.emulateMedia({media:'print'});assert.equal(await page.locator('[data-deck-frame]:visible').count(),count);
+  await page.emulateMedia({media:'screen'});await page.keyboard.press('o');
+  await page.keyboard.press('Escape');
+  await page.locator('html:not([data-deck-mode="present"])').waitFor();
+  await page.emulateMedia({media:'print'});
+  assert.equal(await page.locator('[data-deck-frame]:visible').count(),count);
+  await page.emulateMedia({media:'screen'});
+  assert.deepEqual(errors,[]);
+  console.log('PASS',name,'旧資料の保存・取り消し・再読み込み・複数選択・全枚スキップ・発表・印刷');
+ }finally{await browser?.close();server.kill('SIGTERM');}
+}

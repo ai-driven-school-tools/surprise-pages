@@ -1,0 +1,30 @@
+import assert from 'node:assert/strict';
+import {build} from 'esbuild';
+import {readFile} from 'node:fs/promises';
+import {JSDOM} from 'jsdom';
+import {root,dir} from './paths.mjs';
+await build({stdin:{contents:`export * from './src/widget/deck/edit/media-queue';export * from './src/lib/deck/media/failure';`,resolveDir:root},outfile:`${dir}/media-feedback.js`,bundle:true,format:'iife',globalName:'Feedback'});
+const dom=new JSDOM('<body></body>',{url:'https://example.test',runScripts:'outside-only',pretendToBeVisual:true});
+dom.window.eval((await readFile(`${dir}/media-feedback.js`,'utf8'))+';window.Feedback=Feedback;');
+const {createDeckMediaQueue,MediaFailure}=dom.window.Feedback;
+const wait=async test=>{for(let i=0;i<100;i++){if(test())return;await new Promise(r=>setTimeout(r,10));}throw Error('UI state timed out');};
+let choose,accepted=false;
+const queue=createDeckMediaQueue({page:'internal/test',chooseFile:receive=>{choose=receive;},changed:()=>{},fail:message=>{throw Error(message);},open:()=>true,recoverSave:()=>{}});
+dom.window.document.body.append(queue.trigger,queue.root);
+queue.enqueue({id:'file',name:'broken.png',run:async()=>{if(!accepted)throw new MediaFailure('invalid-file','invalid bytes');return {message:'追加済み'};},reselect:()=>{accepted=true;}});
+await wait(()=>queue.root.querySelector('[data-state=failed]'));
+assert.equal(queue.root.hidden,true);assert.equal(queue.trigger.getAttribute('aria-expanded'),'false');console.log('OK  失敗しても編集を覆わず下部で確認を知らせる');
+queue.trigger.click();assert.equal(queue.root.hidden,false);assert.equal(dom.window.document.activeElement,queue.root.querySelector('h2'));console.log('OK  利用者が開いたときだけ詳細へ焦点を移す');
+const row=queue.root.querySelector('.ds-media-item');assert.equal(row.querySelector('.ds-primary').textContent,'ファイルを選び直す');assert.equal(row.querySelectorAll('.ds-media-actions button').length,1);assert.ok(!row.textContent.includes('再試行'));console.log('OK  壊れたファイルに無意味な再試行を提示しない');
+row.querySelector('.ds-primary').click();choose(new dom.window.File(['ok'],'replacement.png',{type:'image/png'}));await wait(()=>row.dataset.state==='saved');assert.equal(queue.root.querySelectorAll('.ds-media-item').length,1);assert.equal(row.querySelector('.ds-media-name').textContent,'replacement.png');console.log('OK  選び直すと同じ項目で再開し失敗したファイルを積み残さない');
+queue.root.dispatchEvent(new dom.window.KeyboardEvent('keydown',{key:'Escape',bubbles:true}));assert.equal(queue.root.hidden,true);assert.equal(dom.window.document.activeElement,queue.trigger);console.log('OK  Escapeで編集へ戻り下部の入口へ焦点を返す');
+queue.enqueue({id:'network',name:'upload.png',run:async()=>{throw new MediaFailure('connection','network');}});await wait(()=>queue.root.querySelector('[data-state=failed]'));
+assert.equal(queue.root.querySelector('[data-state=failed] .ds-primary').textContent,'もう一度送る');console.log('OK  通信の問題にはファイル選択ではなく再送を案内する');
+queue.dispose();
+// 動画の軽量化の状況（jobs）を読む仕組みはこの版に無い（画像だけを受け取る）ので、その確かめは置かない
+const options={page:'internal/test',chooseFile:()=>{},changed:()=>{},fail:message=>{throw Error(message);},open:()=>true,recoverSave:()=>{}};
+let oldRun,calls=0;
+const retry=createDeckMediaQueue(options);dom.window.document.body.append(retry.root,retry.trigger);
+retry.enqueue({id:'retry',name:'retry.png',run:async()=>{calls++;if(calls===1)return new Promise(resolve=>{oldRun=resolve;});return {message:'新しい送信が完了しました'};}});await wait(()=>!!oldRun);
+
+const retryRow=retry.root.querySelector('.ds-media-item');retryRow.querySelector('.ds-media-actions button').click();retryRow.querySelector('.ds-media-actions button').click();await wait(()=>retryRow.dataset.state==='saved');oldRun({message:'古い送信'});await new Promise(resolve=>setTimeout(resolve,20));assert.equal(retryRow.querySelector('.ds-media-item-status').textContent,'新しい送信が完了しました');console.log('OK  中止して再開した後に古い送信結果を表示しない');retry.dispose();dom.window.close();

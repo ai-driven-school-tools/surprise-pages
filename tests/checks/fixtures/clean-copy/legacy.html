@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex">
+  <meta name="googlebot" content="noindex, nofollow">
+  <meta property="og:title" content="清書の見本">
+  <meta property="og:description" content="見本">
+  <meta property="og:type" content="article">
+  <!-- ここの見出しが Pages の一覧にそのまま並ぶ。内容が分かる日本語にする -->
+  <title>清書の見本</title>
+  <!-- Pages の印。形の正本は配信側の src/lib/settings/brand.ts -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27><style>.t{fill:%23171717}.s{fill:%23ffffff;stroke:%23ffffff}.f{fill:%23171717;stroke:%23171717}@media(prefers-color-scheme:dark){.t{fill:%23f5f5f5}.s{fill:%230a0a0a;stroke:%230a0a0a}.f{fill:%23f5f5f5;stroke:%23f5f5f5}}</style><rect class=%27t%27 width=%2732%27 height=%2732%27 rx=%277.5%27/><path class=%27s%27 d=%27M8 5h8l8 8v14H8z%27 stroke-width=%271.4%27 stroke-linejoin=%27round%27/><path class=%27f%27 d=%27M16 5l8 8h-8z%27 stroke-width=%271.4%27 stroke-linejoin=%27round%27/></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&display=swap" rel="stylesheet">
+  <!-- 端末の枠（スマホのアドレスバー）も、ページの明暗に合わせる -->
+  <meta name="theme-color" media="(prefers-color-scheme: light)" content="#ffffff">
+  <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#0f172a">
+  <style>
+    /*
+      色の名前と、その明暗 2 組の値。**ページの色はここだけで決まる。**
+
+      本文には dark: を 1 つも書かない。図解は 1 枚ごとに新しく組まれるので、
+      色を書く場所が毎回ちがう——書き忘れた 1 か所は黒地に黒い字として残り、
+      書いた人の画面（たいてい明るい設定）では最後まで見えない。
+
+      値の決め方は 2 本だけ。
+        読む字（text / body / muted）… 明るい側と読みやすさ（APCA）の段差比をそろえる
+        読まない印（面・線・意味の色）… 明るい側と地との比をそろえる
+      床はどちらも「最も不利な面（surface-2）の上で」測る。読む字 4.5 : 1、読まない印 3 : 1。
+    */
+    :root {
+      /* このページは明暗どちらでも読める、という宣言。
+         スクロールバー・フォーム部品・地の余白がこれで一緒に付いてくる */
+      color-scheme: light dark;
+
+      /* 面（地 → 面 → 重ね → 線）*/
+      --ads-bg:        255 255 255;  /* white     */
+      --ads-surface:   248 250 252;  /* 地との比 1.05 */
+      --ads-surface-2: 241 245 249;  /* 地との比 1.10 */
+      --ads-border:    226 232 240;  /* 地との比 1.23 */
+
+      /* 読む字（比は最も不利な面の上での値）*/
+      --ads-text:       15  23  42;  /* 16.3 : 1 */
+      --ads-body:       71  85 105;  /*  6.9 : 1 */
+      --ads-muted:      98 113 136;  /*  4.5 : 1 */
+
+      /* 読まない印 */
+      --ads-line:      127 143 165;  /* 図の矢印・経路・記号  3.0 : 1 */
+      --ads-accent:     37  99 235;  /* 主要  4.7 : 1 */
+      --ads-positive:    4 120  87;  /* 成功  5.0 : 1 */
+      --ads-negative:  220  38  38;  /* 危険  4.4 : 1 */
+    }
+
+    /*
+      `screen and` を付けているのは、紙に刷るときに暗い側が当たらないようにするため。
+      ただしそれだけに頼らず、下の @media print で明るい側を書き直してもいる。
+    */
+    @media screen and (prefers-color-scheme: dark) {
+      :root {
+        /* 真っ黒にしないのは、面を 3 段重ねる余地を残すため・低階調の
+           バンディングと黒スミアを避けるため・暗所のグレアを避けるため */
+        --ads-bg:        15  23  42;
+        --ads-surface:   19  28  46;
+        --ads-surface-2: 22  32  50;
+        --ads-border:    31  42  60;
+
+        --ads-text:     226 232 240;  /* 白へ寄せない（細い日本語がにじむ）*/
+        --ads-body:     196 207 220;
+        --ads-muted:    176 189 205;
+
+        --ads-line:      91 107 129;
+        --ads-accent:    59 130 246;
+        --ads-positive:   5 150 105;
+        --ads-negative: 239  68  68;
+      }
+      /* 暗い地では字が太って見える。macOS だけ効く指定だが、効く環境ではにじみが減る */
+      body { -webkit-font-smoothing: antialiased; }
+    }
+
+    /* 地の文の濃さは額縁が持つ。本文に色を書かせない＝書き忘れが起きない */
+    body { color: rgb(var(--ads-body)); }
+
+    /*
+      先頭へ戻る。**画面の左下に浮かせる**。理由は 2 つ。
+
+        ・指がいちばん届くのは画面の下。上端の隅は、スマホでは最も遠い
+        ・右下は配信側の道具の席（全幅で右下固定・268x44・右と下から 24px）
+
+      広い画面では、左下に貼り付けると本文から離れすぎるので、**本文の列の左肩**に寄せる。
+      下の calc は「本文の列（768px）の左端から、自分の幅ぶん外へ」。狭い画面では
+      負になるので max が 24px を選び、そのまま左下になる。
+
+      道具の帯（PDF）は**貼り付けない**。滅多に押さないものに画面の上端を
+      恒久的に使わせない。読みながら書き出したくなったら、この矢印で頭へ戻る。
+    */
+    html { scroll-behavior: smooth; }
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+    }
+    #sp-to-top {
+      position: fixed;
+      bottom: 24px;
+      left: max(24px, calc(50% - 384px - 56px));
+      z-index: 30;
+      transition: opacity 0.15s ease, visibility 0.15s ease, color 0.15s ease;
+    }
+    #sp-to-top[data-ads-at-top] {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+
+    /* 押せるもの・選んだところ・辿ってきたところ。本文に色を書かせないので額縁が持つ */
+    a { color: rgb(var(--ads-accent)); text-decoration: underline; text-underline-offset: 0.2em; }
+    ::selection { background: rgb(var(--ads-accent) / 0.25); color: rgb(var(--ads-text)); }
+    :focus-visible { outline: 2px solid rgb(var(--ads-accent)); outline-offset: 2px; }
+
+    /*
+      実在の画面を模した「絵」。中は生の色で閉じているので明暗で反転しない。
+      印を付けると、この 3 つがまとめて付いてくる。
+        1. 1px の輪郭 … 暗い絵は暗い地に、明るい絵は明るい地に溶ける
+        2. color-scheme … 絵の中のスクロールバー・フォーム部品・選択色を絵に合わせる
+        3. 紙では地ごと刷る … 背景を落として刷ると、黒い窓の中の明るい字が消える
+      コメントの赤入れも、この宣言を読んで絵の側の色で描かれる。
+    */
+    [data-ads-figure] {
+      box-shadow: 0 0 0 1px rgb(var(--ads-border));
+      print-color-adjust: exact;
+      -webkit-print-color-adjust: exact;
+    }
+    [data-ads-figure="light"] { color-scheme: light; }
+    [data-ads-figure="dark"]  { color-scheme: dark;  }
+
+    @media print {
+      /* 明るい側を書き直す。「暗い側が当たらないこと」だけに頼らない */
+      :root {
+        color-scheme: light;
+        --ads-bg: 255 255 255; --ads-surface: 248 250 252; --ads-surface-2: 241 245 249;
+        --ads-border: 226 232 240; --ads-text: 15 23 42; --ads-body: 71 85 105;
+        --ads-muted: 98 113 136; --ads-line: 127 143 165; --ads-accent: 37 99 235;
+        --ads-positive: 4 120 87; --ads-negative: 220 38 38;
+      }
+      .no-print { display: none !important; }
+      /* 先頭へ戻るには no-print を付けられない（配信側がその印を「書き出しの口の
+         置き場」の目印に使うので、道具の行より先に見つかると口がここへ入る）。
+         だから名指しで消す */
+      #sp-to-top { display: none !important; }
+      body { border-top: none !important; -webkit-font-smoothing: subpixel-antialiased; }
+      .rounded-xl { break-inside: avoid; }
+      .md\:flex-row { flex-direction: row !important; }
+      .md\:hidden { display: none !important; }
+      .hidden.md\:block { display: block !important; }
+      .md\:grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+      .sm\:grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)) !important; }
+      .md\:mb-20 { margin-bottom: 5rem !important; }
+      .md\:py-16 { padding-top: 4rem !important; padding-bottom: 4rem !important; }
+      /* 畳んだトグルの中身が紙から丸ごと落ちるのを防ぐ（印刷時は必ず開く） */
+      details { display: block !important; }
+      details > summary { list-style: none; }
+      details > *:not(summary) { display: revert !important; }
+    }
+  </style>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    /*
+      色は必ず `rgb(var(--x) / <alpha-value>)` の形で渡す。
+      素の `var(--x)` にすると、Tailwind が色として読めず
+      **不透明度の指定（border-ads-border/30 など）が黙って落ちる**。
+    */
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            ads: {
+              bg:          'rgb(var(--ads-bg) / <alpha-value>)',
+              surface:     'rgb(var(--ads-surface) / <alpha-value>)',
+              'surface-2': 'rgb(var(--ads-surface-2) / <alpha-value>)',
+              border:      'rgb(var(--ads-border) / <alpha-value>)',
+              text:        'rgb(var(--ads-text) / <alpha-value>)',
+              body:        'rgb(var(--ads-body) / <alpha-value>)',
+              muted:       'rgb(var(--ads-muted) / <alpha-value>)',
+              line:        'rgb(var(--ads-line) / <alpha-value>)',
+              accent:      'rgb(var(--ads-accent) / <alpha-value>)',
+              positive:    'rgb(var(--ads-positive) / <alpha-value>)',
+              negative:    'rgb(var(--ads-negative) / <alpha-value>)',
+            }
+          },
+          // 色を書かずに `border` だけ書いたときの既定。
+          // これが無いと Tailwind の既定（gray-200）が暗い側でも白く残る
+          borderColor: { DEFAULT: 'rgb(var(--ads-border))' },
+          fontFamily: {
+            sans: ['"Noto Sans JP"', '"Hiragino Sans"', '"Hiragino Kaku Gothic ProN"', '"Yu Gothic UI"', '"Meiryo"', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+<style data-clean-copy-style="reading">@media screen{main[data-clean-copy-document]:has(article[data-clean-copy-source-id]) > :is(section,details) + :is(section,details){margin-block-start:96px}}@media screen and (max-width:640px){main[data-clean-copy-document]:has(article[data-clean-copy-source-id]) > :is(section,details) + :is(section,details){margin-block-start:64px}}</style>
+</head>
+<body id="sp-top" class="bg-ads-bg antialiased leading-relaxed border-t-4 border-ads-accent">
+  <!--
+    道具の行（PDF）。**貼り付けない**——滅多に押さないものに画面の上端を恒久的に
+    使わせない。本文と一緒に流れていき、使いたくなったら左下の矢印で頭へ戻る。
+
+    no-print はこの横並びの行に付ける。配信側（surprise-pages）は公開時に
+    src/widget/reading/page-export.ts を走らせ、`最初の .no-print` を書き出しの口の置き場に選び、
+    **その中の `<button>` を全部消してから**自分の口（アイコンだけのメニュー）を足す。
+    外側にもう 1 枚箱を作ってそちらに付けると、口が行の外＝左端に出る。
+
+    PDF ボタンに**字を置かない**。置き換えは配信側の道具が届いてから起きるので、
+    その間だけ字が見える。差し替わると字が消えて幅が縮み、隣まで横へ跳ぶ
+    （実測で 60px → 32px）。向こうの口と同じ形（32px 角・角丸 4px。向こうの
+    --size-control と --radius-sm）にしておけば、入れ替わっても見た目が変わらない。
+  -->
+  <div class="no-print max-w-3xl mx-auto pl-5 pr-3 py-2 flex justify-end items-center">
+    <button type="button" onclick="window.print()" class="inline-flex items-center justify-center h-8 w-8 rounded text-ads-muted hover:text-ads-accent hover:bg-ads-surface transition-colors cursor-pointer" aria-label="PDF にする" title="PDF にする">
+      <i data-lucide="download" class="w-4 h-4"></i>
+    </button>
+  </div>
+  <main data-clean-copy-document="" class="max-w-3xl mx-auto px-5 py-10 md:py-16">
+<!-- CONTENT_START -->
+<h1 class="text-3xl md:text-4xl font-black text-ads-text tracking-tight mb-10">清書の見本</h1>
+<p class="text-ads-muted mb-6">最初の段落です。<strong class="font-bold text-ads-text">強い強調</strong> と <em class="not-italic font-bold text-ads-muted">弱い強調</em> と <code class="font-mono text-sm bg-ads-bg border border-ads-border rounded px-1.5 py-0.5 text-ads-text">コード</code> を含みます。<a href="https://example.com">リンク</a> もあります。</p>
+<section class="mb-20 md:mb-24">
+<h2 class="text-xl md:text-2xl font-bold text-ads-text mb-6">節の見出し</h2>
+<p class="text-ads-muted mb-6">段落がもう 1 つ。</p>
+<h3 class="text-lg font-bold text-ads-text mb-3">小見出し</h3>
+<ul class="list-disc pl-5 marker:text-ads-line space-y-2 mb-6 text-ads-muted">
+<li>箇条書きの 1</li>
+<li>箇条書きの 2</li>
+</ul>
+<ol class="list-decimal pl-5 marker:text-ads-line space-y-2 mb-6 text-ads-muted">
+<li>番号の 1</li>
+<li>番号の 2</li>
+</ol>
+<table class="w-full text-sm border-collapse mb-6">
+<thead>
+<tr>
+<th class="border border-ads-border px-3 py-2 text-ads-muted font-bold text-left">列 A</th>
+<th class="border border-ads-border px-3 py-2 text-ads-muted font-bold text-left">列 B</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="border border-ads-border px-3 py-2">値 1</td>
+<td class="border border-ads-border px-3 py-2">値 2</td>
+</tr>
+</tbody>
+</table>
+<figure class="bg-ads-surface rounded-2xl p-8 md:p-10 mb-6 text-center">
+<blockquote class="inline-block text-left text-lg md:text-xl font-bold text-ads-text">短い引用です。</blockquote>
+</figure>
+<pre class="bg-ads-surface rounded-xl p-5 overflow-x-auto mb-6"><code class="font-mono text-sm text-ads-text">コードのかたまり</code></pre>
+</section>
+<!-- CONTENT_END -->
+  </main>
+  <!--
+    先頭へ戻る。**道具の行の中に置かない**——あの行の中の <button> は配信側に
+    全部消されるので、外に出しておく（外なら button のままでよい）。
+    位置と理由は head の #sp-to-top のところに書いてある。
+
+    器は「必要なときだけ現れる」濃さにする。白い場所ではほぼ矢印だけに見え、
+    文字の上に来たときだけすりガラスが場所を空ける。丸にしないのは、丸が
+    「主要な操作」の記号で、配信側の角丸の道具とも別の系統に見えるため。
+  -->
+  <button type="button" id="sp-to-top" data-ads-at-top class="inline-flex items-center justify-center h-11 w-11 rounded-xl border border-ads-border/70 bg-ads-bg/80 backdrop-blur-md text-ads-muted hover:text-ads-accent cursor-pointer" aria-label="一番上に戻る" title="一番上に戻る">
+    <i data-lucide="arrow-up" class="w-5 h-5"></i>
+  </button>
+  <footer class="max-w-3xl mx-auto px-5 pb-10 pt-6 border-t border-ads-border/30">
+    <p class="text-xs text-ads-muted text-center">Pages</p>
+  </footer>
+  <!--
+    コメント機能の script タグはここに書かない。
+    配信時にサーバー側が自動で差し込むため、ページ側で読み込むと二重になる。
+  -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>
+    lucide.createIcons();
+    // 先頭へ戻るの出し入れと、押されたときの動き。
+    //
+    // 頭へ運ぶのは自分でやる。滑らかさと「動きを減らす」設定は、上の scroll-behavior が持つ。
+    (() => {
+      const button = document.getElementById("sp-to-top");
+      if (!button) return;
+      button.addEventListener("click", () => {
+        document.getElementById("sp-top").scrollIntoView();
+      });
+      // 出る境目と隠れる境目をずらす。1 点で切り替えると、その付近を行き来する
+      // 小さな上下（慣性スクロールの揺り戻しなど）でボタンが点滅する
+      const SHOW = 320;
+      const HIDE = 160;
+      let waiting = false;
+      const sync = () => {
+        waiting = false;
+        const y = window.scrollY;
+        const hidden = button.hasAttribute("data-ads-at-top");
+        if (hidden && y > SHOW) button.removeAttribute("data-ads-at-top");
+        else if (!hidden && y < HIDE) button.setAttribute("data-ads-at-top", "");
+      };
+      // scroll は 1 回の指の動きで何十回も来る。描画の 1 コマにつき 1 回へ間引く
+      window.addEventListener("scroll", () => {
+        if (waiting) return;
+        waiting = true;
+        requestAnimationFrame(sync);
+      }, { passive: true });
+      sync();
+    })();
+  </script>
+</body>
+</html>

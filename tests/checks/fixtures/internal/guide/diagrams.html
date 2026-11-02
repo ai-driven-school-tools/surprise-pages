@@ -1,0 +1,631 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>図の入れ方</title>
+    <style>
+      :root { color-scheme: light dark; }
+      body {
+        margin: 0 auto;
+        padding: 48px 24px 96px;
+        max-width: 760px;
+        font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Noto Sans JP", sans-serif;
+        line-height: 1.8;
+      }
+      pre.mermaid { margin: 24px 0 0; }
+    </style>
+    <!--
+      ここから下は src/templates/mermaid.html の一式をそのまま写したもの。
+      **字下げも含めて 1 文字も変えない**（check-vendor が写しと正本を突き合わせる）。
+      直すときは正本のほうを直して、この写しを取り直す。
+    -->
+<script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+<style>
+  /*
+   * 図の置き方。**幅が足りなくても縮めない**のが、ここの芯。
+   *
+   * 器に合わせて縮めると、図の中の字だけがページの文字の目盛りから外れる
+   * （幅 390px の画面では 0.44 倍まで落ち、14px の字が 5px になって読めない）。
+   * 図は本文の一部なので、中の字は本文と同じ物差しに乗っていないといけない。
+   * 縮めなければ、節点や登場人物の名前は 14px・矢印に乗る札は 12px で、
+   * 額縁の text-sm / text-xs とそのままそろう。
+   *
+   * だから足りないときは、縮めるのではなく**横へ送る**。コードのかたまりと同じ扱い。
+   */
+  pre.mermaid {
+    overflow-x: auto;
+    /* 図の端まで送りきったあと、勢いでページごと横に動くのを止める */
+    overscroll-behavior-x: contain;
+  }
+  pre.mermaid > svg {
+    display: block;
+    /* 収まるときは真ん中に。はみ出すときは auto が 0 になって左端から始まる */
+    margin-inline: auto;
+  }
+  /*
+   * 日程の日付だけは、図の道具ではなくその下の目盛りの道具が 10px と書き込んでいて、
+   * 初期化の値では動かせない。ページの目盛りの外の大きさなので、ここで text-xs に戻す。
+   */
+  pre.mermaid .grid .tick text {
+    font-size: 12px;
+  }
+  /*
+   * まだ先があることは、**図そのものを端で溶かして**示す。
+   * 帯や線を足すと、図の中に無い線が 1 本増える。足すのではなく引いて示す。
+   * 印を出さないと、全部見えているのか途中で切れているのかが区別できない。
+   */
+  pre.mermaid[data-overflow="right"] {
+    -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 32px), transparent);
+    mask-image: linear-gradient(to right, #000 calc(100% - 32px), transparent);
+  }
+  pre.mermaid[data-overflow="left"] {
+    -webkit-mask-image: linear-gradient(to left, #000 calc(100% - 32px), transparent);
+    mask-image: linear-gradient(to left, #000 calc(100% - 32px), transparent);
+  }
+  pre.mermaid[data-overflow="both"] {
+    -webkit-mask-image: linear-gradient(to right, transparent, #000 32px, #000 calc(100% - 32px), transparent);
+    mask-image: linear-gradient(to right, transparent, #000 32px, #000 calc(100% - 32px), transparent);
+  }
+  /* 紙の上では横へ送れない。刷るときだけ、収まるまで縮める */
+  @media print {
+    pre.mermaid {
+      overflow: visible;
+      -webkit-mask-image: none;
+      mask-image: none;
+    }
+    pre.mermaid > svg {
+      max-width: 100%;
+      height: auto;
+    }
+  }
+</style>
+<script>
+  /*
+   * 色は**額縁が名前で持っていれば、そちらを先に見る**（--ads-* / 社内スキルの base.html）。
+   * 名前が無い素のページでは、ここに書いた無彩色に落ちる。値は額縁と同じ
+   * （スキルの base.html の --ads-*。明 / 暗の順に hex で写す）。
+   *
+   * 図の道具は CSS を読まないので、いったん値にしてから渡す。
+   * 名前があるときは暗い側の値も名前の側で入れ替わっているため、ここでは明暗を見分けない。
+   * 落ちたときだけ見分ける（選び直しは起動時の 1 度だけ。描いたあとに OS の設定を
+   * 変えても切り替わらない）。
+   */
+  const paint = getComputedStyle(document.documentElement);
+  const dark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+  const color = (name, fallback) => {
+    const named = paint.getPropertyValue(name).trim();
+    return named ? `rgb(${named})` : fallback;
+  };
+  /* 書体の並びは額縁（スキルの base.html の fontFamily.sans）と同じ。図の字だけ別の書体にしない
+     （Windows で Segoe UI と Yu Gothic UI が抜けると、図だけメイリオか Noto で出ていた） */
+  const FONT = '-apple-system, BlinkMacSystemFont, "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Segoe UI", "Yu Gothic UI", "Meiryo", "Noto Sans JP", sans-serif';
+  const SVG_NS = "http://www.w3.org/2000/svg";
+
+  const ink = color("--ads-text", dark ? "#f5f5f5" : "#171717"); /* 文字 */
+  const faint = color("--ads-muted", dark ? "#a3a3a3" : "#636363"); /* 添えの文字 */
+  const line = color("--ads-line", "#737373"); /* つなぐ線・図の記号（明暗とも同じ中間の灰） */
+  const edge = color("--ads-border", dark ? "#262626" : "#e5e5e5"); /* 囲みの線（面の輪郭） */
+  const face = color("--ads-surface-2", dark ? "#000000" : "#f5f5f5"); /* 面（日程の帯など。地との差が見える面 2 段目） */
+  const paper = color("--ads-bg", dark ? "#171717" : "#ffffff"); /* 紙 */
+
+  /*
+   * 図の種類ごとの置き方。既定はどれも「器に合わせて縮める」なので、書ける 4 種すべてで切る。
+   * 縮めない代わりに、上の style が横へ送れるようにしている。
+   *
+   * 日程だけは器の幅で組み直す図で、狭い器に入れると目盛りが重なる
+   * （幅 390px の器では 15 個中 14 か所が重なった）。だから幅を先に決めて、
+   * 器のほうに合わせさせない。
+   */
+  const LAYOUT = { useMaxWidth: false };
+
+  /*
+   * 日程の図の寸法。横は 3 つに割れている。
+   *
+   *   左（区間名の列）＋ 中（帯と日付が並ぶところ）＋ 右（帯からはみ出した字の逃げ場）
+   *
+   * 中の 570 は、3 週間ぶんの日付が重ならずに並ぶ幅。左は名前の長さで伸びるが、
+   * そのぶん全体を広げるので、**中はどのページでも同じ幅**になる（下の ganttSize）。
+   * 左右の 75 は図の道具の既定で、短い名前のときは今までと同じ見た目のまま。
+   *
+   * 360 は、段が狭いときに中を詰めてよい下限。ここまでなら日付は間引かれて生き残る。
+   * これより下は詰めずに横へ送る（詰め続けると帯が数 px になって、図の意味が消える）。
+   */
+  const GANTT_GUTTER = 75;
+  const GANTT_PLOT = 570;
+  const GANTT_PLOT_MIN = 360;
+  const GANTT_RIGHT = 75;
+  /* 区間名の字。図の道具はこの名前を左端から 10px の位置に置く */
+  const SECTION_FONT_SIZE = 14;
+  const SECTION_X = 10;
+  /* 矢印に乗る札は text-xs。節点の名前（14px）から 1 段落として、名詞と動詞を分ける */
+  const EDGE_FONT_SIZE = 12;
+  /* 状態遷移図の始点の●。道具の既定は半径 7 で、線だけの図の中では面積が勝ちすぎる */
+  const START_RADIUS = 5;
+
+  /* ganttSize が出した左の列の幅。区間名をそろえるのに、描き終わってからも要る */
+  let ganttGutter = GANTT_GUTTER;
+
+  const CONFIG = {
+    /* 描き終わりを掴んで手当てするので、任せずに自分で走らせる */
+    startOnLoad: false,
+    theme: "base",
+    /*
+     * 図の中の字は text-sm にそろえる。既定のままだと順序図だけ 16px（地の文と同寸）で、
+     * 流れ図・状態遷移図の 14px から外れる。
+     * 順序図は登場人物・やりとり・注記を個別に指定できるように見えて、
+     * ここの 1 つが 3 つとも上書きするので、そろえるならここで決めるほかない。
+     */
+    fontSize: 14,
+    flowchart: LAYOUT,
+    sequence: LAYOUT,
+    state: LAYOUT,
+    /* 日程だけは字が 2 段ある。区間の名前が text-sm、帯の中と日付が text-xs */
+    gantt: {
+      ...LAYOUT,
+      fontSize: 12,
+      sectionFontSize: SECTION_FONT_SIZE,
+      rightPadding: GANTT_RIGHT,
+    },
+    themeVariables: {
+      fontFamily: FONT,
+      fontSize: "14px",
+      background: paper,
+      /*
+       * 流れ図・状態遷移図の節点。**入れ物なので輪郭だけ**にする（面＝量、線＝入れ物）。
+       * 塗りと輪郭を両方持たせると、囲む役の道具が 1 つの箱に 2 つ乗る。
+       * 紙の色にしておけば、矢印は箱の手前で止まり、注記（紙＋輪郭）とも語彙がそろう。
+       */
+      primaryColor: paper,
+      primaryTextColor: ink,
+      primaryBorderColor: edge,
+      secondaryColor: paper,
+      tertiaryColor: paper,
+      lineColor: line,
+      textColor: ink,
+      /* 矢印の札の下敷き。矢印を隠すためのものなので、面の色ではなく紙の色 */
+      edgeLabelBackground: paper,
+      /*
+       * 図の題と、日程の区間名。名前を渡さないと図の道具が「紙の色の反対」を自分で計算し、
+       * 明るい画面では真っ黒（#000）、暗い画面ではクリーム色になって、
+       * すぐ隣の帯の中の字（額縁の文字色）と違う色で出る。
+       */
+      titleColor: ink,
+      /* 日程。帯は面（面の上に置かれても輪郭で読めるよう、縁は線の色）*/
+      sectionBkgColor: paper,
+      altSectionBkgColor: paper,
+      sectionBkgColor2: paper,
+      taskBkgColor: face,
+      taskBorderColor: line,
+      taskTextColor: ink,
+      taskTextOutsideColor: ink,
+      taskTextDarkColor: ink,
+      activeTaskBkgColor: face,
+      activeTaskBorderColor: ink,
+      doneTaskBkgColor: paper,
+      doneTaskBorderColor: edge,
+      /* 「急ぎ」の既定は赤。赤は危険の色なので、縁の濃さの違いに落とす */
+      critBkgColor: face,
+      critBorderColor: ink,
+      /* 目盛りは読ませるものではない。既定のままだと帯より濃く出て、日付より格子が目に入る */
+      gridColor: edge,
+      /* 「今日」の線。既定は赤。ただの目盛りに危険の色を使わない */
+      todayLineColor: line,
+      /* 順序図。登場人物も入れ物なので輪郭だけ（節点と同じ扱い） */
+      actorBkg: paper,
+      actorBorder: edge,
+      actorTextColor: ink,
+      actorLineColor: edge,
+      signalColor: ink,
+      signalTextColor: ink,
+      /* まとまりの見出しの札。生命線の上に乗って隠す役なので、ここは面のまま */
+      labelBoxBkgColor: face,
+      labelBoxBorderColor: edge,
+      labelTextColor: ink,
+      loopTextColor: faint,
+      noteBkgColor: paper,
+      noteBorderColor: edge,
+      noteTextColor: faint,
+      /* 呼ばれている間。長さが意味を持つ＝量なので、帯と同じく面で読ませる */
+      activationBkgColor: face,
+      activationBorderColor: edge,
+      sequenceNumberColor: paper,
+    },
+  };
+
+  /*
+   * 日程の図の、左の列の幅を決める。
+   *
+   * 図の道具は左を 75px の決め打ちで取るが、これは英語の短い名前を想定した幅で、
+   * 日本語だと 6 文字（84px）で足りなくなる。あふれた名前は消えも折れもせず、
+   * そのまま右の帯の上に重なって出る（「下ごしらえ」で 5px はみ出していた）。
+   *
+   * だから**名前を先に測って、入る幅を取る**。
+   *
+   * 全体の幅は、そのうえで**段（図の置かれた器）に収まるところまで**に切る。
+   * 中の 570 は「3 週間が並ぶ幅」でしかなく、段の幅とは何の関係も無い。だから
+   * 名前が伸びた 15px で段を数 px 超える、ということが起きる。数 px でも超えれば
+   * 横棒が出て、端が薄れ、真ん中寄せが解けて、そのページで 1 枚だけ左端がずれる。
+   * 段に合わせて中を詰めても、日付は間引きが効くので落ちるのは刻みだけ
+   * （段幅 728 では 570 → 563 に詰まり、目盛りは 8 本のまま変わらなかった）。
+   *
+   * 詰めるのは GANTT_PLOT_MIN まで。そこから先は詰めずに横へ送る。
+   *
+   * 幅はページで 1 つ。図の道具は初期化を上書きではなく「取り直し」で扱うため、
+   * 呼べるのは 1 度だけで、図ごとに変えられない（1 枚のページに日程が 2 枚あるときは
+   * 長いほうにそろう。列が同じ位置で始まるので、並べたときはむしろ読みやすい）。
+   * 器も同じ理由で**一番狭いほうに合わせる**。
+   */
+  function ganttSize() {
+    const names = [];
+    let room = Infinity;
+    for (const pre of document.querySelectorAll("pre.mermaid")) {
+      const source = pre.textContent || "";
+      if (!/^\s*(---[\s\S]*?---\s*)?gantt\b/.test(source)) continue;
+      /* 畳まれた中に置かれていると 0 になる。測れない器は数に入れない */
+      if (pre.clientWidth > 0) room = Math.min(room, pre.clientWidth);
+      for (const row of source.split("\n")) {
+        const found = /^\s*section[ \t]+(.+?)[ \t]*$/.exec(row);
+        /* 名前は <br> で折れる。折れた 1 行ずつが列に収まればよい */
+        if (found) for (const part of found[1].split(/<br\s*\/?>/i)) names.push(part);
+      }
+    }
+
+    let widest = 0;
+    if (names.length > 0) {
+      /* 出来上がりと同じ字で測る。見えない場所に置いた文字で長さだけ取って、すぐ片付ける */
+      const ruler = document.createElementNS(SVG_NS, "svg");
+      ruler.setAttribute("style", "position:absolute;top:0;left:-10000px");
+      const sample = document.createElementNS(SVG_NS, "text");
+      sample.setAttribute("style", `font-family:${FONT};font-size:${SECTION_FONT_SIZE}px`);
+      ruler.appendChild(sample);
+      document.body.appendChild(ruler);
+      try {
+        for (const name of names) {
+          sample.textContent = name;
+          widest = Math.max(widest, sample.getComputedTextLength());
+        }
+      } finally {
+        ruler.remove();
+      }
+    }
+
+    /* 左端の 10px と同じだけ、名前の右にも空ける。空けないと帯に触れて見える */
+    const gutter = Math.max(GANTT_GUTTER, Math.ceil(widest) + SECTION_X * 2);
+    ganttGutter = gutter;
+
+    /* 中を除いた、動かせない左右 */
+    const frame = gutter + GANTT_RIGHT;
+    const wanted = frame + GANTT_PLOT;
+    const useWidth = Number.isFinite(room)
+      ? Math.max(frame + GANTT_PLOT_MIN, Math.min(wanted, Math.floor(room)))
+      : wanted;
+    return { leftPadding: gutter, useWidth };
+  }
+
+  /*
+   * 順序図の「人」を絵記号に差し替える。
+   *
+   * 図の道具が描くのは棒人間（頭の丸 1 つと手足の線 4 本）で、線の細さも作りも
+   * ページの他の絵記号とそろわない。図の道具に絵記号を選ばせる口は無いので、
+   * 描き終わってから Lucide の user-round に置き換える（形は vendor/lucide と同じ・ISC）。
+   *
+   * 見つけた形が思っているものと違ったら、その 1 人には手を出さない。
+   * 差し替えられずに棒人間のまま出るほうが、消しただけで何も出ないより良い。
+   */
+  const USER_ROUND = [
+    ["circle", { cx: "12", cy: "8", r: "5" }],
+    ["path", { d: "M20 21a8 8 0 0 0-16 0" }],
+  ];
+  /* 塗りではないが閉じた形は同じ寸法の棒人間より重く見えるので、枠の 7 割に落として中央へ置く */
+  const ICON_RATIO = 0.68;
+  /* 図の中の線（1〜2）にそろえた太さ。絵記号の座標系は倍率がかかるので、割り戻して渡す */
+  const ICON_STROKE = 1.6;
+
+  function drawActorIcons(root) {
+    for (const actor of root.querySelectorAll("g.actor-man")) {
+      const head = actor.querySelector("circle");
+      const limbs = [...actor.querySelectorAll("line")];
+      if (!head || limbs.length === 0) continue;
+
+      const cx = Number(head.getAttribute("cx"));
+      const cy = Number(head.getAttribute("cy"));
+      const r = Number(head.getAttribute("r"));
+      if (!Number.isFinite(cx) || !Number.isFinite(cy) || !Number.isFinite(r)) continue;
+
+      /* 棒人間が占めている縦の幅。手足の端まで含める */
+      let top = cy - r;
+      let bottom = cy + r;
+      for (const limb of limbs) {
+        for (const end of ["y1", "y2"]) {
+          const y = Number(limb.getAttribute(end));
+          if (!Number.isFinite(y)) continue;
+          top = Math.min(top, y);
+          bottom = Math.max(bottom, y);
+        }
+      }
+      const size = (bottom - top) * ICON_RATIO;
+      if (!(size > 0)) continue;
+
+      head.remove();
+      for (const limb of limbs) limb.remove();
+
+      const scale = size / 24;
+      const icon = document.createElementNS(SVG_NS, "g");
+      icon.setAttribute(
+        "transform",
+        `translate(${cx - size / 2} ${(top + bottom - size) / 2}) scale(${scale})`,
+      );
+      /*
+       * 描き方は**形の 1 つずつに書く**。親の g にまとめて書いて降ろす形にしない。
+       *
+       * 図の道具の CSS が `.actor-man circle, line` を名指ししていて、
+       * 塗り（面の色）と太さ（2px）をそこで決めている。名指しの指定は
+       * 親から降ってきた指定より必ず強いので、まとめ書きだと絵記号のうち
+       * 丸と線だけが道具の側の見た目になる（顔の丸だけ塗られて太い、という形で出た）。
+       * 形に直に書いた指定は名指しより強いので、どの形も同じ太さで出る。
+       */
+      const paint =
+        `fill:none;stroke:${line};stroke-width:${ICON_STROKE / scale};` +
+        "stroke-linecap:round;stroke-linejoin:round";
+      for (const [tag, attrs] of USER_ROUND) {
+        const stroke = document.createElementNS(SVG_NS, tag);
+        for (const [key, value] of Object.entries(attrs)) stroke.setAttribute(key, value);
+        stroke.setAttribute("style", paint);
+        icon.appendChild(stroke);
+      }
+      actor.insertBefore(icon, actor.firstChild);
+    }
+  }
+
+  /*
+   * 矢印に乗る札を、添え字に落とす（名詞は本文の字、動詞は添え字）。
+   *
+   * 図の道具は札を節点の名前と同じ 14px・同じ文字色で描く。状態遷移図では
+   * 状態が 3〜4 個、札も 3〜4 個あるので、同じ強さだと札の列が状態と対等に読まれ、
+   * 「どれが状態でどれが動きか」を字面から拾えない。1 段落とすと、
+   * 状態だけが浮き上がり、札は矢印に添えた注として読める。
+   * 幅も縮むので、隣の札との隙間もそのぶん開く。
+   *
+   * 順序図のやりとり（.messageText）はここに入らない。あれは矢印が主役の図で、
+   * 落とすと図の中身そのものが薄くなる。
+   *
+   * 当てるのは**形の 1 つずつに直に**。道具は `#図の目印 .edgeLabel` の形で
+   * 書いてくるので、こちらの style では届かない（絵記号の太さと同じ事情）。
+   */
+  function quietEdgeLabels(svg) {
+    for (const part of svg.querySelectorAll(".edgeLabel, .edgeLabel *")) {
+      part.style.fontSize = `${EDGE_FONT_SIZE}px`;
+      part.style.color = faint;
+    }
+  }
+
+  /*
+   * 「量ではない印」を落ち着かせる（面＝量、の裏側）。
+   *
+   * 塗りつぶした丸は面積があるぶん、輪郭 1px で描かれた他の部品より必ず重く見える。
+   * 重さは量に使うと決めてあるので、量を持たない印がいちばん濃いのはおかしい。
+   * ここで扱うのは 2 つとも「入口」「何番目」を指すだけの印で、量は無い。
+   *
+   *   状態遷移図の始点：既定は半径 7。色は矢印と同じ線の色で合っているので、大きさだけ落とす。
+   *   順序図の連番：既定は文字色べた塗り。図の中でいちばん濃い点が「番号」になっていた。
+   *     囲みの線の色に落として、数字を文字色にする（濃さが逆さまだっただけで、読める差は保つ）。
+   *     連番の丸は矢印の上に乗って線を隠す役もあるので、抜くのではなく色を替える。
+   */
+  function calmMarks(svg) {
+    for (const mark of svg.querySelectorAll("circle.state-start")) {
+      mark.setAttribute("r", String(START_RADIUS));
+    }
+    /* 連番の丸は defs の marker の中にあり、線そのものには色が付いていない */
+    for (const disc of svg.querySelectorAll('marker[id$="sequencenumber"] circle')) {
+      disc.style.fill = edge;
+    }
+    for (const label of svg.querySelectorAll("text.sequenceNumber")) {
+      label.style.fill = ink;
+    }
+  }
+
+  /*
+   * 日程の区間名を、その区間の**先頭の行**にそろえ、右端をそろえて帯の左に寄せる。
+   *
+   * 図の道具は区間名を「その区間の行全体の、まん中」に置く。これは区間ごとに
+   * 色の帯が敷いてある前提の置き方で、帯があれば名前はその帯の上に乗って見える。
+   * こちらは色で階層を作らない決まりなので帯を消してある。すると名前は
+   * 行と行の**あいだの余白**に浮き、どの行のことなのか指せなくなる
+   * （2 行の区間なら、1 本目の帯から半行ぶん下がった何も無いところに出る）。
+   *
+   * 見出しは、まとまりの 1 つ目にそろえる。そうすれば名前は必ずどれかの行と
+   * 高さがそろい、「ここから」と読める。字の大きさ（14px と 12px）と合わせて、
+   * 帯も線も足さずに区間の切れ目が出る。
+   *
+   * ついでに、道具の側の 2px のずれも消える。道具はまん中を出すのに
+   * 帯の始まり（50px）を使っているが、行の始まりは帯の隙間の半分ぶん上の 48px で、
+   * その差がそのまま全部の区間名に乗っていた。ここは行の座標から出し直す。
+   *
+   * 横は**右そろえ**にして、名前の右端を帯の左端から 10px のところに一直線で並べる。
+   * 道具の既定は左そろえで、字数の違う名前（「下ごしらえ」と「仕上げ」）の右端が
+   * ばらけたまま帯に接する。名前は帯を指すためにあるので、寄せる先は左の余白ではなく帯。
+   * そろえた縁が 1 本できるぶん、区切りの線を足さずに済む。
+   */
+  function alignSectionTitles(svg) {
+    const titles = [...svg.querySelectorAll("text.sectionTitle")];
+    /* 行は 1 行 1 枚。同じ区間の行には同じ名札が付いていて、隣の区間とは必ず変わる */
+    const runs = [];
+    for (const row of svg.querySelectorAll("rect.section")) {
+      const mark = row.getAttribute("class");
+      const last = runs[runs.length - 1];
+      if (last && last.mark === mark) last.rows.push(row);
+      else runs.push({ mark, rows: [row] });
+    }
+    /* 数が合わないなら、思っている作りではない。触らない */
+    if (titles.length === 0 || runs.length !== titles.length) return;
+
+    for (const [i, title] of titles.entries()) {
+      const first = runs[i].rows[0];
+      const top = Number(first.getAttribute("y"));
+      const height = Number(first.getAttribute("height"));
+      if (!Number.isFinite(top) || !Number.isFinite(height)) continue;
+      title.setAttribute("y", String(top + height / 2));
+
+      /*
+       * 右そろえは 2 か所いる。道具は名前を text の中の tspan に入れ、その tspan に
+       * 左端の x を書き直すので、外側の text だけ動かしても字は動かない。
+       * そろえ方（text-anchor）も道具の CSS が名指しで持っているため、
+       * 属性ではなく style に書く（属性は、どんな CSS にも負ける）。
+       */
+      const right = ganttGutter - SECTION_X;
+      title.style.textAnchor = "end";
+      title.setAttribute("x", String(right));
+      for (const part of title.querySelectorAll("tspan")) part.setAttribute("x", String(right));
+    }
+  }
+
+  /*
+   * 日程の目盛りを、重ならなくなるまで間引く。
+   *
+   * 図の道具は日付の刻みを日数から決めるだけで、その字が並びきるかは見ていない。
+   * 1 か月の計画をそのまま書くと、日付が全部重なって帯より格子のほうが目に入る。
+   * 書く人に刻みを指定させる手もあるが、指定を忘れた 1 枚が必ず壊れて出る。
+   * 描き終わってから測って落とすほうが、書く人が何も知らなくても壊れない。
+   *
+   * 落とすのは目盛りごと（日付の字と格子の線）。字だけ消すと、意味の無い線だけが残る。
+   */
+  function thinTicks(svg) {
+    const ticks = [...svg.querySelectorAll("g.tick")];
+    if (ticks.length < 3) return;
+    const boxes = ticks.map((tick) => tick.getBoundingClientRect());
+    /* 畳まれた中など、測れない場所に置かれているときは触らない */
+    if (!boxes.some((box) => box.width > 0)) return;
+
+    /* 隣り合う日付の間に、字 1 つぶんの隙間が空くまで刻みを粗くする */
+    const GAP = 8;
+    let step = 1;
+    while (step < ticks.length) {
+      let fits = true;
+      for (let i = step; i < ticks.length; i += step) {
+        if (boxes[i].left < boxes[i - step].right + GAP) {
+          fits = false;
+          break;
+        }
+      }
+      if (fits) break;
+      step += 1;
+    }
+    if (step > 1) for (const [i, tick] of ticks.entries()) if (i % step) tick.remove();
+  }
+
+  /*
+   * 横へ送れる図に、送れる向きの印を付ける。上の style はこの印を見て端を溶かす。
+   *
+   * 送れる図はキーボードでも動かせないといけないので、そのときだけ焦点を受け取れるようにする
+   * （送れない図に焦点を残すと、tab で止まるだけの場所が増える）。
+   */
+  function markOverflow(pre) {
+    const slack = pre.scrollWidth - pre.clientWidth;
+    if (slack <= 1) {
+      pre.removeAttribute("data-overflow");
+      pre.removeAttribute("tabindex");
+      return;
+    }
+    const head = pre.scrollLeft > 1;
+    const tail = pre.scrollLeft < slack - 1;
+    pre.dataset.overflow = head && tail ? "both" : head ? "left" : "right";
+    pre.setAttribute("tabindex", "0");
+  }
+
+  function watchOverflow(pre) {
+    const update = () => markOverflow(pre);
+    pre.addEventListener("scroll", update, { passive: true });
+    /* 画面を回した・折り返しが変わったときにも印を取り直す */
+    if (typeof ResizeObserver === "function") new ResizeObserver(update).observe(pre);
+    else window.addEventListener("resize", update);
+    update();
+  }
+
+  /*
+   * 走らせるのは本文が出そろってから。図の元の文を控える処理（配信時に差し込まれる
+   * 道具箱）は読み込みの途中で走るので、こちらを後ろにしておけば必ず控えのほうが先になる。
+   */
+  window.addEventListener("DOMContentLoaded", async () => {
+    try {
+      /*
+       * 初期化はここで 1 度だけ。区間名の列の幅を測るのに本文が要るので、
+       * 読み込み時ではなくここまで待つ。
+       * 図の道具は 2 度目の初期化を「足す」ではなく「取り直す」ので、
+       * 分けて呼ぶと 1 度目に渡した色も字の大きさも既定に戻ってしまう。
+       */
+      const gantt = { ...CONFIG.gantt, ...ganttSize() };
+      mermaid.initialize({ ...CONFIG, gantt });
+      await mermaid.run();
+    } finally {
+      /* 1 枚が書き損じでも、描けた図の手当ては済ませる */
+      for (const svg of document.querySelectorAll(".mermaid svg")) {
+        drawActorIcons(svg);
+        quietEdgeLabels(svg);
+        calmMarks(svg);
+        /* 日程だけの手当て。他の図にも同じ名札の部品があるので、種類で切る */
+        if (svg.getAttribute("aria-roledescription") === "gantt") {
+          alignSectionTitles(svg);
+          thinTicks(svg);
+        }
+      }
+      for (const pre of document.querySelectorAll("pre.mermaid")) watchOverflow(pre);
+    }
+  });
+</script>
+  </head>
+  <body>
+    <h1>図の入れ方</h1>
+    <p>図は文字で書く。書いた文がそのまま正本になるので、直すときは絵を描き直さずに文を直す。</p>
+
+    <h2>順序図</h2>
+    <p>誰が誰に何を渡したかを、時間の順に並べる。</p>
+    <pre class="mermaid">
+sequenceDiagram
+  autonumber
+  actor 書く人
+  participant CLI as 投稿の道具
+  participant DB as 保管庫
+  書く人->>CLI: 出す
+  CLI->>DB: 版を積む
+  DB-->>CLI: 版の目印
+  CLI-->>書く人: URL
+    </pre>
+
+    <h2>流れ図</h2>
+    <p>分かれ道と行き先を並べる。</p>
+    <pre class="mermaid">
+flowchart LR
+  A[受け取る] --> B{見せ方は}
+  B -- 社内 --> C[会社の人だけ]
+  B -- 公開 --> D[誰でも]
+    </pre>
+
+    <h2>状態遷移図</h2>
+    <p>行って戻れる先を並べる。戻れる先が枝分かれするときは横（LR）に置く。</p>
+    <pre class="mermaid">
+stateDiagram-v2
+  direction LR
+  [*] --> 社内限定: 社内として投稿
+  社内限定 --> 名簿で制限: 絞る
+  名簿で制限 --> 社内限定: 外す
+  社内限定 --> あとから公開: 公開
+  あとから公開 --> 社内限定: やめる
+  [*] --> 公開のまま: 公開として投稿
+    </pre>
+
+    <h2>日程</h2>
+    <p>いつ何をするかを並べる。左の列は区間の名前で、その区間の先頭の行に右そろえで付く。</p>
+    <pre class="mermaid">
+gantt
+  dateFormat YYYY-MM-DD
+  axisFormat %m/%d
+  section 下ごしらえ
+  素材を集める :2026-09-07, 4d
+  下書き       :2026-09-10, 3d
+  section 仕上げ
+  見てもらう   :2026-09-12, 3d
+  配る         :2026-09-15, 1d
+    </pre>
+  </body>
+</html>

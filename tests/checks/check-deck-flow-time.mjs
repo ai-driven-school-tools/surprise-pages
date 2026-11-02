@@ -1,0 +1,27 @@
+import { build } from "esbuild";
+import { root, dir } from "./paths.mjs";
+let failures = 0;
+function ok(label, actual, expected = true) { const pass = JSON.stringify(actual) === JSON.stringify(expected); console.log(`${pass ? "OK  " : "NG  "} ${label}`); if (!pass) failures++; }
+for (const [file, name] of [["src/lib/deck/design/flow-time.ts", "layout"], ["src/deck-design/flow-time-source.ts", "source"]]) await build({ entryPoints: [`${root}/${file}`], outfile: `${dir}/deck-flow-time-${name}.mjs`, bundle: true, format: "esm", platform: "node" });
+const { layoutDeckFlowTime } = await import(`${dir}/deck-flow-time-layout.mjs`);
+const { readDeckFlowTimeSource } = await import(`${dir}/deck-flow-time-source.mjs`);
+const day = 86400000;
+const base = Date.UTC(2026, 8, 1);
+const source = { title: "導入支援", tasks: [{ id: "a", label: "準備", section: "顧客", start: base, end: base + 5 * day }, { id: "b", label: "試行", section: "顧客", start: base + 5 * day, end: base + 12 * day }, { id: "c", label: "振り返り", section: "支援", start: base + 12 * day, end: base + 17 * day }] };
+const layout = layoutDeckFlowTime(source, { width: 1152, height: 420 });
+ok("期間が長さに正しく対応する", layout !== null && Math.abs(layout.tasks[0].width / layout.tasks[1].width - 5 / 7) < .0001);
+ok("依存する期間の境目を一致させる", layout !== null && Math.abs(layout.tasks[0].x + layout.tasks[0].width - layout.tasks[1].x) < .001);
+ok("担当と全作業を元の順番で残す", layout?.tasks.map(task => task.id), ["a", "b", "c"]);
+ok("担当見出しを別の行へ置く", layout?.sections.map(section => section.label), ["顧客", "支援"]);
+ok("日付のラベルを十分な間隔で間引く", layout !== null && layout.ticks.length >= 2 && layout.ticks.every((tick, index) => index === 0 || tick.x - layout.ticks[index - 1].x >= 95));
+ok("日付表示は9月1日から始まる", layout?.ticks[0].label, "9/1");
+ok("作業が多すぎても小さく縮めない", layoutDeckFlowTime({ ...source, tasks: Array.from({ length: 30 }, (_, index) => ({ ...source.tasks[0], id: `task-${index}` })) }, { width: 1152, height: 420 }), null);
+ok("長さゼロの作業を消して成功しない", layoutDeckFlowTime({ ...source, tasks: [{ ...source.tasks[0], end: base }] }, { width: 1152, height: 420 }), null);
+const tasks = source.tasks.map(task => ({ id: task.id, task: task.label + " ", section: task.section, startTime: new Date(2026, 8, 1 + (task.start - base) / day), endTime: new Date(2026, 8, 1 + (task.end - base) / day), classes: [], processed: true }));
+const api = values => ({ mermaidAPI: { async getDiagramFromText() { return { type: "gantt", db: { getTasks: () => values, getDiagramTitle: () => "導入支援", getDateFormat: () => "YYYY-MM-DD" } }; } } });
+const parsed = await readDeckFlowTimeSource(api(tasks), "gantt\ndateFormat YYYY-MM-DD\n準備 :a, 2026-09-01, 5d");
+ok("日程パーサーの依存解決済日付を保持", parsed, source);
+ok("無効な日付を現在時刻へ読み替えない", await readDeckFlowTimeSource(api([{ ...tasks[0], startTime: new Date(NaN) }]), "gantt"), null);
+ok("休日を含む作者の指定を無断で消さない", await readDeckFlowTimeSource(api(tasks), "gantt\nexcludes weekends"), null);
+ok("進行中などの状態を無断で消さない", await readDeckFlowTimeSource(api([{ ...tasks[0], active: true }]), "gantt"), null);
+if (failures) process.exit(1);

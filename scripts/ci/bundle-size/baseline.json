@@ -1,0 +1,27 @@
+{
+  "unit": "gzip",
+  "entries": {
+    "コメントの部品": 867520,
+    "画像の部品": 1212,
+    "画面 /": 294769,
+    "画面 /sharing": 200290,
+    "画面 /app-login": 157167,
+    "画面 /cli-login": 159963,
+    "画面 /decks/create": 714831,
+    "画面 /desktop": 157167,
+    "画面 /favorites": 294769,
+    "画面 /library": 294769,
+    "画面 /activity": 203444,
+    "画面 /motions/new": 201391,
+    "画面 /create": 201397,
+    "画面 /recordings": 202319,
+    "画面 /recordings/[id]": 300680,
+    "画面 /recordings/capture": 200000,
+    "画面 /recordings/settings": 294475,
+    "画面 /recordings/settings/sources": 295633,
+    "画面 /settings": 301510,
+    "画面 /signin": 157167,
+    "画面 /devices": 201216,
+    "全チャンクの合計": 887355
+  }
+}

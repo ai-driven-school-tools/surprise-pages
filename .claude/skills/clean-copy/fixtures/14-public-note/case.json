@@ -1,0 +1,16 @@
+{
+  "note": "社外公開ではパスも GitHub リンクも出さない",
+  "apply_defaults": false,
+  "convert": true,
+  "public": true,
+  "expect_verify_ok": true,
+  "expect_body_contains": ["窓口は 3 つ"],
+  "expect_body_missing": ["in.md", "github.com", "data-source-repo", "data-source-path", "data-source-commit"],
+  "provenance": {
+    "repo": "example-org/handbook",
+    "path": "docs/ops.md",
+    "commit": "a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0",
+    "committed_at": "2026-09-06T18:21:00+09:00",
+    "url": "https://github.com/example-org/handbook/blob/a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0/docs/ops.md"
+  }
+}

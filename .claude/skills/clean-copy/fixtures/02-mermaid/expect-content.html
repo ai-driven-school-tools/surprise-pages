@@ -1,0 +1,18 @@
+<h1 class="text-3xl md:text-4xl font-black text-ads-text tracking-tight mb-10">投稿までの流れ</h1>
+<p class="mb-6">書き手が原本を渡してから、社内 URL が出るまでの順番。</p>
+<pre class="mermaid">
+sequenceDiagram
+  actor 書く人
+  participant 清書
+  participant 保管庫
+  書く人-&gt;&gt;清書: 原本を渡す
+  清書-&gt;&gt;清書: 検査して組む
+  清書-&gt;&gt;保管庫: 投稿する
+  保管庫--&gt;&gt;書く人: 社内 URL
+</pre>
+<p class="mb-6">図のとおり、原本は清書を通ってから保管庫へ入る。</p>
+<section class="mb-20 md:mb-24">
+<h2 class="text-xl md:text-2xl font-bold text-ads-text mb-6">図が壊れる書き方</h2>
+<p class="mb-6">先に退避しないと、<code class="font-mono text-sm bg-ads-bg border border-ads-border rounded px-1.5 py-0.5 text-ads-text">actor 書く人</code> の行が段落として組まれてしまう。</p>
+</section>
+<p data-source-note class="text-xs text-ads-muted mt-20">in.md · 本文 200 字</p>

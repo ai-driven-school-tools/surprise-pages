@@ -1,0 +1,1418 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *, [data-appearance="dark"], [data-appearance="dark"] *));
+/*
+ * Tailwind の transition-* の既定（150ms・標準カーブ）を、この製品の動きの目盛り（src/lib/settings/ui-motion.ts・DESIGN.md 12 章）に寄せる。
+ * これで `transition-colors` と書いた場所も、CSS の部品と同じ速さ・同じ減速で動く。
+ */
+@theme {
+  --default-transition-duration: var(--ws-motion-quick);
+  --default-transition-timing-function: var(--ws-ease);
+}
+/*
+ * 「画面いっぱい」の高さ（h-app / min-h-app）。上端に固定する帯のぶん（--env-bar・いまは 0）を差し引く。
+ */
+@utility h-app {
+  height: calc(100dvh - var(--env-bar) - var(--titlebar-pad, 0px));
+}
+@utility min-h-app {
+  min-height: calc(100dvh - var(--env-bar) - var(--titlebar-pad, 0px));
+}
+
+/*
+ * ワークスペースの寸法と色の正本（DESIGN.md 9 章）。
+ *
+ * 色は印（src/lib/settings/brand.ts）と同じ墨と地で、neutral の目盛りから取る。線と面は墨を薄めて作るので、
+ * 地がどちらの色でも同じ濃さで乗り、暗い側のために値を書き足さなくて済む。
+ * 寸法は 4px の刻み。押す部品は 32px、指で押す画面（狭い画面・タッチ）では 44px。
+ */
+@layer base {
+  /*
+   * 窓の上端（Mac のデスクトップアプリ）。アプリは OS の題名の帯を出さず、信号機ボタンを画面の左上に重ねる。
+   * そのぶんの場所を画面の側が空ける——ブラウザが知らせる値を読むだけで、ふつうのブラウザでは 0 になり、
+   * 何も変わらない（全画面にしたときも 0）。値と意味の正本は src/lib/workspace/window-titlebar.ts（そろっていることは
+   * check-window-titlebar が見る）。
+   *
+   *   --titlebar-h        帯の高さ
+   *   --titlebar-x        信号機ボタンが使っている左の幅
+   *   --titlebar-history  戻る・進むの幅。窓の枠があるときだけ長さを持つ（左の幅を大きく掛けて、上限で切る）
+   *   --titlebar-lead     戻る・進むを置く行で、左に空ける幅
+   */
+  :root {
+    --titlebar-h: env(titlebar-area-height, 0px);
+    --titlebar-x: env(titlebar-area-x, 0px);
+    --titlebar-history: min(64px, calc(var(--titlebar-x) * 999));
+    --titlebar-lead: var(--titlebar-x);
+  }
+  :root {
+    --env-bar: 0px;
+  }
+
+  /*
+   * 窓の題名の帯のぶん、画面を下げる。サイドバーを持つ画面（.ws-shell）は自分で空ける（サイドバーは窓の
+   * 上端まで届かせ、信号機ボタンをその上に乗せる）ので、それ以外の画面（ログイン・許可・エラー）だけ。
+   */
+  body:not(:has(.ws-shell)) {
+    --titlebar-pad: var(--titlebar-h);
+    padding-top: var(--titlebar-pad);
+  }
+
+  /* 帯をつかんで窓を動かせる（デスクトップアプリ）。ブラウザでは高さ 0 で、意味も持たない */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0 0 auto 0;
+    height: var(--titlebar-h);
+    pointer-events: none;
+    app-region: drag;
+  }
+  /* 帯の中に来た押す部品は、つかむ場所から外す（外さないと、押したつもりが窓の移動になる） */
+  a,
+  button,
+  input,
+  select,
+  textarea,
+  summary,
+  [role="button"],
+  [role="menuitem"],
+  [role="option"],
+  [role="tab"] {
+    app-region: no-drag;
+  }
+  :root {
+    --ws-bg: #fff;
+    --ws-side: #fafafa;
+    --ws-text: #171717;
+    --ws-muted: #737373;
+    --ws-danger: #b91c1c;
+    /* 「いま動いている」の印（8px の点）にだけ使う青。字・面・線には使わない */
+    --ws-signal: #2563eb;
+    --ws-line-mix: 9%;
+    --ws-hover-mix: 6%;
+    --ws-press-mix: 10%;
+    --ws-radius-sm: 0.25rem;
+    --ws-radius: 0.375rem;
+    --ws-radius-lg: 0.5rem;
+    --ws-radius-xl: 0.75rem;
+    /*
+     * 動き（DESIGN.md 12 章）。数字の正本は src/lib/settings/ui-motion.ts で、ここはその写し（食い違いは check-ui-motion が落とす）。
+     * quick: 指を乗せた・離したの色 ／ motion: 状態が変わる・開く ／ exit: 閉じる・消える ／ wait: 待ちを見せ始めるまでの間
+     */
+    --ws-motion-quick: 120ms;
+    --ws-motion: 200ms;
+    --ws-motion-exit: 100ms;
+    --ws-motion-wait: 400ms;
+    --ws-ease: cubic-bezier(0.2, 0, 0, 1);
+    --ws-ease-swipe: cubic-bezier(0.32, 0.72, 0, 1);
+    /* 押している間の面（指を乗せた 1 段・選んだ 2 段より濃い 3 段目。離すと戻る） */
+    --ws-active-mix: 14%;
+    --ws-control: 2rem;
+    --ws-nav: 15rem;
+    --ws-gutter: 2.5rem;
+    /* 画面の頭の位置。窓の題名の帯があるときは、その下（帯には信号機ボタンと戻る・進むだけを置く） */
+    --ws-top: max(1.25rem, calc(var(--titlebar-h) + 0.5rem));
+    --ws-reading: 48rem;
+  }
+  [data-appearance="dark"] {
+    --ws-bg: #171717;
+    --ws-side: #0a0a0a;
+    --ws-text: #f5f5f5;
+    --ws-muted: #a3a3a3;
+    --ws-danger: #fca5a5;
+    --ws-signal: #60a5fa;
+    --ws-line-mix: 12%;
+    --ws-hover-mix: 9%;
+    --ws-press-mix: 15%;
+    --ws-active-mix: 20%;
+    color-scheme: dark;
+  }
+  @media (prefers-color-scheme: dark) {
+    [data-appearance="system"] {
+      --ws-bg: #171717;
+      --ws-side: #0a0a0a;
+      --ws-text: #f5f5f5;
+      --ws-muted: #a3a3a3;
+      --ws-danger: #fca5a5;
+      --ws-signal: #60a5fa;
+      --ws-line-mix: 12%;
+      --ws-hover-mix: 9%;
+      --ws-press-mix: 15%;
+      --ws-active-mix: 20%;
+      color-scheme: dark;
+    }
+  }
+  [data-appearance="light"] {
+    color-scheme: light;
+  }
+  /* 墨から作る色は、明暗を切り替える要素の上で作り直す（:root で 1 度作ると明るい側の値のまま降りてくる） */
+  :root,
+  [data-appearance] {
+    --ws-line: color-mix(in srgb, var(--ws-text) var(--ws-line-mix), transparent);
+    --ws-hover: color-mix(in srgb, var(--ws-text) var(--ws-hover-mix), transparent);
+    --ws-press: color-mix(in srgb, var(--ws-text) var(--ws-press-mix), transparent);
+    --ws-active: color-mix(in srgb, var(--ws-text) var(--ws-active-mix), transparent);
+    /* アイコンだけのボタンの、絵の外側の余白。絵の端を本文の端にそろえるときに、このぶんだけ外へ出す */
+    --ws-icon-inset: calc((var(--ws-control) - 1rem) / 2);
+    --ws-shadow:
+      0 0 0 1px var(--ws-line), 0 8px 24px -6px rgb(0 0 0 / 0.14),
+      0 2px 6px -2px rgb(0 0 0 / 0.08);
+  }
+  /* 指で押す画面では、押す部品を 44px にする */
+  @media (max-width: 639px), (pointer: coarse) {
+    :root {
+      --ws-control: 2.75rem;
+    }
+  }
+  @media (max-width: 1023px) {
+    :root {
+      --ws-gutter: 1.5rem;
+    }
+  }
+  @media (max-width: 639px) {
+    :root {
+      --ws-gutter: 1rem;
+    }
+  }
+  button,
+  a,
+  input,
+  select {
+    -webkit-tap-highlight-color: transparent;
+  }
+}
+
+/* ── 外枠（サイドバーと作業領域） ───────────────────────────────────────── */
+@layer components {
+  .ws-shell {
+    min-height: calc(100dvh - var(--env-bar));
+    background: var(--ws-bg);
+    color: var(--ws-text);
+    font-size: 0.875rem;
+  }
+  .ws-sidebar {
+    position: fixed;
+    inset: var(--env-bar) auto 0 0;
+    width: var(--ws-nav);
+    display: flex;
+    flex-direction: column;
+    background: var(--ws-side);
+    padding: var(--ws-top) 0.75rem 0.75rem;
+  }
+  /*
+   * 印と名前。印の中心は下に並ぶアイコンの中心と、名前の左端は項目の字の左端とそろえる
+   * （印 20px を左 6px から、字は 32px から。項目はアイコン 16px を左 8px から、字は 32px から）。
+   */
+  .ws-brand {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    height: var(--ws-control);
+    padding: 0 0.375rem;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+  .ws-mark {
+    flex-shrink: 0;
+  }
+  /*
+   * 組織のロゴ。サイドバーでは製品の印と名前の行の右端に、印と同じ高さで置く（行の高さを変えない）。
+   * 組織の設定の面では今のロゴの見本として同じ大きさで出す。縦横比は保ち、横に長いロゴは幅の上限で縮める。
+   */
+  .ws-organization-logo {
+    display: block;
+    flex-shrink: 0;
+    width: auto;
+    /* 印（BrandMark）と同じ高さ。押す部品の高さから上下の余白を引いた値で、目盛りの外の数を書かない */
+    height: calc(var(--ws-control) - 0.75rem);
+    max-width: calc(var(--ws-control) * 3);
+    object-fit: contain;
+  }
+  .ws-brand .ws-organization-logo {
+    margin-left: auto;
+  }
+  /*
+   * 目次の列は 1 本で、下限を 0 にする（minmax(0, 1fr)）。grid の列の既定（auto）は下限が中身の字幅なので、
+   * 折り返さない長い名前（お気に入り・リポジトリ）が 1 つあるだけで列ごと広がり、サイドバーからはみ出す。
+   * 下限を 0 にして初めて、行の中の `…` の省略（.ws-nav-name）が効く。
+   */
+  .ws-navigation {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.125rem;
+    margin-top: 1rem;
+  }
+  .ws-nav-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-height: var(--ws-control);
+    padding: 0 0.5rem;
+    border-radius: var(--ws-radius);
+    color: var(--ws-muted);
+    transition:
+      background-color var(--ws-motion-quick) var(--ws-ease),
+      color var(--ws-motion-quick) var(--ws-ease);
+  }
+  .ws-nav-item:hover {
+    background: var(--ws-hover);
+    color: var(--ws-text);
+  }
+  /* 選んでいる項目は 2 段濃い地（指を乗せただけの 1 段と同じにしない）。指を乗せても濃いほうのまま */
+  .ws-nav-item[aria-current="page"],
+  .ws-nav-item[aria-current="page"]:hover {
+    background: var(--ws-press);
+    color: var(--ws-text);
+    font-weight: 500;
+  }
+  /*
+   * 押した項目は、画面が届くのを待たずにその場で選んだ地へ移す（前の項目は地を外す）。印を立てるのは
+   * back-link.tsx の LinkPending。ワークスペースは待ちの表示を持たず、届くまで前の画面を残すので、手応えはここで返す
+   */
+  .ws-nav-item:has([data-link-pending]) {
+    background: var(--ws-press);
+    color: var(--ws-text);
+    font-weight: 500;
+  }
+  .ws-shell:has([data-link-pending]) .ws-nav-item[aria-current="page"]:not(:has([data-link-pending])) {
+    background: transparent;
+    color: var(--ws-muted);
+    font-weight: 400;
+  }
+  /*
+   * 待ちが長いときだけ、残っている前の画面を薄くする（ふだんの切り替えは 0.4 秒より早く終わるので何も起きない）。
+   * 動きを減らす設定では animation が止まるので、薄くしない（押した項目の地だけで知らせる）
+   */
+  .ws-shell:has([data-link-pending]) .ws-content {
+    animation: ws-waiting var(--ws-motion-quick) var(--ws-ease) var(--ws-motion-wait) both;
+  }
+  @keyframes ws-waiting {
+    to {
+      opacity: 0.45;
+    }
+  }
+  /*
+   * お気に入りのまとまり。見出しは 12px の灰（押すと一覧）、資料の名前は目次の項目と同じ行の高さで、
+   * 字の左端は見出しと同じ（字下げしない）。このまとまりは誰も絵を持たないので、上の項目の字の列（絵の右・32px）に
+   * そろえると左に意味の無い穴が空く。階層は見出しと行の字の大きさだけで付ける。絵は持たない——星はどの行にも付くので、並べると地になる。
+   * 右端の星（外す）は、指を乗せた行にだけ灰で出す（塗った墨の星を並べると名前より目立つ）。
+   * 右クリックのメニューの口は見えないまま（右クリックの受け皿）。
+   */
+  .ws-nav-group {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.125rem;
+    margin-top: 1.5rem;
+  }
+  .ws-nav-group-title {
+    display: flex;
+    align-items: center;
+    min-height: 1.5rem;
+    padding: 0 0.5rem;
+    border-radius: var(--ws-radius-sm);
+    color: var(--ws-muted);
+    font-size: 0.75rem;
+    transition: color var(--ws-motion-quick) var(--ws-ease);
+  }
+  .ws-nav-group-title:hover,
+  .ws-nav-group-title[aria-current="page"] {
+    color: var(--ws-text);
+  }
+  .ws-nav-name {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  /*
+   * お気に入りの 1 行＝名前のリンク（残りの幅いっぱい）＋ 外す星（押す部品 1 つぶん）＋ 右クリックの受け皿（見えない）。
+   * 星の場所は常に空けておき、名前の省略の位置が指で動かない。星は指を乗せた行・キーボードで届いた行にだけ出し、
+   * 色は灰（付いている印の墨は、星そのものに指を乗せたときだけ）。指で押す画面では常に出す。
+   * 右クリックの受け皿は星の上に重ねた見えない口で、指も Tab も通さない（メニューの位置の目印にだけ使う）。
+   */
+  .ws-nav-favorite {
+    position: relative;
+    display: flex;
+    align-items: center;
+    min-width: 0;
+  }
+  .ws-nav-favorite > .ws-nav-item {
+    flex: 1;
+    min-width: 0;
+  }
+  .ws-nav-favorite > .ws-icon-button[aria-pressed="true"] {
+    color: var(--ws-muted);
+  }
+  .ws-nav-favorite > .ws-icon-button[aria-pressed="true"]:hover:not(:disabled) {
+    color: var(--ws-text);
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .ws-nav-favorite > .ws-icon-button[aria-pressed="true"] {
+      opacity: 0;
+    }
+    .ws-nav-favorite:hover > .ws-icon-button[aria-pressed="true"],
+    .ws-nav-favorite:focus-within > .ws-icon-button[aria-pressed="true"],
+    .ws-nav-favorite:has([aria-expanded="true"]) > .ws-icon-button[aria-pressed="true"] {
+      opacity: 1;
+    }
+  }
+  .ws-nav-favorite-menu {
+    position: absolute;
+    top: 0;
+    right: 0;
+    opacity: 0;
+    pointer-events: none;
+  }
+  .ws-nav-more {
+    font-size: 0.75rem;
+  }
+  /* お気に入りから外せなかったときの 1 行。まとまりの中に、項目と同じ左端で */
+  .ws-nav-notice {
+    padding: 0 0.5rem;
+    font-size: 0.75rem;
+    color: var(--ws-muted);
+  }
+
+  .ws-nav-bottom {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.125rem;
+    margin-top: auto;
+    padding-top: 1rem;
+  }
+
+  /*
+   * 名乗りの行。名前ごと押してメニュー（キーボードショートカット・ログアウト）を開く。
+   * 丸の中心はアイコンの列に、名前の左端は項目の字にそろえる（押す面は目次の項目と同じ幅・角・指を乗せたときの面）。
+   */
+  .ws-account {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    min-height: var(--ws-control);
+    margin-top: 0.5rem;
+  }
+  .ws-account-trigger {
+    display: flex;
+    flex: 1;
+    align-items: center;
+    gap: 0.25rem;
+    min-width: 0;
+    min-height: var(--ws-control);
+    padding: 0 0.5rem 0 0.25rem;
+    border-radius: var(--ws-radius);
+    text-align: start;
+    cursor: pointer;
+    transition: background-color var(--ws-motion-quick) var(--ws-ease);
+  }
+  .ws-account-trigger:hover,
+  .ws-account-trigger[aria-expanded="true"] {
+    background: var(--ws-hover);
+  }
+  .ws-account-name {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-weight: 500;
+  }
+  .ws-avatar {
+    width: 1.5rem;
+    height: 1.5rem;
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+    border-radius: 50%;
+    background: var(--ws-press);
+    font-size: 0.75rem;
+    font-weight: 500;
+  }
+  .ws-content {
+    margin-left: var(--ws-nav);
+    padding: var(--ws-top) var(--ws-gutter) 3rem;
+    min-height: calc(100dvh - var(--env-bar));
+    outline: none;
+  }
+  .ws-mobile-header {
+    display: none;
+  }
+  /*
+   * 窓の上端の、戻る・進む（window-history.tsx）。信号機ボタンの右隣に置く。
+   * 入れ物の幅は「信号機ボタンのぶん ＋ 戻る・進むのぶん」で、窓の枠が無ければ 0。中身は、入れ物に幅が
+   * あるときだけ出す——見分けを CSS だけで済ませるので、描いたあとで出たり引っ込んだりしない。
+   * ページを開いたときの上端の行（src/widget/reading/location-bar-styles.ts）と、同じ位置・同じ大きさ。
+   */
+  .ws-titlebar {
+    position: fixed;
+    top: var(--env-bar);
+    left: 0;
+    z-index: 30;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    width: calc(var(--titlebar-lead) + var(--titlebar-history));
+    height: var(--titlebar-h);
+    container-type: inline-size;
+  }
+  .ws-window-history {
+    display: none;
+  }
+  @container (min-width: 1px) {
+    .ws-window-history {
+      display: flex;
+    }
+  }
+  .ws-skip {
+    position: fixed;
+    left: 1rem;
+    top: -5rem;
+    z-index: 100;
+    padding: 0.5rem 0.75rem;
+    border-radius: var(--ws-radius);
+    background: var(--ws-bg);
+    box-shadow: var(--ws-shadow);
+  }
+  .ws-skip:focus {
+    top: calc(var(--env-bar) + 1rem);
+  }
+
+  /* ── 画面の頭（src/app/_components/page-header.tsx） ──────────────────────────────── */
+  .ws-header {
+    flex-shrink: 0;
+    margin-bottom: 1.25rem;
+  }
+  /* 題の行。右の操作と上端をそろえて並べる */
+  .ws-header-row {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+  /* 1 行目の中心を右の操作の中心に合わせる（題が折り返しても、操作は 1 行目の横に残る） */
+  .ws-title {
+    min-width: 0;
+    padding: calc((var(--ws-control) - 1.75rem) / 2) 0;
+    font-size: 1.25rem;
+    font-weight: 600;
+    line-height: 1.75rem;
+    letter-spacing: -0.025em;
+    overflow-wrap: anywhere;
+  }
+  .ws-header-actions {
+    display: flex;
+    flex-shrink: 0;
+    align-items: center;
+    gap: 0.25rem;
+  }
+  /* 戻るリンク。矢印の絵の余白ぶん左へ出し、線の端を本文の左端にそろえる */
+  .ws-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    margin: 0 0 0.25rem -0.125rem;
+    padding: 0.25rem 0;
+    font-size: 0.75rem;
+    color: var(--ws-muted);
+    transition: color var(--ws-motion-quick) var(--ws-ease);
+  }
+  .ws-back:hover {
+    color: var(--ws-text);
+  }
+
+  /* ── 押す部品 ─────────────────────────────────────────────────────────── */
+  .ws-button,
+  .ws-icon-button {
+    display: inline-flex;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    gap: 0.375rem;
+    min-height: var(--ws-control);
+    border-radius: var(--ws-radius);
+    font-size: 0.875rem;
+    font-weight: 500;
+    line-height: 1.25rem;
+    white-space: nowrap;
+    cursor: pointer;
+    transition:
+      background-color var(--ws-motion-quick) var(--ws-ease),
+      color var(--ws-motion-quick) var(--ws-ease),
+      opacity var(--ws-motion-quick) var(--ws-ease);
+  }
+  .ws-button {
+    padding: 0 0.75rem;
+    background: var(--ws-hover);
+    color: var(--ws-text);
+  }
+  .ws-button:hover:not(:disabled) {
+    background: var(--ws-press);
+  }
+  .ws-primary {
+    background: var(--ws-text);
+    color: var(--ws-bg);
+  }
+  .ws-primary:hover:not(:disabled) {
+    background: color-mix(in srgb, var(--ws-text) 84%, var(--ws-bg));
+  }
+
+  /* 消す操作の実行。塗りにはせず、字だけ赤（DANGER と同じ赤） */
+  .ws-danger {
+    color: var(--ws-danger);
+  }
+  .ws-icon-button {
+    width: var(--ws-control);
+    background: transparent;
+    color: var(--ws-muted);
+  }
+  .ws-icon-button:hover:not(:disabled),
+  .ws-icon-button[aria-expanded="true"] {
+    background: var(--ws-hover);
+    color: var(--ws-text);
+  }
+  .ws-icon-button[aria-pressed="true"] {
+    color: var(--ws-text);
+  }
+  /*
+   * 押している間は 1 段濃い面にし、その瞬間だけ動きを付けない（指に遅れる）。離すといつもの速さで戻る。
+   * 塗りのボタンは面が墨なので、墨を少し薄めて「沈む」を出す。
+   */
+  .ws-button:not(.ws-primary):active:not(:disabled),
+  .ws-icon-button:active:not(:disabled),
+  .ws-segment:active,
+  .ws-nav-item:active,
+  .ws-menu-item:active {
+    background: var(--ws-active);
+    transition-duration: 0s;
+  }
+  .ws-primary:active:not(:disabled) {
+    background: color-mix(in srgb, var(--ws-text) 72%, var(--ws-bg));
+    transition-duration: 0s;
+  }
+  .ws-button:disabled,
+  .ws-icon-button:disabled,
+  .ws-button[aria-disabled="true"] {
+    opacity: 0.45;
+    cursor: default;
+  }
+  .ws-shell :focus-visible,
+  .ws-menu :focus-visible,
+  .ws-drawer :focus-visible,
+  .ws-dialog :focus-visible {
+    outline: 2px solid var(--ws-text);
+    outline-offset: 2px;
+  }
+  .ws-choice-group {
+    display: flex;
+    gap: 0.125rem;
+  }
+  /* 選んでいるものは 1 段濃い面（指を乗せただけの面と同じにしない） */
+  .ws-choice-group [aria-pressed="true"],
+  .ws-choice-group [aria-pressed="true"]:hover {
+    background: var(--ws-press);
+  }
+  /*
+   * 2〜3 個から 1 つ選ぶ切り替え。沈めた面の上に、選んでいるものだけ地の色で浮かせる。
+   * 項目は全部同じ幅で、いちばん長い字に合わせる（grid の 1fr）。flex: 1 だと幅を均等に割るだけなので、
+   * 「自動 / 日本語 / English」のように字数の違う並びで、短い字の項目が足りずに折れていた。字は折らない。
+   */
+  .ws-segments {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: 1fr;
+    gap: 0.125rem;
+    padding: 0.125rem;
+    border-radius: var(--ws-radius-lg);
+    background: var(--ws-hover);
+  }
+  .ws-segment {
+    min-height: calc(var(--ws-control) - 0.25rem);
+    padding: 0 0.625rem;
+    border-radius: var(--ws-radius);
+    color: var(--ws-muted);
+    font-weight: 500;
+    white-space: nowrap;
+    cursor: pointer;
+    /* 「選んだ」が隣へ移る動き。地・字・輪を同じ長さで動かす（片方だけだと段差が見える） */
+    transition:
+      background-color var(--ws-motion) var(--ws-ease),
+      color var(--ws-motion) var(--ws-ease),
+      box-shadow var(--ws-motion) var(--ws-ease);
+  }
+  .ws-segment:hover {
+    color: var(--ws-text);
+  }
+  .ws-segment[aria-pressed="true"] {
+    background: var(--ws-bg);
+    color: var(--ws-text);
+    box-shadow: 0 0 0 1px var(--ws-line);
+  }
+
+  /* ── 打ち込み口と選択欄 ───────────────────────────────────────────────── */
+  .ws-field {
+    min-width: 0;
+    min-height: var(--ws-control);
+    padding: 0.3125rem 0.625rem;
+    border-radius: var(--ws-radius);
+    background: transparent;
+    color: var(--ws-text);
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    box-shadow: inset 0 0 0 1px var(--ws-line);
+    transition: box-shadow var(--ws-motion-quick) var(--ws-ease);
+  }
+  .ws-field:hover {
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--ws-text) 24%, transparent);
+  }
+  /* 輪は消さずに透かす（色を強制する表示では、影は消えて outline だけが残る） */
+  .ws-field:focus-visible {
+    outline: 2px solid transparent;
+    outline-offset: -2px;
+    box-shadow: inset 0 0 0 2px var(--ws-text);
+  }
+  .ws-field::placeholder {
+    color: var(--ws-muted);
+    opacity: 1;
+  }
+  @media (forced-colors: active) {
+    .ws-field {
+      border: 1px solid ButtonBorder;
+    }
+  }
+  .ws-field:disabled {
+    opacity: 0.45;
+  }
+  /* 選ぶ四角と丸は墨で塗る（再生位置のつまみと同じ）。選んだことを色で示さない */
+  .ws-shell input[type="checkbox"],
+  .ws-shell input[type="radio"] {
+    accent-color: var(--ws-text);
+  }
+  /* 選択欄は矢印を自前で描く（src/app/_components/controls.tsx の Select）。欄は入れ物いっぱいに広げる */
+  .ws-select {
+    position: relative;
+    display: inline-flex;
+    min-width: 0;
+  }
+  .ws-select > select {
+    width: 100%;
+    appearance: none;
+    padding-right: 1.875rem;
+    cursor: pointer;
+  }
+  .ws-select > svg {
+    position: absolute;
+    right: 0.5rem;
+    top: 50%;
+    translate: 0 -50%;
+    color: var(--ws-muted);
+    pointer-events: none;
+  }
+  /* 探す欄。見た目は打ち込み口（.ws-field）と同じ線 1 本。左に虫めがね、右に消すボタンを重ねる */
+  .ws-search {
+    position: relative;
+    display: flex;
+    flex: 0 1 20rem;
+    align-items: center;
+    min-width: 0;
+  }
+  .ws-search > svg {
+    position: absolute;
+    left: 0.5rem;
+    color: var(--ws-muted);
+    pointer-events: none;
+  }
+  .ws-search > input {
+    width: 100%;
+    padding-left: 1.875rem;
+    padding-right: 1.875rem;
+  }
+  .ws-search > input::-webkit-search-cancel-button {
+    display: none;
+  }
+  .ws-search > button {
+    position: absolute;
+    right: 0.25rem;
+    display: grid;
+    place-items: center;
+    width: calc(var(--ws-control) - 0.5rem);
+    height: calc(var(--ws-control) - 0.5rem);
+    border-radius: var(--ws-radius-sm);
+    color: var(--ws-muted);
+    cursor: pointer;
+  }
+  .ws-search > button:hover {
+    background: var(--ws-hover);
+    color: var(--ws-text);
+  }
+
+  /* ── タブと道具の列 ───────────────────────────────────────────────────── */
+  .ws-tabs {
+    display: flex;
+    gap: 1.25rem;
+    margin-bottom: 1rem;
+    box-shadow: inset 0 -1px 0 var(--ws-line);
+  }
+  /* 太さは 2 態で変えない（変えると、選ぶたびに隣の字が 1px 動く）。差は濃さと下の線で付ける */
+  .ws-tab {
+    display: inline-flex;
+    align-items: center;
+    min-height: max(2.25rem, var(--ws-control));
+    border-bottom: 2px solid transparent;
+    color: var(--ws-muted);
+    font-weight: 500;
+    cursor: pointer;
+    transition: color var(--ws-motion-quick) var(--ws-ease);
+  }
+  .ws-tab:hover {
+    color: var(--ws-text);
+  }
+  .ws-tab[aria-current="page"],
+  .ws-tab[aria-selected="true"] {
+    color: var(--ws-text);
+    border-color: currentColor;
+  }
+  .ws-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    margin-bottom: 0.75rem;
+  }
+  /* 探す欄は左、残りの操作は右端へ寄せる */
+  .ws-toolbar > .ws-search {
+    margin-right: auto;
+  }
+  .ws-filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+  }
+
+  /* ── 資料の一覧 ───────────────────────────────────────────────────────── */
+  /*
+   * 行は線で区切らず、指を乗せたときの面で 1 行を示す。面は左右へ 8px はみ出させ、
+   * 行の中身の左端を画面の題・タブの左端と 1 本にそろえる。
+   */
+  .ws-row {
+    margin: 0 -0.5rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: var(--ws-radius);
+    transition: background-color var(--ws-motion-quick) var(--ws-ease);
+  }
+  .ws-row {
+    display: grid;
+    /* 最後の列は行の操作 2 つぶん（押す部品の大きさに付いていく） */
+    grid-template-columns: minmax(0, 1fr) 8rem 4rem calc(var(--ws-control) * 2 + 0.25rem);
+    align-items: center;
+    gap: 1rem;
+    min-height: 2.5rem;
+  }
+  .ws-row:hover,
+  .ws-row:focus-within,
+  .ws-row:has([aria-expanded="true"]) {
+    background: var(--ws-hover);
+  }
+
+  /* 見出しの行は面を持たないので、はみ出させない（下の線の両端を中身の両端にそろえる） */
+  .ws-row-heading {
+    min-height: 2rem;
+    margin: 0 0 0.25rem;
+    padding: 0;
+    border-radius: 0;
+    box-shadow: inset 0 -1px 0 var(--ws-line);
+    color: var(--ws-muted);
+    font-size: 0.75rem;
+  }
+  .ws-row-heading:hover {
+    background: transparent;
+  }
+  .ws-row-title {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    min-width: 0;
+  }
+  .ws-kind {
+    display: flex;
+    color: var(--ws-muted);
+  }
+  .ws-name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-weight: 500;
+  }
+  .ws-row-author {
+    display: block;
+    color: var(--ws-muted);
+    font-size: 0.75rem;
+  }
+  .ws-row-date,
+  .ws-scope,
+  .ws-muted {
+    color: var(--ws-muted);
+    font-size: 0.75rem;
+  }
+  .ws-scope {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    white-space: nowrap;
+  }
+  .ws-row-date {
+    font-variant-numeric: tabular-nums;
+  }
+  /* 間は道具の列（.ws-toolbar）と同じ。上の絞り込み・並び替えと縦の中心がそろう */
+  .ws-row-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.25rem;
+  }
+  /* 行の操作は、その行に指を乗せたときだけ出す（付けた星は出したまま）。指で押す画面では常に出す */
+  @media (hover: hover) and (pointer: fine) {
+    .ws-row-actions > .ws-icon-button:not([aria-pressed="true"]):not([aria-expanded="true"]) {
+      opacity: 0;
+    }
+    .ws-row:hover .ws-row-actions > .ws-icon-button,
+    .ws-row:focus-within .ws-row-actions > .ws-icon-button,
+    .ws-row:has([aria-expanded="true"]) .ws-row-actions > .ws-icon-button {
+      opacity: 1;
+    }
+  }
+  /*
+   * ホームの節。見出し（16 太・濃）と余白だけで分ける（線・囲みを持たない）。件数は見出しの横に 12px の灰。
+   * 右端の行き先は 12px の灰で、指を乗せたときだけ濃くなる。
+   */
+  .ws-section {
+    margin-top: 2.5rem;
+  }
+  .ws-section-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 0.5rem;
+  }
+  .ws-section-head h2 {
+    font-size: 1rem;
+    font-weight: 600;
+  }
+  .ws-section-count {
+    margin-left: 0.5rem;
+    color: var(--ws-muted);
+    font-size: 0.75rem;
+    font-weight: 400;
+    font-variant-numeric: tabular-nums;
+  }
+  .ws-section-more {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    color: var(--ws-muted);
+    font-size: 0.75rem;
+    white-space: nowrap;
+    transition: color var(--ws-motion-quick) var(--ws-ease);
+  }
+  .ws-section-more:hover {
+    color: var(--ws-text);
+  }
+  /* ホームの 1 行。題｜添え書き（誰が・何を）｜時刻。3 つの節で列をそろえ、右端を 1 本にする */
+  .ws-row-home {
+    grid-template-columns: minmax(0, 1fr) 11rem 5rem;
+  }
+  .ws-row-home .ws-row-date {
+    text-align: right;
+  }
+  /* 自分の活動の 1 行（見たページ・書いたコメント）。題｜添え書き｜日時｜操作 */
+  .ws-row-activity {
+    grid-template-columns: minmax(0, 1fr) 9rem 8.5rem var(--ws-control);
+  }
+  .ws-row-note {
+    overflow: hidden;
+    color: var(--ws-muted);
+    font-size: 0.75rem;
+    text-align: right;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .ws-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 4rem 1rem;
+    text-align: center;
+  }
+  .ws-empty > svg {
+    margin-bottom: 0.5rem;
+    color: var(--ws-muted);
+  }
+  .ws-empty > .ws-button {
+    margin-top: 0.75rem;
+  }
+  .ws-pagination {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.25rem;
+    padding-top: 1rem;
+  }
+  .ws-pagination > .ws-muted {
+    margin-right: 0.5rem;
+    font-variant-numeric: tabular-nums;
+  }
+  .ws-status {
+    margin: 0.75rem 0;
+    font-size: 0.875rem;
+  }
+  .ws-status:empty {
+    display: none;
+  }
+  /* 灰色の案内文の中のリンク。下線は引かず、濃さで押せることを示す（DESIGN.md 7 章） */
+  .ws-inline-link {
+    color: var(--ws-text);
+    font-weight: 500;
+  }
+  .ws-inline-link:hover {
+    opacity: 0.7;
+  }
+
+  /* ── 重なるもの（メニュー・吹き出し・ダイアログ） ───────────────────── */
+  .ws-menu,
+  .ws-dialog {
+    background: var(--ws-bg);
+    color: var(--ws-text);
+    box-shadow: var(--ws-shadow);
+    z-index: 60;
+  }
+  .ws-menu {
+    min-width: 11rem;
+    max-height: var(--radix-dropdown-menu-content-available-height);
+    overflow-y: auto;
+    padding: 0.25rem;
+    border-radius: var(--ws-radius-lg);
+  }
+  .ws-menu-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-height: var(--ws-control);
+    padding: 0 0.5rem;
+    border-radius: var(--ws-radius-sm);
+    font-size: 0.875rem;
+    cursor: pointer;
+    outline: none;
+  }
+  .ws-menu-item[data-highlighted] {
+    background: var(--ws-hover);
+  }
+  .ws-menu-item > svg {
+    color: var(--ws-muted);
+  }
+  .ws-menu-item[data-danger],
+  .ws-menu-item[data-danger] > svg {
+    color: var(--ws-danger);
+  }
+  /* 伸びるのは行の名前だけ。右端のキーの札（.ws-keys）は札の幅のまま（一緒に伸びると名前が折り返す） */
+  .ws-menu-item > span:not(.ws-keys) {
+    flex: 1;
+  }
+  /* 吹き出しは墨の面に地の字（重なりを影ではなく濃さで示す） */
+  .ws-tooltip {
+    z-index: 70;
+    padding: 0.25rem 0.5rem;
+    border-radius: var(--ws-radius);
+    background: var(--ws-text);
+    color: var(--ws-bg);
+    font-size: 0.75rem;
+    line-height: 1rem;
+  }
+  /* 吹き出しに近道の札を添えるときは、名前の右に並べる */
+  .ws-tooltip:has(.ws-keys) {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .ws-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 50;
+    background: rgb(0 0 0 / 0.4);
+  }
+  .ws-dialog {
+    position: fixed;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: calc(100% - 2rem);
+    max-width: 30rem;
+    max-height: 85dvh;
+    overflow-y: auto;
+    padding: 1.25rem;
+    border-radius: var(--ws-radius-xl);
+    font-size: 0.875rem;
+  }
+  /* 閉じる絵の右端と上端を、中身の端にそろえる（押す的は部品の大きさのまま） */
+  .ws-dialog-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin: -0.25rem calc(-1 * var(--ws-icon-inset)) 0.5rem 0;
+  }
+  /*
+   * 引き出し（狭い画面の目次）。中身はサイドバーそのもので、同じ幅・同じ地・同じ余白で左端に出す。
+   * 画面の真ん中に出す箱にしない（目次は「場所」なので、いつもの位置から出てくるほうが迷わない）。
+   */
+  .ws-drawer {
+    position: fixed;
+    inset: var(--env-bar) auto 0 0;
+    z-index: 60;
+    display: flex;
+    flex-direction: column;
+    width: min(var(--ws-nav), 85vw);
+    padding: 0.5rem 0.75rem calc(0.75rem + env(safe-area-inset-bottom));
+    overflow-y: auto;
+    background: var(--ws-side);
+    color: var(--ws-text);
+    font-size: 0.875rem;
+    box-shadow: var(--ws-shadow);
+    outline: none;
+  }
+  /*
+   * 開くもの（メニュー・吹き出し・ダイアログ・引き出し）の出入り（DESIGN.md 12 章）。
+   * 入るときは透明度と 3% の拡大だけを 200ms の減速で、閉じるときは出すより速く 100ms で消す。
+   * 位置は動かさない（出てくる方向を探させない）。引き出しだけは「場所」なので左端から滑る。
+   * 閉じる間も部品は残る（Radix が animationend まで待つ）ので、終わりの姿を保つ（both）。
+   */
+  @keyframes ws-pop-in {
+    from {
+      opacity: 0;
+      transform: scale(0.97);
+    }
+  }
+  @keyframes ws-fade-in {
+    from {
+      opacity: 0;
+    }
+  }
+  @keyframes ws-fade-out {
+    to {
+      opacity: 0;
+    }
+  }
+  @keyframes ws-dialog-in {
+    from {
+      opacity: 0;
+      transform: translate(-50%, -50%) scale(0.97);
+    }
+  }
+  @keyframes ws-drawer-in {
+    from {
+      transform: translateX(-100%);
+    }
+  }
+  @keyframes ws-drawer-out {
+    to {
+      transform: translateX(-100%);
+    }
+  }
+  .ws-menu[data-state="open"] {
+    transform-origin: var(--radix-dropdown-menu-content-transform-origin);
+    animation: ws-pop-in var(--ws-motion) var(--ws-ease) both;
+  }
+  .ws-tooltip[data-state="delayed-open"],
+  .ws-tooltip[data-state="instant-open"] {
+    transform-origin: var(--radix-tooltip-content-transform-origin);
+    animation: ws-pop-in var(--ws-motion) var(--ws-ease) both;
+  }
+  .ws-overlay[data-state="open"] {
+    animation: ws-fade-in var(--ws-motion) var(--ws-ease) both;
+  }
+  .ws-dialog[data-state="open"] {
+    animation: ws-dialog-in var(--ws-motion) var(--ws-ease) both;
+  }
+  .ws-drawer[data-state="open"] {
+    animation: ws-drawer-in var(--ws-motion) var(--ws-ease-swipe) both;
+  }
+  .ws-menu[data-state="closed"],
+  .ws-tooltip[data-state="closed"],
+  .ws-overlay[data-state="closed"],
+  .ws-dialog[data-state="closed"] {
+    animation: ws-fade-out var(--ws-motion-exit) var(--ws-ease) both;
+  }
+  .ws-drawer[data-state="closed"] {
+    animation: ws-drawer-out var(--ws-motion-exit) var(--ws-ease) both;
+  }
+  .ws-dialog-title {
+    font-size: 1rem;
+    font-weight: 600;
+  }
+  /* 確認や条件の文。読ませる文なので灰色にしない */
+  .ws-dialog-description {
+    font-size: 0.875rem;
+    line-height: 1.5rem;
+  }
+  .ws-dialog-actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 0.5rem;
+    margin-top: 1.5rem;
+  }
+
+  /* ── キーボードの近道（src/app/_components/shortcuts.tsx・押し方の正本は src/lib/workspace/keyboard-shortcuts.ts） ───── */
+  /*
+   * キーの札。線で囲まず、地より 1 段沈んだ面だけで「キー」と読ませる（枠を足すと札が本文より強くなる）。
+   * 字は 12px（添えの段）。札は操作の名前に添えるもので、名前より目立たせない。
+   */
+  .ws-keys {
+    display: inline-flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.25rem;
+    font-size: 0.75rem;
+    line-height: 1rem;
+    white-space: nowrap;
+  }
+  .ws-kbd {
+    display: inline-grid;
+    place-items: center;
+    min-width: 1.25rem;
+    height: 1.25rem;
+    padding: 0 0.25rem;
+    border-radius: var(--ws-radius-sm);
+    background: var(--ws-line);
+    color: var(--ws-text);
+    font: inherit;
+  }
+  /* 「または」「のあと」は読み飛ばしてよいつなぎの字 */
+  .ws-keys-word {
+    color: var(--ws-muted);
+  }
+  /* 吹き出しは地と字が入れ替わっているので、札も入れ替えた側の色で作る */
+  .ws-tooltip .ws-kbd {
+    background: color-mix(in srgb, var(--ws-bg) 18%, transparent);
+    color: inherit;
+  }
+  .ws-tooltip .ws-keys-word {
+    color: inherit;
+  }
+  /* 一覧。名前を左、札を右にそろえ、まとまりの間は余白だけで分ける */
+  .ws-shortcut-groups {
+    display: grid;
+    gap: 1.25rem;
+    margin-top: 1rem;
+  }
+  .ws-shortcut-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.25rem 0;
+  }
+  .ws-shortcut-row > dd {
+    margin: 0;
+  }
+  /* 検索欄の「/」の札。空で焦点が無いときだけ右端に置き、打ち始めたら消す */
+  .ws-search > .ws-search-hint {
+    position: absolute;
+    right: 0.5rem;
+    pointer-events: none;
+  }
+  .ws-search > input:focus ~ .ws-search-hint {
+    display: none;
+  }
+  /* キーボードの無い画面（指で触る機械）には、キーの案内も入口も出さない */
+  @media (hover: none), (pointer: coarse) {
+    .ws-search > .ws-search-hint,
+    .ws-keyboard-only {
+      display: none;
+    }
+  }
+
+  /* ── 作成と設定 ───────────────────────────────────────────────────────── */
+  .ws-create-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr));
+    gap: 0.75rem;
+    max-width: 64rem;
+  }
+  .ws-create-option {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.25rem;
+    padding: 1rem;
+    border-radius: var(--ws-radius-lg);
+    box-shadow: inset 0 0 0 1px var(--ws-line);
+    text-align: left;
+    cursor: pointer;
+    transition: background-color var(--ws-motion-quick) var(--ws-ease);
+  }
+  .ws-create-option:hover {
+    background: var(--ws-hover);
+  }
+  .ws-create-option > svg {
+    margin-bottom: 0.5rem;
+    color: var(--ws-muted);
+  }
+  .ws-reading {
+    max-width: var(--ws-reading);
+  }
+  /*
+   * 設定の 1 行（src/app/_components/setting-row.tsx）。左に名前と補足、右に操作か今の値。
+   * 線を引かない——行ごとに右端の部品が違うので、行の境は余白と右端の部品で足りる（引くと 1 画面に 8 本並ぶ）。
+   * 余白は 3 段: 名前と補足の間 0.25rem ＜ 行と行の間 1.25rem（上下の padding）＜ 節と節の間（画面の mb-12）。
+   * 高さの下限は押す部品と同じ（右端が字だけの行でも、ボタンの行と同じ刻みで並ぶ）。
+   */
+  .ws-setting {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.5rem;
+    min-height: calc(var(--ws-control) + 1.25rem);
+    padding: 0.625rem 0;
+  }
+  .ws-setting-main {
+    flex: 1;
+    min-width: 0;
+  }
+  .ws-setting-title {
+    font-weight: 500;
+  }
+  .ws-setting-detail {
+    margin-top: 0.25rem;
+    color: var(--ws-muted);
+    font-size: 0.75rem;
+  }
+  .ws-setting-action {
+    display: flex;
+    flex-shrink: 0;
+    align-items: center;
+    gap: 0.75rem;
+  }
+  .ws-prompt {
+    display: block;
+    width: 100%;
+    min-height: 8rem;
+    margin: 1rem 0 0.75rem;
+    padding: 0.75rem;
+    border-radius: var(--ws-radius);
+    background: var(--ws-hover);
+    font-size: 0.875rem;
+    line-height: 1.5rem;
+    resize: vertical;
+  }
+
+  /* ── 狭い画面 ─────────────────────────────────────────────────────────── */
+  /* サイドバーは 768px まで出したままにする。それより狭い画面では、上端の ≡ から同じものを左に引き出す */
+  @media (max-width: 767px) {
+    .ws-sidebar {
+      display: none;
+    }
+    .ws-content {
+      margin-left: 0;
+      padding-top: 0.25rem;
+      min-height: calc(100dvh - var(--env-bar) - var(--ws-control) - 0.5rem);
+    }
+    /*
+     * 帯にしない。置くのは目次を開くボタン 1 つだけで、地も線も印も持たない
+     * （印はサイドバーの中にだけある。どの画面の上にも印と名前が付くと、画面の題より先に目に入る）。
+     * 絵の左端を本文の左端にそろえる。
+     */
+    /*
+     * 窓の題名の帯があるときは、目次のボタンを帯の中（戻る・進むの右隣）に、同じ中心線で置く。
+     * 上は「帯が無ければ 0.5rem、あれば帯の中で上下の真ん中」、左は「本文の左端か、戻る・進むの右隣の遠いほう」。
+     */
+    .ws-mobile-header {
+      display: flex;
+      padding: max(calc(0.5rem - var(--titlebar-h)), calc((var(--titlebar-h) - var(--ws-control)) / 2))
+        calc(var(--ws-gutter) - var(--ws-icon-inset)) 0
+        max(calc(var(--ws-gutter) - var(--ws-icon-inset)), calc(var(--titlebar-lead) + var(--titlebar-history)));
+    }
+  }
+
+  @media (max-width: 639px) {
+    .ws-row {
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 0.125rem 0.5rem;
+    }
+    .ws-row-title {
+      grid-column: 1;
+      grid-row: 1;
+    }
+    .ws-scope {
+      grid-column: 1;
+      grid-row: 2;
+      padding-left: 1.625rem;
+    }
+    .ws-row-actions {
+      grid-column: 2;
+      grid-row: 1 / span 2;
+    }
+    .ws-row-date,
+    .ws-row-note,
+    .ws-row-heading {
+      display: none;
+    }
+    /* 活動の行は、日時が主な手がかりなので 2 行目に残す */
+    .ws-row-activity > .ws-row-date {
+      display: block;
+      grid-column: 1;
+      grid-row: 2;
+    }
+    /* 名前の下に操作を送る。操作の左端は名前の左端（行に絵が無いので、ずらす分も無い） */
+    .ws-setting {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 0.5rem;
+    }
+    .ws-setting-action > .ws-select {
+      flex: 1;
+    }
+
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .ws-shell *,
+    .ws-menu,
+    .ws-menu *,
+    .ws-tooltip,
+    .ws-overlay,
+    .ws-dialog,
+    .ws-dialog *,
+    .ws-drawer,
+    .ws-drawer * {
+      transition: none !important;
+      animation: none !important;
+    }
+  }
+}
+
+/*
+ * 外枠の語彙（PAGE など）はワークスペースの外でも使う。中に入ったときだけ、外枠が持つ
+ * 余白と中央寄せを外す（幅の上限は残す）。Tailwind の道具と同じ層で、後から書いて勝たせる。
+ */
+@layer utilities {
+  .ws-content > main {
+    margin: 0;
+    padding: 0;
+  }
+  /* 明暗を「端末に合わせる」にした人の最初の 1 枚でも、灰色の字を暗い側の値で出す */
+  .ws-content :where(.text-neutral-500, .text-neutral-400) {
+    color: var(--ws-muted);
+  }
+  .ws-shell[data-workspace-mode="create"] .ws-content {
+    padding: 0;
+  }
+  .ws-shell[data-workspace-mode="create"] .ws-content > main {
+    height: calc(100dvh - var(--env-bar));
+    max-width: none;
+    padding: var(--ws-top) var(--ws-gutter) 1.5rem;
+  }
+  @media (max-width: 767px) {
+    .ws-shell[data-workspace-mode="create"] .ws-content > main {
+      height: calc(100dvh - var(--env-bar) - var(--ws-control) - 0.5rem);
+    }
+  }
+}

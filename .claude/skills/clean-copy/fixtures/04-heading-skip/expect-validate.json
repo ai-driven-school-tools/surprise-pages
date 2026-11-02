@@ -1,0 +1,30 @@
+{
+  "findings": [
+    {
+      "code": "HEADING_SKIP",
+      "severity": "fixable",
+      "line": 3,
+      "detail": "# の次が ###（起きたこと）",
+      "default": "深い側を 1 段ずつ浅くして、飛びを無くす（語は変えない）"
+    },
+    {
+      "code": "HEADING_FLATTEN",
+      "severity": "warn",
+      "line": 7,
+      "detail": "##### 影響",
+      "default": "h4 に潰して出す（目盛りの外に段を作らない）"
+    },
+    {
+      "code": "HEADING_SKIP",
+      "severity": "fixable",
+      "line": 7,
+      "detail": "### の次が #####（影響）",
+      "default": "深い側を 1 段ずつ浅くして、飛びを無くす（語は変えない）"
+    }
+  ],
+  "summary": {
+    "error": 0,
+    "fixable": 2,
+    "warn": 1
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "note": "見出しの段の飛び。深い側を 1 段ずつ浅くする（語は変えない）。##### は h4 に潰す",
+  "apply_defaults": false,
+  "convert": true,
+  "expect_verify_ok": true,
+  "expect_body_contains": ["起きたこと", "影響", "直したこと"]
+}

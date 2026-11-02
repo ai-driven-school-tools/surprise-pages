@@ -1,0 +1,872 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex">
+  <meta name="googlebot" content="noindex, nofollow">
+  <meta property="og:title" content="Pages の使い方">
+  <meta property="og:description" content="話しかけるだけで社内向けのページが 1 枚できて、URL で配れる。作り方・コメントの付け方・社内限定と公開の違いをまとめました。">
+  <meta property="og:type" content="article">
+  <!-- ここの見出しが Pages の一覧にそのまま並ぶ。内容が分かる日本語にする -->
+  <title>Pages の使い方</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%23FFFFFF'/><rect x='8' y='8' width='84' height='84' rx='14' fill='none' stroke='%233B82F6' stroke-width='4'/><circle cx='32' cy='40' r='10' fill='%233B82F6' opacity='0.8'/><circle cx='68' cy='40' r='10' fill='%2360A5FA' opacity='0.8'/><rect x='25' y='62' width='50' height='6' rx='3' fill='%2394A3B8' opacity='0.6'/><rect x='30' y='74' width='40' height='6' rx='3' fill='%2394A3B8' opacity='0.3'/></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            ads: {
+              bg: '#FFFFFF',
+              surface: '#F8FAFC',
+              hover: '#F1F5F9',
+              border: '#E2E8F0',
+              accent: '#3B82F6',
+              'accent-light': '#2563EB',
+              text: '#1E293B',
+              muted: '#64748B',
+              dim: '#94A3B8',
+              positive: '#10B981',
+              negative: '#EF4444',
+              warning: '#F59E0B',
+            }
+          },
+          fontFamily: {
+            sans: ['"Noto Sans JP"', '"Hiragino Sans"', '"Hiragino Kaku Gothic ProN"', '"Yu Gothic UI"', '"Meiryo"', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    @media print {
+      .no-print { display: none !important; }
+      body { border-top: none !important; }
+      .rounded-xl { break-inside: avoid; }
+      .md\:flex-row { flex-direction: row !important; }
+      .md\:hidden { display: none !important; }
+      .hidden.md\:block { display: block !important; }
+      .md\:grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+      .sm\:grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)) !important; }
+      .md\:mb-20 { margin-bottom: 5rem !important; }
+      .md\:py-16 { padding-top: 4rem !important; padding-bottom: 4rem !important; }
+      .bg-clip-text.text-transparent {
+        -webkit-background-clip: initial !important;
+        background-clip: initial !important;
+        color: #2563EB !important;
+        -webkit-text-fill-color: #2563EB !important;
+      }
+    }
+  </style>
+</head>
+<body class="bg-ads-bg text-slate-600 antialiased leading-relaxed border-t-4 border-ads-accent">
+  <div class="no-print max-w-3xl mx-auto px-5 pt-2 flex justify-end">
+    <button onclick="window.print()" class="flex items-center gap-1.5 text-xs text-ads-dim hover:text-ads-accent transition-colors cursor-pointer">
+      <i data-lucide="download" class="w-3.5 h-3.5"></i>
+      PDF
+    </button>
+  </div>
+  <main class="max-w-3xl mx-auto px-5 py-10 md:py-16">
+<!-- CONTENT_START -->
+
+<!-- ============================================================ -->
+<!--  HERO                                                        -->
+<!-- ============================================================ -->
+<div class="text-center mb-8 md:mb-10">
+  <div class="inline-flex items-center gap-2 bg-ads-accent/10 text-ads-accent-light px-4 py-1.5 rounded-full text-sm font-medium mb-6">
+    <i data-lucide="layout-template" class="w-4 h-4"></i>
+    社内ツール
+  </div>
+  <h1 class="text-3xl md:text-5xl font-black text-slate-900 tracking-tight mb-6">
+    <span class="bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent">Pages</span> の使い方
+  </h1>
+  <p class="text-lg text-ads-muted max-w-xl mx-auto leading-relaxed">
+    調べたこと、決まったこと、説明したいこと。<br>
+    ひとことで言えば ──
+  </p>
+</div>
+
+
+<!-- ============================================================ -->
+<!--  ONE-PAGE SUMMARY                                             -->
+<!-- ============================================================ -->
+<div class="bg-ads-surface border border-ads-border rounded-2xl p-6 md:p-10 mb-6">
+  <div class="text-center mb-8 md:mb-10">
+    <p class="text-xl md:text-2xl font-black text-slate-900 mb-2">
+      話しかけるだけで、<span class="text-ads-accent-light">読める 1 枚</span>になって URL で配れる
+    </p>
+    <p class="text-sm text-ads-muted">
+      作る人は文章を書かなくていい。読む人はリンクを開くだけ
+    </p>
+  </div>
+
+  <!-- Core flow: 話しかける → ページ → 配る -->
+  <div class="flex flex-col md:flex-row items-center justify-center gap-2 md:gap-0 mb-8">
+    <!-- あなた -->
+    <div class="flex flex-col items-center w-36 p-3">
+      <div class="w-14 h-14 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center mb-2.5">
+        <i data-lucide="message-square" class="w-7 h-7 text-blue-600"></i>
+      </div>
+      <div class="font-bold text-slate-900 text-sm">あなた</div>
+      <div class="text-[11px] text-blue-600/70 mt-0.5">「これをページにして」</div>
+    </div>
+
+    <!-- 矢印 1 -->
+    <div class="flex items-center justify-center md:w-16 py-1 md:py-0">
+      <div class="flex flex-col items-center gap-0.5">
+        <span class="text-[9px] font-medium text-ads-accent tracking-wider">頼む</span>
+        <i data-lucide="arrow-right" class="w-5 h-5 text-ads-accent hidden md:block"></i>
+        <i data-lucide="arrow-down" class="w-5 h-5 text-ads-accent md:hidden"></i>
+      </div>
+    </div>
+
+    <!-- Pages（主役） -->
+    <div class="flex flex-col items-center w-40 p-4 bg-ads-accent/5 border-2 border-ads-accent/20 rounded-2xl">
+      <div class="w-16 h-16 rounded-2xl bg-ads-accent/15 border-2 border-ads-accent/30 flex items-center justify-center mb-2.5">
+        <i data-lucide="file-text" class="w-8 h-8 text-ads-accent-light"></i>
+      </div>
+      <div class="font-bold text-ads-accent-light text-base">1 枚のページ</div>
+      <div class="text-[11px] text-ads-muted mt-0.5 mb-2">図つきで組み立てられる</div>
+      <div class="text-[10px] text-ads-muted bg-white rounded-lg px-2.5 py-1 border border-ads-border/50">社内の掲示板の 1 枚</div>
+    </div>
+
+    <!-- 矢印 2 -->
+    <div class="flex items-center justify-center md:w-16 py-1 md:py-0">
+      <div class="flex flex-col items-center gap-0.5">
+        <span class="text-[9px] font-medium text-ads-accent tracking-wider">配る</span>
+        <i data-lucide="arrow-right" class="w-5 h-5 text-ads-accent hidden md:block"></i>
+        <i data-lucide="arrow-down" class="w-5 h-5 text-ads-accent md:hidden"></i>
+      </div>
+    </div>
+
+    <!-- 読む人 -->
+    <div class="flex flex-col items-center w-36 p-3">
+      <div class="w-14 h-14 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center mb-2.5">
+        <i data-lucide="users" class="w-7 h-7 text-emerald-600"></i>
+      </div>
+      <div class="font-bold text-slate-900 text-sm">読む人</div>
+      <div class="text-[11px] text-emerald-600/70 mt-0.5">リンクを開くだけ</div>
+    </div>
+  </div>
+
+  <!-- 2 系統の門 -->
+  <div class="flex justify-center mb-8">
+    <div class="flex flex-col sm:flex-row items-center gap-2 text-xs">
+      <div class="flex items-center gap-2 text-ads-accent-light bg-ads-accent/5 border border-ads-accent/15 rounded-full px-4 py-1.5">
+        <i data-lucide="lock" class="w-3.5 h-3.5"></i>
+        社内限定 — 会社のアカウントで入った人だけ
+      </div>
+      <div class="flex items-center gap-2 text-ads-muted bg-white border border-ads-border rounded-full px-4 py-1.5">
+        <i data-lucide="globe" class="w-3.5 h-3.5"></i>
+        公開 — 門なし。リンクを知る人は誰でも
+      </div>
+    </div>
+  </div>
+
+  <!-- Divider with label -->
+  <div class="flex items-center gap-4 mb-6">
+    <div class="flex-1 border-t border-ads-border/50"></div>
+    <div class="text-[11px] text-ads-dim font-medium">ページを開くとできること</div>
+    <div class="flex-1 border-t border-ads-border/50"></div>
+  </div>
+
+  <!-- ピル -->
+  <div class="flex flex-wrap justify-center gap-2 mb-8">
+    <div class="flex items-center gap-1.5 bg-white border border-ads-border rounded-full px-3.5 py-1.5 text-xs text-slate-700">
+      <i data-lucide="message-square" class="w-3.5 h-3.5 text-blue-500"></i>
+      文章を選んでコメント
+    </div>
+    <div class="flex items-center gap-1.5 bg-white border border-ads-border rounded-full px-3.5 py-1.5 text-xs text-slate-700">
+      <i data-lucide="history" class="w-3.5 h-3.5 text-purple-500"></i>
+      直した履歴を見る
+    </div>
+    <div class="flex items-center gap-1.5 bg-white border border-ads-border rounded-full px-3.5 py-1.5 text-xs text-slate-700">
+      <i data-lucide="link" class="w-3.5 h-3.5 text-emerald-500"></i>
+      リンクをコピー
+    </div>
+    <div class="flex items-center gap-1.5 bg-white border border-ads-border rounded-full px-3.5 py-1.5 text-xs text-slate-700">
+      <i data-lucide="hash" class="w-3.5 h-3.5 text-amber-500"></i>
+      Slack で共有
+    </div>
+  </div>
+
+</div>
+
+<p class="text-center text-ads-muted mb-16 md:mb-20">
+  ここから先で、この仕組みをひとつずつ解説していきます。
+</p>
+
+
+<!-- ============================================================ -->
+<!--  SECTION 1: Pages とは                                -->
+<!-- ============================================================ -->
+<section class="mb-16 md:mb-20">
+  <div class="flex items-center gap-3 mb-8">
+    <div class="flex items-center justify-center w-10 h-10 rounded-lg bg-blue-500/10 flex-shrink-0">
+      <i data-lucide="help-circle" class="w-5 h-5 text-blue-600"></i>
+    </div>
+    <h2 class="text-xl md:text-2xl font-bold text-slate-900">Pages とは — 何がうれしいのか</h2>
+  </div>
+
+  <p class="mb-6 leading-relaxed">
+    Pages は、<strong class="text-slate-900">社内の図解やレポートを 1 つの場所にまとめて置いておく掲示板</strong>です。1 件が 1 枚のページになり、それぞれに URL が付きます。読む人はそのリンクを開くだけです。
+  </p>
+
+  <p class="mb-8 leading-relaxed">
+    いちばん大きな違いは、<strong class="text-slate-900">ページを手で作らない</strong>ことです。作りたい中身を Claude Code（会話でコンピュータの作業を頼めるツール）に話しかけると、見出し・図・表まで組み上げた 1 枚ができ、そのまま投稿されて URL が返ってきます。
+  </p>
+
+  <!-- チャット UI 体験再現 -->
+  <div class="rounded-xl overflow-hidden border border-slate-700/50 mb-8">
+    <div class="flex items-center gap-3 bg-slate-800 px-4 py-2.5">
+      <div class="flex gap-1.5">
+        <div class="w-3 h-3 rounded-full bg-red-500/80"></div>
+        <div class="w-3 h-3 rounded-full bg-yellow-500/80"></div>
+        <div class="w-3 h-3 rounded-full bg-green-500/80"></div>
+      </div>
+      <div class="flex items-center gap-1.5 text-xs text-slate-400">
+        <i data-lucide="terminal" class="w-3.5 h-3.5"></i>
+        話しかけるところ
+      </div>
+    </div>
+    <div class="bg-slate-950 p-5 space-y-4">
+      <div class="flex justify-end">
+        <div class="max-w-[80%] bg-blue-600/90 text-white text-sm rounded-2xl rounded-br-sm px-4 py-2.5 leading-relaxed">
+          先週の勉強会の議事録、これをページにして社内に共有して
+        </div>
+      </div>
+      <div class="flex justify-start">
+        <div class="max-w-[85%] bg-slate-800 text-slate-200 text-sm rounded-2xl rounded-bl-sm px-4 py-2.5 leading-relaxed">
+          決まったことを 4 枚のカードにして、担当と期限を添えました。投稿しました。<br>
+          <span class="text-emerald-400 text-xs">https://pages.example.com/i/minutes/2026-08-05</span>
+        </div>
+      </div>
+      <div class="flex items-center gap-2 border border-slate-700/60 rounded-xl px-3.5 py-2 text-xs text-slate-500">
+        <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+        メッセージを入力
+      </div>
+    </div>
+  </div>
+
+  <p class="mb-8 leading-relaxed">
+    「きれいな資料を作る時間がないから、とりあえず箇条書きで Slack に流す」ということが減ります。うれしいところは大きく 5 つです。
+  </p>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+    <div class="flex gap-4 bg-ads-surface border border-ads-border rounded-xl p-5">
+      <div class="w-10 h-10 rounded-lg bg-blue-500/10 flex items-center justify-center flex-shrink-0">
+        <i data-lucide="shield-check" class="w-5 h-5 text-blue-600"></i>
+      </div>
+      <div>
+        <h3 class="font-bold text-slate-900 mb-2">社内のものは社内で止まる</h3>
+        <p class="text-sm text-ads-muted leading-relaxed">既定のページには入口に門があり、会社の Google アカウントで入った人しか開けません。リンクが外に流れても、中身は見えません。</p>
+      </div>
+    </div>
+
+    <div class="flex gap-4 bg-ads-surface border border-ads-border rounded-xl p-5">
+      <div class="w-10 h-10 rounded-lg bg-amber-500/10 flex items-center justify-center flex-shrink-0">
+        <i data-lucide="wand-2" class="w-5 h-5 text-amber-600"></i>
+      </div>
+      <div>
+        <h3 class="font-bold text-slate-900 mb-2">中身を渡せばページになる</h3>
+        <p class="text-sm text-ads-muted leading-relaxed">見た目を整える作業がまるごと要りません。話しかければ、図・表・カードに組み直したうえで投稿まで進みます。</p>
+      </div>
+    </div>
+
+    <div class="flex gap-4 bg-ads-surface border border-ads-border rounded-xl p-5">
+      <div class="w-10 h-10 rounded-lg bg-emerald-500/10 flex items-center justify-center flex-shrink-0">
+        <i data-lucide="message-square" class="w-5 h-5 text-emerald-600"></i>
+      </div>
+      <div>
+        <h3 class="font-bold text-slate-900 mb-2">気になった一文に直接書ける</h3>
+        <p class="text-sm text-ads-muted leading-relaxed">文章をドラッグで選んでコメントを付けられます。「3 段落目の後半のところですが」と場所を説明する手間が消えます。</p>
+      </div>
+    </div>
+
+    <div class="flex gap-4 bg-ads-surface border border-ads-border rounded-xl p-5">
+      <div class="w-10 h-10 rounded-lg bg-purple-500/10 flex items-center justify-center flex-shrink-0">
+        <i data-lucide="history" class="w-5 h-5 text-purple-600"></i>
+      </div>
+      <div>
+        <h3 class="font-bold text-slate-900 mb-2">直した記録が自動で残る</h3>
+        <p class="text-sm text-ads-muted leading-relaxed">いつ誰が直したかの一覧が付きます。版を選ぶと、足した文字に下線・消した文字に取り消し線が付いた形で違いが見えます。</p>
+      </div>
+    </div>
+
+    <div class="flex gap-4 bg-ads-surface border border-ads-border rounded-xl p-5 md:col-span-2">
+      <div class="w-10 h-10 rounded-lg bg-cyan-500/10 flex items-center justify-center flex-shrink-0">
+        <i data-lucide="hash" class="w-5 h-5 text-cyan-600"></i>
+      </div>
+      <div>
+        <h3 class="font-bold text-slate-900 mb-2">Slack に貼るときれいなカードになる</h3>
+        <p class="text-sm text-ads-muted leading-relaxed">ページから直接チャンネルを選んで投稿できます。社内限定のページは、リンクを貼っても見出しや要約が展開されません。ログインしていない人の画面に中身が出てしまわないようにしてあります。</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ポイントボックス -->
+  <div class="bg-ads-accent/5 border border-ads-accent/20 rounded-xl p-5">
+    <div class="flex items-start gap-3">
+      <div class="flex items-center justify-center w-8 h-8 rounded-lg bg-ads-accent/10 flex-shrink-0 mt-0.5">
+        <i data-lucide="lightbulb" class="w-4 h-4 text-ads-accent-light"></i>
+      </div>
+      <div>
+        <p class="font-bold text-ads-accent-light mb-1">ここがポイント</p>
+        <p class="text-ads-muted leading-relaxed">
+          Pages が引き受けるのは<strong class="text-slate-800">「見せる」ところ</strong>です。何を書くかを考えるのはあなた、読みやすい 1 枚に組み立てて配るところは仕組みの側。<strong class="text-slate-800">言葉にした瞬間に共有できる状態になっている</strong>のが、いちばんの違いです。
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ============================================================ -->
+<!--  SECTION 2: 使い始め方                                        -->
+<!-- ============================================================ -->
+<section class="mb-16 md:mb-20">
+  <div class="flex items-center gap-3 mb-8">
+    <div class="flex items-center justify-center w-10 h-10 rounded-lg bg-emerald-500/10 flex-shrink-0">
+      <i data-lucide="play-circle" class="w-5 h-5 text-emerald-600"></i>
+    </div>
+    <h2 class="text-xl md:text-2xl font-bold text-slate-900">使い始め方 — 2 通り</h2>
+  </div>
+
+  <p class="mb-8 leading-relaxed">
+    ページを作る力（スキル）は、Claude Code に後から足す部品として配っています。入れ方は 2 通りで、<strong class="text-slate-900">ほとんどの人は A で足ります</strong>。
+  </p>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-10">
+    <!-- A -->
+    <div class="bg-emerald-500/5 border border-emerald-500/20 rounded-xl p-6">
+      <div class="inline-flex items-center gap-1.5 bg-emerald-500/10 text-emerald-600 px-3 py-1 rounded-full text-xs font-bold tracking-wide mb-5">
+        <i data-lucide="check-circle" class="w-3.5 h-3.5"></i>
+        A — 何もしない（おすすめ）
+      </div>
+      <p class="text-sm leading-relaxed mb-4">
+        設定を済ませたリポジトリ（プロジェクトのフォルダ）を Claude Code で開くだけで、自動で入ります。<strong class="text-emerald-700">surprise-pages はその 1 つ</strong>です。
+      </p>
+      <ul class="space-y-3 text-sm">
+        <li class="flex items-start gap-2.5">
+          <i data-lucide="check" class="w-4 h-4 text-emerald-600 mt-1 flex-shrink-0"></i>
+          <span>初回だけ「このフォルダを信頼しますか」と 1 回聞かれる</span>
+        </li>
+        <li class="flex items-start gap-2.5">
+          <i data-lucide="check" class="w-4 h-4 text-emerald-600 mt-1 flex-shrink-0"></i>
+          <span>あとは待つだけ。入力するコマンドは無い</span>
+        </li>
+      </ul>
+    </div>
+
+    <!-- B -->
+    <div class="bg-ads-surface border border-ads-border rounded-xl p-6">
+      <div class="inline-flex items-center gap-1.5 bg-slate-500/10 text-slate-600 px-3 py-1 rounded-full text-xs font-bold tracking-wide mb-5">
+        <i data-lucide="settings" class="w-3.5 h-3.5"></i>
+        B — 自分の手元に入れる
+      </div>
+      <p class="text-sm leading-relaxed mb-4">
+        どのフォルダで開いても使えるようにしたいときは、Claude Code の中で 2 行打ちます。<strong class="text-slate-900">1 回やれば以後ずっと有効</strong>です。
+      </p>
+      <ul class="space-y-3 text-sm">
+        <li class="flex items-start gap-2.5">
+          <i data-lucide="corner-down-right" class="w-4 h-4 text-ads-dim mt-1 flex-shrink-0"></i>
+          <span>1 行目で部品の置き場を教える</span>
+        </li>
+        <li class="flex items-start gap-2.5">
+          <i data-lucide="corner-down-right" class="w-4 h-4 text-ads-dim mt-1 flex-shrink-0"></i>
+          <span>2 行目でその中の 1 つを入れる</span>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <p class="mb-4 leading-relaxed">
+    B のときに打つ 2 行は、これです。行の先頭のスラッシュまで含めてそのまま入力します。
+  </p>
+
+  <!-- ターミナル UI: 2 行 -->
+  <div class="mb-10 rounded-xl overflow-hidden border border-slate-700/50">
+    <div class="flex items-center gap-3 bg-slate-800 px-4 py-2.5">
+      <div class="flex gap-1.5">
+        <div class="w-3 h-3 rounded-full bg-red-500/80"></div>
+        <div class="w-3 h-3 rounded-full bg-yellow-500/80"></div>
+        <div class="w-3 h-3 rounded-full bg-green-500/80"></div>
+      </div>
+      <div class="flex items-center gap-1.5 text-xs text-slate-400">
+        <i data-lucide="terminal" class="w-3.5 h-3.5"></i>
+        Claude Code の入力欄に打つ
+      </div>
+    </div>
+    <pre class="bg-slate-950 p-5 overflow-x-auto text-sm leading-loose"><code><span class="text-slate-500"># 1. 部品の置き場を登録する</span>
+<span class="text-blue-400">/plugin marketplace add</span> example-org/surprise-plugins
+
+<span class="text-slate-500"># 2. ページを作る部品を入れる</span>
+<span class="text-blue-400">/plugin install</span> surprise-pages@surprise-plugins</code></pre>
+  </div>
+
+  <p class="mb-8 leading-relaxed">
+    入ったかどうかは <code class="text-emerald-700 text-xs bg-slate-100 px-1.5 py-0.5 rounded">/plugin</code> と打って一覧に出てくるかで確かめられます。あとは、こう話しかけるだけです。
+  </p>
+
+  <!-- 頼み方の例 -->
+  <div class="bg-ads-surface border border-ads-border rounded-xl p-6 md:p-8 mb-8">
+    <h3 class="text-lg font-bold text-slate-900 text-center mb-6">こう言えば動きます</h3>
+    <div class="space-y-3">
+      <div class="flex items-start gap-3 bg-white border border-ads-border rounded-xl px-4 py-3">
+        <i data-lucide="quote" class="w-4 h-4 text-ads-accent mt-1 flex-shrink-0"></i>
+        <div>
+          <p class="text-sm font-bold text-slate-900">「この調査結果をページにして」</p>
+          <p class="text-xs text-ads-muted mt-1">手元のメモや検索結果を 1 枚にまとめる</p>
+        </div>
+      </div>
+      <div class="flex items-start gap-3 bg-white border border-ads-border rounded-xl px-4 py-3">
+        <i data-lucide="quote" class="w-4 h-4 text-ads-accent mt-1 flex-shrink-0"></i>
+        <div>
+          <p class="text-sm font-bold text-slate-900">「新しい申請の流れを図解して社内に共有して」</p>
+          <p class="text-xs text-ads-muted mt-1">手順を図に起こして社内限定で投稿する</p>
+        </div>
+      </div>
+      <div class="flex items-start gap-3 bg-white border border-ads-border rounded-xl px-4 py-3">
+        <i data-lucide="quote" class="w-4 h-4 text-ads-accent mt-1 flex-shrink-0"></i>
+        <div>
+          <p class="text-sm font-bold text-slate-900">「今日の議事録をまとめてページにして」</p>
+          <p class="text-xs text-ads-muted mt-1">決まったこと・担当・期限をカードに分けて出す</p>
+        </div>
+      </div>
+      <div class="flex items-start gap-3 bg-white border border-ads-border rounded-xl px-4 py-3">
+        <i data-lucide="quote" class="w-4 h-4 text-ads-accent mt-1 flex-shrink-0"></i>
+        <div>
+          <p class="text-sm font-bold text-slate-900">「このページを消して」</p>
+          <p class="text-xs text-ads-muted mt-1">作ったページを取り下げる。消したい URL を伝える</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="bg-amber-500/5 border border-amber-500/20 rounded-xl p-5">
+    <div class="flex items-start gap-3">
+      <div class="flex items-center justify-center w-8 h-8 rounded-lg bg-amber-500/10 flex-shrink-0 mt-0.5">
+        <i data-lucide="info" class="w-4 h-4 text-amber-600"></i>
+      </div>
+      <div>
+        <p class="font-bold text-amber-700 mb-1">社外に見せたいときは、そう言う</p>
+        <p class="text-ads-muted leading-relaxed text-sm">
+          何も言わなければ<strong class="text-slate-800">必ず社内限定</strong>で投稿されます。門なしの公開ページにするのは、「社外にも見せたい」「公開ページにして」と<strong class="text-slate-800">あなたがはっきり伝えたときだけ</strong>です。うっかり公開されることはありません。
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ============================================================ -->
+<!--  SECTION 3: コメントの使い方                                   -->
+<!-- ============================================================ -->
+<section class="mb-16 md:mb-20">
+  <div class="flex items-center gap-3 mb-8">
+    <div class="flex items-center justify-center w-10 h-10 rounded-lg bg-purple-500/10 flex-shrink-0">
+      <i data-lucide="message-square" class="w-5 h-5 text-purple-600"></i>
+    </div>
+    <h2 class="text-xl md:text-2xl font-bold text-slate-900">コメントの使い方</h2>
+  </div>
+
+  <p class="mb-6 leading-relaxed">
+    コメントは<strong class="text-slate-900">どのページにも最初から付いています</strong>。作った人が何か設定する必要はありません。使い方は文書共有サービスの感覚とほぼ同じで、<strong class="text-slate-900">気になった文章をドラッグで選んで、その場に書く</strong>だけです。
+  </p>
+
+  <!-- 3 ステップ -->
+  <div class="bg-ads-surface border border-ads-border rounded-xl p-6 md:p-8 mb-8">
+    <h3 class="text-lg font-bold text-slate-900 text-center mb-8">コメントを付けるまでの 3 歩</h3>
+
+    <div class="flex flex-col md:flex-row items-stretch justify-center gap-3 md:gap-0">
+      <div class="flex-1 bg-blue-500/10 border border-blue-500/20 rounded-xl p-4 text-center">
+        <div class="w-8 h-8 rounded-full bg-blue-500 text-white text-sm font-bold flex items-center justify-center mx-auto mb-3">1</div>
+        <i data-lucide="text-cursor" class="w-6 h-6 text-blue-600 mx-auto mb-2"></i>
+        <div class="font-bold text-blue-700 text-sm mb-1">文章を選ぶ</div>
+        <div class="text-xs text-ads-muted leading-relaxed">気になった箇所を<br>ドラッグでなぞる</div>
+      </div>
+
+      <div class="flex items-center justify-center md:w-10 py-1 md:py-0">
+        <i data-lucide="chevron-right" class="w-5 h-5 text-ads-dim hidden md:block"></i>
+        <i data-lucide="chevron-down" class="w-5 h-5 text-ads-dim md:hidden"></i>
+      </div>
+
+      <div class="flex-1 bg-purple-500/10 border border-purple-500/20 rounded-xl p-4 text-center">
+        <div class="w-8 h-8 rounded-full bg-purple-500 text-white text-sm font-bold flex items-center justify-center mx-auto mb-3">2</div>
+        <i data-lucide="mouse-pointer-click" class="w-6 h-6 text-purple-600 mx-auto mb-2"></i>
+        <div class="font-bold text-purple-700 text-sm mb-1">小窓から選ぶ</div>
+        <div class="text-xs text-ads-muted leading-relaxed">「コメント」か<br>「取消線」を押す</div>
+      </div>
+
+      <div class="flex items-center justify-center md:w-10 py-1 md:py-0">
+        <i data-lucide="chevron-right" class="w-5 h-5 text-ads-dim hidden md:block"></i>
+        <i data-lucide="chevron-down" class="w-5 h-5 text-ads-dim md:hidden"></i>
+      </div>
+
+      <div class="flex-1 bg-emerald-500/10 border border-emerald-500/20 rounded-xl p-4 text-center">
+        <div class="w-8 h-8 rounded-full bg-emerald-500 text-white text-sm font-bold flex items-center justify-center mx-auto mb-3">3</div>
+        <i data-lucide="send" class="w-6 h-6 text-emerald-600 mx-auto mb-2"></i>
+        <div class="font-bold text-emerald-700 text-sm mb-1">強さを選んで送る</div>
+        <div class="text-xs text-ads-muted leading-relaxed">書いて送信。<br>⌘（Ctrl）+ Enter でも送れる</div>
+      </div>
+    </div>
+  </div>
+
+  <p class="mb-4 leading-relaxed">
+    2 歩目で出てくる小窓と、3 歩目の入力欄は、こんな見た目です。
+  </p>
+
+  <!-- 体験再現: 選択 → 小窓 → 入力欄 -->
+  <div class="rounded-xl overflow-hidden border border-ads-border mb-8">
+    <div class="bg-white p-6 md:p-8">
+      <p class="text-sm leading-loose mb-4">
+        新しい申請の流れは、まず担当者が下書きを作り、<span class="bg-blue-200/60 rounded-sm px-0.5">部門長の承認を経てから経理に回ります</span>。承認が下りるまでの目安は 3 営業日です。
+      </p>
+      <!-- 小窓 -->
+      <div class="inline-flex items-center gap-1 bg-slate-900 rounded-xl p-1 shadow-lg mb-5">
+        <div class="flex items-center gap-1.5 text-white text-xs px-3 py-1.5 rounded-lg bg-white/10">
+          <i data-lucide="message-square" class="w-3.5 h-3.5"></i>
+          コメント
+        </div>
+        <div class="flex items-center gap-1.5 text-slate-400 text-xs px-3 py-1.5 rounded-lg">
+          <i data-lucide="strikethrough" class="w-3.5 h-3.5"></i>
+          取消線
+        </div>
+      </div>
+      <!-- 入力欄 -->
+      <div class="max-w-md border border-ads-border rounded-xl p-4 bg-ads-surface">
+        <div class="text-[11px] text-ads-dim mb-2 flex items-center gap-1.5">
+          <i data-lucide="quote" class="w-3 h-3"></i>
+          部門長の承認を経てから経理に回ります
+        </div>
+        <div class="flex gap-1.5 mb-3">
+          <div class="flex items-center gap-1.5 text-[11px] font-medium text-slate-800 bg-white border border-slate-300 rounded-full px-2.5 py-1">
+            <span class="w-1.5 h-1.5 rounded-full bg-red-500"></span> must
+          </div>
+          <div class="flex items-center gap-1.5 text-[11px] text-ads-muted border border-ads-border rounded-full px-2.5 py-1">
+            <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span> better
+          </div>
+          <div class="flex items-center gap-1.5 text-[11px] text-ads-muted border border-ads-border rounded-full px-2.5 py-1">
+            <span class="w-1.5 h-1.5 rounded-full bg-slate-400"></span> want
+          </div>
+        </div>
+        <div class="bg-white border border-ads-border rounded-lg px-3 py-2 text-sm text-slate-700">部門長が不在のときの代理承認も書いておきたいです</div>
+        <div class="flex justify-end mt-3">
+          <div class="flex items-center gap-1.5 bg-slate-900 text-white text-xs rounded-lg px-3 py-1.5">
+            <i data-lucide="send" class="w-3 h-3"></i> 送信
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <p class="mb-6 leading-relaxed">
+    真ん中に並んでいる 3 つの丸いボタンが<strong class="text-slate-900">「どのくらい直してほしいか」</strong>です。読む側が対応の順番を決めやすくなるので、必ず 1 つ選びます。
+  </p>
+
+  <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+    <div class="bg-ads-surface border border-ads-border rounded-xl p-5">
+      <div class="flex items-center gap-2 mb-2">
+        <span class="w-2 h-2 rounded-full bg-red-500"></span>
+        <span class="font-bold text-slate-900">must</span>
+      </div>
+      <p class="text-sm text-ads-muted leading-relaxed">必ず直す。事実が違う、このままでは困る、というとき</p>
+    </div>
+    <div class="bg-ads-surface border border-ads-border rounded-xl p-5">
+      <div class="flex items-center gap-2 mb-2">
+        <span class="w-2 h-2 rounded-full bg-amber-500"></span>
+        <span class="font-bold text-slate-900">better</span>
+      </div>
+      <p class="text-sm text-ads-muted leading-relaxed">直したほうがよい。間違いではないが、もっと良くなるとき</p>
+    </div>
+    <div class="bg-ads-surface border border-ads-border rounded-xl p-5">
+      <div class="flex items-center gap-2 mb-2">
+        <span class="w-2 h-2 rounded-full bg-slate-400"></span>
+        <span class="font-bold text-slate-900">want</span>
+      </div>
+      <p class="text-sm text-ads-muted leading-relaxed">できれば。好みの提案や、余力があればという要望</p>
+    </div>
+  </div>
+
+  <p class="mb-8 leading-relaxed">
+    書いたコメントには<strong class="text-slate-900">返信</strong>ができ、対応が終わったら<strong class="text-slate-900">解決</strong>にできます。解決したものは畳まれて下がるので、まだ手が要るものが埋もれません。コメント 1 件ごとのリンクもカードから取れるので、「ここ見てください」と直接その位置を送れます。
+  </p>
+
+  <!-- 誰が書けるか -->
+  <div class="bg-ads-surface border border-ads-border rounded-xl p-6 mb-8">
+    <h3 class="font-bold text-slate-900 mb-4 flex items-center gap-2">
+      <i data-lucide="user-check" class="w-4 h-4 text-ads-accent"></i>
+      誰が書けるか
+    </h3>
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm">
+        <thead>
+          <tr class="text-left text-xs text-ads-dim border-b border-ads-border">
+            <th class="pb-2 pr-4 font-medium">ページの種類</th>
+            <th class="pb-2 pr-4 font-medium">読む</th>
+            <th class="pb-2 font-medium">書く</th>
+          </tr>
+        </thead>
+        <tbody class="text-ads-muted">
+          <tr class="border-b border-ads-border/50">
+            <td class="py-3 pr-4 font-medium text-slate-900">社内限定</td>
+            <td class="py-3 pr-4">会社の人だけ</td>
+            <td class="py-3">会社の人だけ</td>
+          </tr>
+          <tr>
+            <td class="py-3 pr-4 font-medium text-slate-900">公開</td>
+            <td class="py-3 pr-4">誰でも</td>
+            <td class="py-3">会社の人／名前を入れた社外の方</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="text-sm text-ads-muted leading-relaxed mt-4">
+      公開ページで社外の方がコメントしようとすると、<strong class="text-slate-800">名前を 1 つだけ聞かれます</strong>。メールアドレスも会員登録も要りません。一度入れれば、次に同じブラウザで開いたときも同じ人として扱われ、自分のコメントだけ直したり消したりできます。会社の人はログインしていれば普段の名前と顔で書けるので、名前を聞かれることはありません。
+    </p>
+  </div>
+
+  <p class="mb-4 leading-relaxed">
+    コメントの一覧を開いたり、他の道具を出したりするのは、<strong class="text-slate-900">画面の右下に出る道具箱</strong>からです。このページの右下にも出ています。
+  </p>
+
+  <!-- 右下ツールバー 体験再現 -->
+  <div class="bg-ads-surface border border-ads-border rounded-xl p-6 md:p-8 mb-8">
+    <div class="flex justify-center mb-6">
+      <div class="inline-flex items-center gap-1 bg-white border border-ads-border rounded-full px-2 py-1.5 shadow-sm">
+        <div class="flex items-center gap-1.5 text-xs text-slate-700 px-3 py-1.5 rounded-full bg-ads-hover">
+          <i data-lucide="message-square" class="w-3.5 h-3.5"></i>
+          コメント
+        </div>
+        <span class="w-px h-4 bg-ads-border"></span>
+        <div class="flex items-center gap-1.5 text-xs text-ads-muted px-3 py-1.5">
+          <i data-lucide="history" class="w-3.5 h-3.5"></i>
+          履歴
+        </div>
+        <div class="flex items-center gap-1.5 text-xs text-ads-muted px-3 py-1.5">
+          <i data-lucide="link" class="w-3.5 h-3.5"></i>
+          リンクをコピー
+        </div>
+        <div class="flex items-center gap-1.5 text-xs text-ads-muted px-3 py-1.5">
+          <i data-lucide="hash" class="w-3.5 h-3.5"></i>
+          Slack で共有
+        </div>
+      </div>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+      <div class="flex items-start gap-2.5">
+        <i data-lucide="message-square" class="w-4 h-4 text-ads-accent mt-1 flex-shrink-0"></i>
+        <span><strong class="text-slate-900">コメント</strong> — 右側の一覧を開け閉めする。未解決だけに絞る、書き出す、もここから</span>
+      </div>
+      <div class="flex items-start gap-2.5">
+        <i data-lucide="history" class="w-4 h-4 text-ads-accent mt-1 flex-shrink-0"></i>
+        <span><strong class="text-slate-900">履歴</strong> — いつ誰が直したかの一覧。版を選ぶと 1 つ前との違いが出る</span>
+      </div>
+      <div class="flex items-start gap-2.5">
+        <i data-lucide="link" class="w-4 h-4 text-ads-accent mt-1 flex-shrink-0"></i>
+        <span><strong class="text-slate-900">リンクをコピー</strong> — このページの URL を写す</span>
+      </div>
+      <div class="flex items-start gap-2.5">
+        <i data-lucide="hash" class="w-4 h-4 text-ads-accent mt-1 flex-shrink-0"></i>
+        <span><strong class="text-slate-900">Slack で共有</strong> — チャンネルを選び、一言そえて投稿する</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="bg-ads-accent/5 border border-ads-accent/20 rounded-xl p-5">
+    <div class="flex items-start gap-3">
+      <div class="flex items-center justify-center w-8 h-8 rounded-lg bg-ads-accent/10 flex-shrink-0 mt-0.5">
+        <i data-lucide="lightbulb" class="w-4 h-4 text-ads-accent-light"></i>
+      </div>
+      <div>
+        <p class="font-bold text-ads-accent-light mb-1">本文を直してもコメントは迷子にならない</p>
+        <p class="text-ads-muted leading-relaxed">
+          ページの本文を書き直しても、<strong class="text-slate-800">引用した文言が残っていれば下線は付き直します</strong>。文言ごと消えた場合は下線が消えるだけで、コメント自体は一覧に残ります。「直したらコメントが全部飛んだ」ということは起きません。
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ============================================================ -->
+<!--  SECTION 4: 社内限定と公開の違い                                -->
+<!-- ============================================================ -->
+<section class="mb-16 md:mb-20">
+  <div class="flex items-center gap-3 mb-8">
+    <div class="flex items-center justify-center w-10 h-10 rounded-lg bg-red-500/10 flex-shrink-0">
+      <i data-lucide="shield" class="w-5 h-5 text-red-600"></i>
+    </div>
+    <h2 class="text-xl md:text-2xl font-bold text-slate-900">社内限定と公開の違い・気をつけること</h2>
+  </div>
+
+  <p class="mb-8 leading-relaxed">
+    ページには 2 つの置き場所しかありません。<strong class="text-slate-900">入口に門があるか、無いか</strong>の違いです。URL を見れば、どちらなのかがすぐ分かります。
+  </p>
+
+  <!-- 左右対比 -->
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+    <!-- 社内 -->
+    <div class="bg-ads-accent/5 border border-ads-accent/20 rounded-xl p-6">
+      <div class="inline-flex items-center gap-1.5 bg-ads-accent/10 text-ads-accent-light px-3 py-1 rounded-full text-xs font-bold tracking-wide mb-5">
+        <i data-lucide="lock" class="w-3.5 h-3.5"></i>
+        社内限定（既定）
+      </div>
+      <div class="bg-white border border-ads-border rounded-lg px-3 py-2 text-xs text-slate-600 mb-5 overflow-x-auto">
+        pages.example.com<span class="text-ads-accent-light font-bold">/i/</span>...
+      </div>
+      <ul class="space-y-3 text-sm">
+        <li class="flex items-start gap-2.5">
+          <i data-lucide="check" class="w-4 h-4 text-ads-accent mt-1 flex-shrink-0"></i>
+          <span>会社の Google アカウントで入った人だけが開ける</span>
+        </li>
+        <li class="flex items-start gap-2.5">
+          <i data-lucide="check" class="w-4 h-4 text-ads-accent mt-1 flex-shrink-0"></i>
+          <span>ページに載せた画像も、毎回ログインを確かめてから渡す</span>
+        </li>
+        <li class="flex items-start gap-2.5">
+          <i data-lucide="check" class="w-4 h-4 text-ads-accent mt-1 flex-shrink-0"></i>
+          <span>Slack にリンクを貼っても、見出しや要約が展開されない</span>
+        </li>
+      </ul>
+      <div class="mt-5 pt-4 border-t border-ads-accent/10 text-sm text-ads-accent-light/80 flex items-start gap-2">
+        <i data-lucide="users" class="w-4 h-4 mt-0.5 flex-shrink-0"></i>
+        議事録・社内の調査・手順書など、ほとんどはこちら
+      </div>
+    </div>
+
+    <!-- 公開 -->
+    <div class="bg-amber-500/5 border border-amber-500/20 rounded-xl p-6">
+      <div class="inline-flex items-center gap-1.5 bg-amber-500/10 text-amber-600 px-3 py-1 rounded-full text-xs font-bold tracking-wide mb-5">
+        <i data-lucide="globe" class="w-3.5 h-3.5"></i>
+        公開（明示したときだけ）
+      </div>
+      <div class="bg-white border border-ads-border rounded-lg px-3 py-2 text-xs text-slate-600 mb-5 overflow-x-auto">
+        pages.example.com<span class="text-amber-600 font-bold">/p/</span>...
+      </div>
+      <ul class="space-y-3 text-sm">
+        <li class="flex items-start gap-2.5">
+          <i data-lucide="alert-triangle" class="w-4 h-4 text-amber-600 mt-1 flex-shrink-0"></i>
+          <span>門が無い。URL を知っていれば社外の誰でも開ける</span>
+        </li>
+        <li class="flex items-start gap-2.5">
+          <i data-lucide="alert-triangle" class="w-4 h-4 text-amber-600 mt-1 flex-shrink-0"></i>
+          <span>検索には出さない設定だが、リンクが回れば読まれる</span>
+        </li>
+        <li class="flex items-start gap-2.5">
+          <i data-lucide="alert-triangle" class="w-4 h-4 text-amber-600 mt-1 flex-shrink-0"></i>
+          <span>社外の方も、名前を 1 つ入れればコメントできる</span>
+        </li>
+      </ul>
+      <div class="mt-5 pt-4 border-t border-amber-500/10 text-sm text-amber-700/80 flex items-start gap-2">
+        <i data-lucide="send" class="w-4 h-4 mt-0.5 flex-shrink-0"></i>
+        社外の方に渡す資料など、見せてよいと判断したものだけ
+      </div>
+    </div>
+  </div>
+
+  <p class="mb-8 leading-relaxed">
+    社内限定のページを社外の人に渡したくなったときは、<strong class="text-slate-900">公開ページとして投稿し直す</strong>必要があります。あとから門だけ外すことはできません。逆に言えば、間違えて社内のものが公開側に出ることも起きにくくしてあります。
+  </p>
+
+  <!-- 注意 -->
+  <div class="bg-red-500/5 border border-red-500/20 rounded-xl p-6">
+    <div class="flex items-start gap-3">
+      <div class="flex items-center justify-center w-9 h-9 rounded-lg bg-red-500/10 flex-shrink-0 mt-0.5">
+        <i data-lucide="alert-circle" class="w-5 h-5 text-red-600"></i>
+      </div>
+      <div>
+        <p class="font-bold text-red-700 mb-2">給与・個人情報は上げない</p>
+        <p class="text-ads-muted leading-relaxed mb-4">
+          ページを消せば URL は開けなくなりますが、<strong class="text-slate-800">文章そのものは記録として残り続けます</strong>。書き直しの履歴を残す仕組みが、同時に「消しても遡れる」性質を持っているためです。
+        </p>
+        <div class="bg-white/70 border border-red-500/15 rounded-lg px-4 py-3">
+          <p class="text-sm text-red-700/90 leading-relaxed">
+            <strong class="text-red-700">判断の目安:</strong> 「あとから無かったことにしたい」と少しでも思うものは、そもそも投稿しない。給与・評価・健康状態・個人を特定できる情報がこれにあたります。
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ============================================================ -->
+<!--  SECTION 5: まとめ                                            -->
+<!-- ============================================================ -->
+<section>
+  <div class="flex items-center gap-3 mb-8">
+    <div class="flex items-center justify-center w-10 h-10 rounded-lg bg-ads-accent/10 flex-shrink-0">
+      <i data-lucide="check-circle" class="w-5 h-5 text-ads-accent-light"></i>
+    </div>
+    <h2 class="text-xl md:text-2xl font-bold text-slate-900">まとめ — 覚えておきたい 3 つのこと</h2>
+  </div>
+
+  <p class="mb-8 leading-relaxed">
+    最後に、このページで伝えたかったことを 3 つに絞ってまとめます。
+  </p>
+
+  <div class="space-y-4 mb-10">
+    <div class="bg-ads-surface border border-ads-border rounded-xl p-6 border-l-4 border-l-blue-500">
+      <div class="flex items-start gap-4">
+        <div class="text-2xl font-black text-blue-500 leading-none flex-shrink-0 mt-1">01</div>
+        <div>
+          <h3 class="font-bold text-slate-900 mb-2">作り方は「話しかける」だけ</h3>
+          <p class="text-sm text-ads-muted leading-relaxed">
+            設定済みのフォルダを開けば自動で使えるようになります。あとは「これをページにして」と伝えるだけで、図つきの 1 枚が組み上がり、URL が返ってきます。
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="bg-ads-surface border border-ads-border rounded-xl p-6 border-l-4 border-l-emerald-500">
+      <div class="flex items-start gap-4">
+        <div class="text-2xl font-black text-emerald-500 leading-none flex-shrink-0 mt-1">02</div>
+        <div>
+          <h3 class="font-bold text-slate-900 mb-2">読む人は、その場に書き込める</h3>
+          <p class="text-sm text-ads-muted leading-relaxed">
+            気になった文章を選んでコメントし、強さ（must / better / want）を添えて送る。返信も解決もでき、直した履歴も自動で残ります。感想を集める場所を別に用意しなくて済みます。
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="bg-ads-surface border border-ads-border rounded-xl p-6 border-l-4 border-l-amber-500">
+      <div class="flex items-start gap-4">
+        <div class="text-2xl font-black text-amber-500 leading-none flex-shrink-0 mt-1">03</div>
+        <div>
+          <h3 class="font-bold text-slate-900 mb-2">既定は社内限定。公開は言ったときだけ</h3>
+          <p class="text-sm text-ads-muted leading-relaxed">
+            何も言わなければ、会社の人しか開けないページになります。門を外すのは、社外に見せてよいと判断してはっきり伝えたときだけ。ただし、消しても文章は記録に残るので、個人情報や給与は最初から載せません。
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="text-center bg-gradient-to-b from-ads-accent/5 to-transparent border border-ads-accent/10 rounded-xl p-8 md:p-10">
+    <i data-lucide="sparkles" class="w-8 h-8 text-ads-accent mx-auto mb-4"></i>
+    <p class="text-lg font-bold text-slate-900 mb-3">まずは 1 枚、作ってみてください。</p>
+    <p class="text-ads-muted max-w-lg mx-auto leading-relaxed">
+      共有したいけれど資料にするほどでもない、と思っていたものが向いています。調べたこと、決まったこと、後任に引き継ぎたい手順。「これをページにして」と伝えるところから始まります。
+    </p>
+  </div>
+</section>
+
+<!-- CONTENT_END -->
+  </main>
+  <footer class="max-w-3xl mx-auto px-5 pb-10 pt-6 border-t border-ads-border/30">
+    <p class="text-xs text-ads-dim text-center">Pages</p>
+  </footer>
+  <!--
+    コメント機能の script タグはここに書かない。
+    配信時にサーバー側が自動で差し込むため、ページ側で読み込むと二重になる。
+  -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>lucide.createIcons();</script>
+</body>
+</html>

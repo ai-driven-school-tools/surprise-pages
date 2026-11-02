@@ -1,0 +1,8 @@
+{
+  "note": "aside が最後の子でない",
+  "expect_ok": false,
+  "expect_codes": [
+    "NOTES_NOT_LAST"
+  ],
+  "embed": "ok"
+}

@@ -1,0 +1,214 @@
+{
+  "$comment": "サーバーが読む環境変数の正本。scope は both（両方の版）/ personal（配布版だけ）/ company（社内版だけ）/ local（手元の確認だけ）/ platform（Vercel や Node が入れる）。feature は src/lib/settings/features.ts の機能名。配布版の .env.example と設置の診断はここから作る。tests/checks/check-features.mjs が、コードの読む名前と突き合わせる。featureSwitch は機能のスイッチの台帳（決まりは docs/guides/feature-switches.md。owner は GitHub のアカウント名、unset は未設定のときの動き、follows は親のスイッチ、removeBy は片付けの期限、cleanup は片付けで消すもの）。tests/checks/check-feature-switches.mjs が、コードの読むスイッチと突き合わせる。",
+  "variables": [
+    {
+      "name": "PAGES_REQUEST_LOG",
+      "scope": "company",
+      "required": false,
+      "feature": "core",
+      "purpose": "入口の外枠（routeLog・apiV1）が、うまくいった要求も含めて要求ごとに 1 行（request.completed：受け口の型・要求の目印・かかった時間・応答の番号だけ）を標準の出力へ書く。on を明示したときだけ。エラーの割合の分母・遅さ・ログが来ないの見張りの材料で、送り方（公式の転送か自前の送信か）とは別のスイッチ",
+      "featureSwitch": {
+        "owner": "mako-surprise",
+        "unset": "off",
+        "removeBy": "2026-12-31",
+        "cleanup": "ログの送り方が決まり、見張り（エラーの割合・遅さ・ログが来ない）を当てたら、スイッチを消して要求ごとの 1 行を既定にする。見張りを当てないと決めたら、1 行を書く分岐ごと消す"
+      }
+    },
+    {
+      "name": "DATABASE_CA_CERT",
+      "scope": "both",
+      "required": false,
+      "feature": "core",
+      "purpose": "保存先が専用の認証局を使う場合のルート証明書（PEM）。接続先の検証を省略せずに接続する"
+    },
+    {
+      "name": "PAGES_DECK_DIAGNOSTICS",
+      "scope": "company",
+      "required": false,
+      "feature": "core",
+      "purpose": "保存時間の詳細測定。onを明示した場合だけ数値を記録",
+      "featureSwitch": {
+        "owner": "mako-surprise",
+        "unset": "off",
+        "removeBy": "2026-12-31",
+        "cleanup": "共同編集の公開直後の測定用。測定を終えたら、詳細の記録ごと消すか常設の記録へ移す"
+      }
+    },
+    {
+      "name": "PAGES_EDITION",
+      "scope": "both",
+      "required": false,
+      "feature": "core",
+      "example": "personal",
+      "purpose": "利用形態。配布物は deployment.json で配布版に固定されていて、ここで社内版へは戻せない"
+    },
+    {
+      "name": "PAGES_OWNER_EMAIL",
+      "scope": "personal",
+      "required": true,
+      "feature": "core",
+      "purpose": "設置した本人の Google アカウントのメールアドレス。保存先の初期化に使ったものと同じにする"
+    },
+    {
+      "name": "PAGES_SITE_URL",
+      "scope": "personal",
+      "required": true,
+      "feature": "core",
+      "purpose": "自分のサイトの URL（https://〜 のドメインまで）"
+    },
+    {
+      "name": "PAGES_SITE_NAME",
+      "scope": "personal",
+      "required": false,
+      "feature": "core",
+      "example": "My Pages",
+      "purpose": "ツールの名前。導入の最初に本人が決め、タブ・ログイン画面・サイドバー・共有カードに出る。未設定なら「Pages」"
+    },
+    {
+      "name": "DATABASE_URL",
+      "scope": "both",
+      "required": true,
+      "feature": "core",
+      "purpose": "通常運転用の保存先の接続。初期化の脚本が .env.setup に追記したものを使う"
+    },
+    {
+      "name": "DATABASE_POOL_MAX",
+      "scope": "both",
+      "required": false,
+      "feature": "core",
+      "purpose": "保存先へ直接つなぐとき（DATABASE_URL）に同時に開く接続の上限（1〜20・既定 3）。体感速度の計測（tests/checks/browser/app-speed.mjs）は、本番の HTTP 経由の保存先と同じく同時に投げられるよう広げて測る"
+    },
+    {
+      "name": "AUTH_SECRET",
+      "scope": "both",
+      "required": true,
+      "feature": "core",
+      "purpose": "ログインの署名の鍵。openssl rand -base64 32 で作る"
+    },
+    {
+      "name": "AUTH_GOOGLE_ID",
+      "scope": "both",
+      "required": true,
+      "feature": "core",
+      "purpose": "Google Cloud で作ったログイン用のクライアントの ID"
+    },
+    {
+      "name": "AUTH_GOOGLE_SECRET",
+      "scope": "both",
+      "required": true,
+      "feature": "core",
+      "purpose": "Google Cloud で作ったログイン用のクライアントの秘密の値"
+    },
+    {
+      "name": "BLOB_READ_WRITE_TOKEN",
+      "scope": "both",
+      "required": true,
+      "feature": "core",
+      "purpose": "画像の置き場（非公開の Vercel Blob）。Vercel で置き場を繋ぐと自動で入る"
+    },
+    {
+      "name": "CRON_SECRET",
+      "scope": "both",
+      "required": false,
+      "feature": "core",
+      "purpose": "毎日の片付け（古い閲覧記録を消す）の合言葉。無いと片付けが動かない"
+    },
+    {
+      "name": "PAGES_AGENT_EDITING",
+      "scope": "both",
+      "required": false,
+      "feature": "page-agent",
+      "purpose": "手元の AI から資料を直す口。止めるときだけ off にする",
+      "featureSwitch": {
+        "owner": "mako-surprise",
+        "unset": "on",
+        "removeBy": "2027-03-31",
+        "cleanup": "全員に出したあとの、止めるためだけのスイッチ（決まりより前からある例外）。期限までに、止める道を常設で残すか、スイッチを消すかを決める"
+      }
+    },
+    {
+      "name": "AUTH_URL",
+      "scope": "local",
+      "required": false,
+      "feature": "core",
+      "purpose": "手元で本物のログインを試すときのサイトの URL"
+    },
+    {
+      "name": "LOCAL_LOGIN_REQUIRED",
+      "scope": "local",
+      "required": false,
+      "feature": "core",
+      "purpose": "手元でもログインの省略を切る"
+    },
+    {
+      "name": "LOCAL_PREVIEW_RECORD_VIEWS",
+      "scope": "local",
+      "required": false,
+      "feature": "core",
+      "purpose": "手元の仮の人の閲覧も記録する"
+    },
+    {
+      "name": "NODE_ENV",
+      "scope": "platform",
+      "required": false,
+      "feature": "core",
+      "purpose": "Node が入れる実行の種類"
+    },
+    {
+      "name": "VERCEL_REGION",
+      "scope": "platform",
+      "required": false,
+      "feature": "core",
+      "purpose": "Vercel の上で動いている印"
+    },
+    {
+      "name": "VERCEL_DEPLOYMENT_ID",
+      "scope": "platform",
+      "required": false,
+      "feature": "core",
+      "purpose": "Vercel の上で動いている印"
+    },
+    {
+      "name": "VERCEL_ENV",
+      "scope": "platform",
+      "required": false,
+      "feature": "core",
+      "purpose": "Vercel が立てる配備の種類。production のときだけ本番の保管庫へつなぐ（src/lib/production-target.mjs）"
+    },
+    {
+      "name": "VERCEL_TARGET_ENV",
+      "scope": "platform",
+      "required": false,
+      "feature": "core",
+      "purpose": "Vercel が立てる環境の名前（preview など）。production と食い違えば本番の保管庫へつながない"
+    },
+    {
+      "name": "VERCEL_GIT_COMMIT_SHA",
+      "scope": "platform",
+      "required": false,
+      "feature": "core",
+      "purpose": "Vercel が立てる、組み立てたコミット。ログの 1 行に版として添える"
+    },
+    {
+      "name": "NEXT_PHASE",
+      "scope": "platform",
+      "required": false,
+      "feature": "core",
+      "purpose": "Next が組み立て中に立てる印。組み立て中は保存先へ繋がない"
+    },
+    {
+      "name": "GUEST_COOKIE_SECRET",
+      "scope": "both",
+      "required": false,
+      "feature": "core",
+      "purpose": "昔の「名前だけで参加した人」の入場券の封を確かめる鍵（任意・読む側だけ・src/lib/access/guest.ts）。省略すると AUTH_SECRET を使う"
+    },
+    {
+      "name": "PAGES_HOST",
+      "scope": "both",
+      "required": false,
+      "feature": "core",
+      "purpose": "投稿コマンド（bin/pages-publish.mjs）の投稿先の上書き。配る口（src/app/cli/[name]）が設置のサイトの URL を書き込む。サーバーの処理は読まない"
+    }
+  ]
+}

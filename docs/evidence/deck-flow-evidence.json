@@ -1,0 +1,429 @@
+{
+  "date": "2026-09-14",
+  "checks": 6491,
+  "failed": 0,
+  "browserRuns": [
+    {
+      "suite": "qa-catalog",
+      "browser": "chromium",
+      "width": 1390,
+      "cases": 14,
+      "passed": 14,
+      "errors": []
+    },
+    {
+      "suite": "qa-catalog",
+      "browser": "chromium",
+      "width": 390,
+      "cases": 14,
+      "passed": 14,
+      "errors": []
+    },
+    {
+      "suite": "qa-catalog",
+      "browser": "webkit",
+      "width": 1390,
+      "cases": 14,
+      "passed": 14,
+      "errors": []
+    },
+    {
+      "suite": "qa-catalog",
+      "browser": "webkit",
+      "width": 390,
+      "cases": 14,
+      "passed": 14,
+      "errors": []
+    },
+    {
+      "suite": "qa-sample",
+      "browser": "chromium",
+      "width": 1390,
+      "cases": 3,
+      "passed": 3,
+      "errors": []
+    },
+    {
+      "suite": "qa-sample",
+      "browser": "chromium",
+      "width": 390,
+      "cases": 3,
+      "passed": 3,
+      "errors": []
+    },
+    {
+      "suite": "qa-sample",
+      "browser": "webkit",
+      "width": 1390,
+      "cases": 3,
+      "passed": 3,
+      "errors": []
+    },
+    {
+      "suite": "qa-sample",
+      "browser": "webkit",
+      "width": 390,
+      "cases": 3,
+      "passed": 3,
+      "errors": []
+    }
+  ],
+  "visualReview": {
+    "approved": true,
+    "unresolvedP1": 0,
+    "unresolvedP2": 0,
+    "scope": "New page on fixed sample15 and catalog14 URLs; 11–13 plus all 14 flow formats visually reviewed; previous/next/overview and settled focus state checked; no code or source saves.",
+    "resolved": [
+      "Separate titles and descriptions",
+      "Shared number/title/description baselines",
+      "Readable semantic line breaks",
+      "Connectors leave and enter normal to node borders",
+      "Distinct convergence ports",
+      "Unambiguous vertical quadrant axis endpoints",
+      "Stable paper size and visible step controls"
+    ]
+  },
+  "artifacts": [
+    {
+      "path": "qa-catalog/chromium-1390/flow-branch.png",
+      "sha256": "1370ef5abe3a3486d4a9e635c0ae6cb97db6db7dc44b2120257b9eb712227144"
+    },
+    {
+      "path": "qa-catalog/chromium-1390/flow-causal.png",
+      "sha256": "cd1065530c998b1df2f045bc3e43cd97e424d898feb0eb837a9a5fda15f72e87"
+    },
+    {
+      "path": "qa-catalog/chromium-1390/flow-converge.png",
+      "sha256": "4c93ef977fd10bd0f7fb9b707e8e26a000e2964022a3f885685e21563a28c6a8"
+    },
+    {
+      "path": "qa-catalog/chromium-1390/flow-cycle.png",
+      "sha256": "bf9e8d26b22025a0a3f252fc738c558051168a825be93218d32324c588e801c0"
+    },
+    {
+      "path": "qa-catalog/chromium-1390/flow-hierarchy.png",
+      "sha256": "a6df5afcedd2cc87470027e96d89ed674100b67928c949f78911e26acb26f8bc"
+    },
+    {
+      "path": "qa-catalog/chromium-1390/flow-input-output.png",
+      "sha256": "1eeaf35114e0fb50693eba0d50cfd78119b7021254edd928972dd5561e50e073"
+    },
+    {
+      "path": "qa-catalog/chromium-1390/flow-network.png",
+      "sha256": "b609f08c2a3ce605fe91a4d0d8ad2cb6438e563aa99f2fc2524ea5192a39eff1"
+    },
+    {
+      "path": "qa-catalog/chromium-1390/flow-parallel.png",
+      "sha256": "2e02438e04f65747b4e887184c807a848034653df050a9abae987625c903198b"
+    },
+    {
+      "path": "qa-catalog/chromium-1390/flow-quadrant.png",
+      "sha256": "88da095c3e05b3e01d143744eb3f6dd4ab109f669a4bf0694babd1a3c7e882fc"
+    },
+    {
+      "path": "qa-catalog/chromium-1390/flow-sequence.png",
+      "sha256": "00d9d5238d7bf779b7ec6df08f8cd3f15cc409b80de961b35ad9483dbaf62d39"
+    },
+    {
+      "path": "qa-catalog/chromium-1390/flow-set-overlap.png",
+      "sha256": "25ca568929017a1c5df7984645e984ade7245e05dd1354ceb5acc074a0eb769a"
+    },
+    {
+      "path": "qa-catalog/chromium-1390/flow-state.png",
+      "sha256": "b20e09acc2e91285b4b060b4fc5433119a63241ef281ddfd9e685850cfd1676d"
+    },
+    {
+      "path": "qa-catalog/chromium-1390/flow-swimlane.png",
+      "sha256": "dcd3453daef2a4723ac602babc23c8956624e667f569ee014d0569f4874ef152"
+    },
+    {
+      "path": "qa-catalog/chromium-1390/flow-time.png",
+      "sha256": "856be50b0df5076fcb43afff19b2eb237ac0ece9e0ced842bebbb503a2661cc5"
+    },
+    {
+      "path": "qa-catalog/chromium-390/flow-branch.png",
+      "sha256": "13af926a403f473e1435f31ac39a20754dde3dd8c73fb41765aee18e65570a21"
+    },
+    {
+      "path": "qa-catalog/chromium-390/flow-causal.png",
+      "sha256": "17e0852c85f1a68b43bfa7c4463b4cd77c9514a5e3f497729450cb37452cf8ff"
+    },
+    {
+      "path": "qa-catalog/chromium-390/flow-converge.png",
+      "sha256": "0d1792a09bb865511cc8d0ff60d924b3fb3db1413646b019427b57aee68281f8"
+    },
+    {
+      "path": "qa-catalog/chromium-390/flow-cycle.png",
+      "sha256": "58ce97e6686e523dd7b86a346f4ffea3da693576ea6d5dd8bc01c388001061cd"
+    },
+    {
+      "path": "qa-catalog/chromium-390/flow-hierarchy.png",
+      "sha256": "172a93a38abb9eabd1504d51ba1004273dcbb283751a54b2ec7b954153a7a781"
+    },
+    {
+      "path": "qa-catalog/chromium-390/flow-input-output.png",
+      "sha256": "badc7d5e492392b329594e694c1dae488c9c2628dbd9b1b5a9e119c773eef7e2"
+    },
+    {
+      "path": "qa-catalog/chromium-390/flow-network.png",
+      "sha256": "1847690b3393d4544581a083fa07f208f805d5a0e0e40d50694b9c118a622257"
+    },
+    {
+      "path": "qa-catalog/chromium-390/flow-parallel.png",
+      "sha256": "837344a56b7aa9d1d353bbd3532a32a7b83716f5af1574b3d3fc7a690c8ab6ec"
+    },
+    {
+      "path": "qa-catalog/chromium-390/flow-quadrant.png",
+      "sha256": "8aa22c7cb23d8de9710bec73fa8cb3d69ffa49e5e4c94627f44044b01c376aa3"
+    },
+    {
+      "path": "qa-catalog/chromium-390/flow-sequence.png",
+      "sha256": "90b47243b97c1ecbc9f47eff9f8a9c83b83c4a7378aa668a901067443f48839e"
+    },
+    {
+      "path": "qa-catalog/chromium-390/flow-set-overlap.png",
+      "sha256": "1bef13c14ac10b14029e31b388288224aaa8aac81b85993cbf08b7868e7d18a9"
+    },
+    {
+      "path": "qa-catalog/chromium-390/flow-state.png",
+      "sha256": "043fabcd0eae57c5c689c05a56855572f7506ced5ef0a1f84cf0fb6da68858dc"
+    },
+    {
+      "path": "qa-catalog/chromium-390/flow-swimlane.png",
+      "sha256": "5ee48b273cd2c3fe0abf33ab5add790b6d7911a56a11be996af169fe17e014a8"
+    },
+    {
+      "path": "qa-catalog/chromium-390/flow-time.png",
+      "sha256": "f41a421da34bddb6cb3a8e273005c65308f4af76cd21a7cc3bfab4b69f15cac1"
+    },
+    {
+      "path": "qa-catalog/webkit-1390/flow-branch.png",
+      "sha256": "f9551a0e4f87c1efa9013141f4859acfbccab7bcac5731c05a85bf9a2f4f9371"
+    },
+    {
+      "path": "qa-catalog/webkit-1390/flow-causal.png",
+      "sha256": "fd0a34cc0b48cb6c914a5efc767c5f51d97ec61e355fb734bf9389de5d1fb6dd"
+    },
+    {
+      "path": "qa-catalog/webkit-1390/flow-converge.png",
+      "sha256": "9ab3de8d892a7bce5baf59fffe89d4ded8f56b3c3188bafc1f4dd3e931f9771f"
+    },
+    {
+      "path": "qa-catalog/webkit-1390/flow-cycle.png",
+      "sha256": "835fe7b2a3ad9d5a3f1d909659842cbe8d12b1395b4a64fd019cc0643ea9828f"
+    },
+    {
+      "path": "qa-catalog/webkit-1390/flow-hierarchy.png",
+      "sha256": "8e86ac3f096c8d415148ad92425fdb3fe331adb53f2d81606b1fc53d20d4a3a6"
+    },
+    {
+      "path": "qa-catalog/webkit-1390/flow-input-output.png",
+      "sha256": "539cd1958deca369b50cfa9f67c292a796852466f1a52f0082983bcf8be06bdd"
+    },
+    {
+      "path": "qa-catalog/webkit-1390/flow-network.png",
+      "sha256": "804840c9cdeae5a677968cc50f703e89cc2324d2395b59d077820de711f9fd92"
+    },
+    {
+      "path": "qa-catalog/webkit-1390/flow-parallel.png",
+      "sha256": "e2ee37901456b334f52688d544cc8f4ced681e208ae18e77e4bf39d26bdabb39"
+    },
+    {
+      "path": "qa-catalog/webkit-1390/flow-quadrant.png",
+      "sha256": "3867a1e8e99dcc6e68c956ae0564b72a85d613051aebdea232d05186c6a5b078"
+    },
+    {
+      "path": "qa-catalog/webkit-1390/flow-sequence.png",
+      "sha256": "b8c2f5ef9b4371bb560842aad794665eb9b7aef7dfea8769b2b2a02401ea4e9c"
+    },
+    {
+      "path": "qa-catalog/webkit-1390/flow-set-overlap.png",
+      "sha256": "ba96e3f1b67af9fcd4875e03ecaf126bfb578f0228e2d6e26ebf00c604d86573"
+    },
+    {
+      "path": "qa-catalog/webkit-1390/flow-state.png",
+      "sha256": "cfc7452dbcc6b98f7bdae6e77079a382a1e944017a4de2379046e390e41ebaae"
+    },
+    {
+      "path": "qa-catalog/webkit-1390/flow-swimlane.png",
+      "sha256": "b147d4ac7a27ad8de95f79520ff290ca934bfca4aae5b110182d18350da74f36"
+    },
+    {
+      "path": "qa-catalog/webkit-1390/flow-time.png",
+      "sha256": "3c4d114cd14a5e1ea1bcad091a6400de22fc39f1653b689ce614403274943756"
+    },
+    {
+      "path": "qa-catalog/webkit-390/flow-branch.png",
+      "sha256": "de4600058aef0a46a097edb6223cda59796bc7522cdd39c5b3c211e13cdb5a57"
+    },
+    {
+      "path": "qa-catalog/webkit-390/flow-causal.png",
+      "sha256": "2e9df5346c48cc025a9b3d5e9a5bd9ad49f3e159dce817728945e5b85e6ce020"
+    },
+    {
+      "path": "qa-catalog/webkit-390/flow-converge.png",
+      "sha256": "2de4b4f808332a41673cfb7b39051ddfdcec2851366304923012701f6fbe85c2"
+    },
+    {
+      "path": "qa-catalog/webkit-390/flow-cycle.png",
+      "sha256": "8194f6fcf6eaaf3fbe37b6c438390a44a12cbdef209387fa6334b749b90bb00f"
+    },
+    {
+      "path": "qa-catalog/webkit-390/flow-hierarchy.png",
+      "sha256": "42fdccbf4229925c537168b6ed6d1ea2499de3c2106cc4f68c43e7aec4782042"
+    },
+    {
+      "path": "qa-catalog/webkit-390/flow-input-output.png",
+      "sha256": "402f62f67e3eab96e29a69602789acd169db44693725e81e909414e065ece253"
+    },
+    {
+      "path": "qa-catalog/webkit-390/flow-network.png",
+      "sha256": "2b49276bba80928586e00bef48bc05d00fb8708f2b4b620f1a1ce5b2ed7126d6"
+    },
+    {
+      "path": "qa-catalog/webkit-390/flow-parallel.png",
+      "sha256": "33e615b0ac8650035255d526cc58dbc4e85668055635237d1643de857561ad09"
+    },
+    {
+      "path": "qa-catalog/webkit-390/flow-quadrant.png",
+      "sha256": "69bb528883e09ce69a5e87b1a82a3379c6e323f96b8f8a0abc3df7563c9c0a78"
+    },
+    {
+      "path": "qa-catalog/webkit-390/flow-sequence.png",
+      "sha256": "97bf8cac814128b56e54360ef87466e2ea83c626c4e90d0d17bc693d3afdf748"
+    },
+    {
+      "path": "qa-catalog/webkit-390/flow-set-overlap.png",
+      "sha256": "927f537dde1bb0d189b8cfe82b7b265d5169fca842502bbba57c120d9fd3c3a6"
+    },
+    {
+      "path": "qa-catalog/webkit-390/flow-state.png",
+      "sha256": "bd845a56b08945b8a6f9b0da69eb76f07a30914c70c22157bd51cc0217284302"
+    },
+    {
+      "path": "qa-catalog/webkit-390/flow-swimlane.png",
+      "sha256": "9bada97e837446882db728b4ebd8e08a84ce7553694e18f161d0617007f32e71"
+    },
+    {
+      "path": "qa-catalog/webkit-390/flow-time.png",
+      "sha256": "db68d2525adc66c3b474d299c5b7b200f83b33884d92234ad7f9a9b1e73a087c"
+    },
+    {
+      "path": "qa-sample/chromium-1390/branch.png",
+      "sha256": "2fb0f14086a6d31f19fd972b07e70e0b6c7b7e158683cc7003ce1cbe83660784"
+    },
+    {
+      "path": "qa-sample/chromium-1390/sequence.png",
+      "sha256": "2251460c7066ce004962f9c91842f73830fc727ee38149c77ad1ae3aa39a9f3f"
+    },
+    {
+      "path": "qa-sample/chromium-1390/state.png",
+      "sha256": "7091626c6a23cb9d831be3903a06192cb803467899fb03589aa8922eef32a04f"
+    },
+    {
+      "path": "qa-sample/chromium-390/branch.png",
+      "sha256": "1b96642f74834beae48c441b92392db9d4c731d8c799cc1e55aff3fc97ff8bf5"
+    },
+    {
+      "path": "qa-sample/chromium-390/sequence.png",
+      "sha256": "9056313659ec0902acddf55deed59e8819e7ab27f8979dce0c31d02d24a8c586"
+    },
+    {
+      "path": "qa-sample/chromium-390/state.png",
+      "sha256": "3f0ec76c2a43baafe4c014a73147866e01a49f76a4c80fbcdb22a1fc22b70027"
+    },
+    {
+      "path": "qa-sample/webkit-1390/branch.png",
+      "sha256": "e03026803d76bbcc0c0dbc5fb5978f41316ac6151da624cab106251f3774ebf4"
+    },
+    {
+      "path": "qa-sample/webkit-1390/sequence.png",
+      "sha256": "c8c70c604a3782cc870a20d14a8d103b279b737417c596b493bcfcfd4ad64cfe"
+    },
+    {
+      "path": "qa-sample/webkit-1390/state.png",
+      "sha256": "c237e431939380e62d9958bd52b4f84d944c17601d12dcf28576bbcc51fac652"
+    },
+    {
+      "path": "qa-sample/webkit-390/branch.png",
+      "sha256": "0290106344fec2902897c2780dd263a6a10fe16ec5b67bf250aa718f9e28c149"
+    },
+    {
+      "path": "qa-sample/webkit-390/sequence.png",
+      "sha256": "911d00ce8e623e736b335b39466b344229412863f20c72953d7bdecb2595ae00"
+    },
+    {
+      "path": "qa-sample/webkit-390/state.png",
+      "sha256": "541342b8b9e0f62d92803eb282b3403be31086302cc107eea57733a60ce00674"
+    }
+  ],
+  "keyboardRegression": {
+    "longSupplementScrollPreserved": true,
+    "escapeWithoutFullscreen": true,
+    "stepChecks": 41
+  },
+  "spacingRevision": {
+    "checks": 6496,
+    "failed": 0,
+    "runtime": [
+      {
+        "browser": "chromium",
+        "width": 1360,
+        "steps": 4,
+        "pass": true,
+        "paperStable": true,
+        "paperToControlsGap": [
+          12,
+          12
+        ],
+        "errors": []
+      },
+      {
+        "browser": "chromium",
+        "width": 390,
+        "steps": 4,
+        "pass": true,
+        "paperStable": true,
+        "paperToControlsGap": [
+          12,
+          12
+        ],
+        "errors": []
+      },
+      {
+        "browser": "webkit",
+        "width": 1360,
+        "steps": 4,
+        "pass": true,
+        "paperStable": true,
+        "paperToControlsGap": [
+          12,
+          12
+        ],
+        "errors": []
+      },
+      {
+        "browser": "webkit",
+        "width": 390,
+        "steps": 4,
+        "pass": true,
+        "paperStable": true,
+        "paperToControlsGap": [
+          12,
+          12
+        ],
+        "errors": []
+      }
+    ],
+    "images": [
+      {
+        "name": "spacing-sequence.png",
+        "sha256": "ce5e1c4d9bad80e9803772046436d53fb55eae5878ec44a608804f3fe791fbc8"
+      },
+      {
+        "name": "spacing-step.png",
+        "sha256": "6b9575381c55721f57ce6387b01a618d9dde61b0d0b9ed833cc634602c659509"
+      }
+    ]
+  }
+}

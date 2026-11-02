@@ -1,0 +1,16 @@
+{
+  "findings": [
+    {
+      "code": "TABLE_ROW_EXTRA",
+      "severity": "error",
+      "line": 8,
+      "detail": "見出し 2 マスに対して 3 マス（余ったマス: 補充は 4 月）",
+      "default": "列を増やして、余った言葉をそのまま残す（落とさない）"
+    }
+  ],
+  "summary": {
+    "error": 1,
+    "fixable": 0,
+    "warn": 0
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "note": "札が既に付いている",
+  "expect_ok": false,
+  "expect_codes": [
+    "HAS_SOURCE_NOTE"
+  ],
+  "embed": "ok"
+}

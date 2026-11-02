@@ -1,0 +1,7 @@
+{
+  "note": "本文行のマスが足りない。聞かずに空のマスを足す（言葉は落とさない）",
+  "apply_defaults": false,
+  "convert": true,
+  "expect_verify_ok": true,
+  "expect_body_contains": ["鈴木", "記録", "内線 233"]
+}

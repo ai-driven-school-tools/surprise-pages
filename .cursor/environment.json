@@ -1,0 +1,5 @@
+{
+  "install": "bash scripts/dev/cloud/cursor-install.sh",
+  "start": "bash scripts/dev/cloud/cursor-start.sh",
+  "ports": [{ "name": "dev", "port": 3148 }]
+}

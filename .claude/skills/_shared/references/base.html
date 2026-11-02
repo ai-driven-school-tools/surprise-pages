@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex">
+  <meta name="googlebot" content="noindex, nofollow">
+  <meta property="og:title" content="<!-- TITLE -->">
+  <meta property="og:description" content="<!-- DESCRIPTION -->">
+  <meta property="og:type" content="article">
+  <!-- ここの見出しが Pages の一覧にそのまま並ぶ。内容が分かる日本語にする -->
+  <title><!-- TITLE --></title>
+  <!-- Pages の印。形の正本は配信側の src/lib/settings/brand.ts -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27><style>.t{fill:%23171717}.s{fill:%23ffffff;stroke:%23ffffff}.f{fill:%23171717;stroke:%23171717}@media(prefers-color-scheme:dark){.t{fill:%23f5f5f5}.s{fill:%230a0a0a;stroke:%230a0a0a}.f{fill:%23f5f5f5;stroke:%23f5f5f5}}</style><rect class=%27t%27 width=%2732%27 height=%2732%27 rx=%277.5%27/><path class=%27s%27 d=%27M8 5h8l8 8v14H8z%27 stroke-width=%271.4%27 stroke-linejoin=%27round%27/><path class=%27f%27 d=%27M16 5l8 8h-8z%27 stroke-width=%271.4%27 stroke-linejoin=%27round%27/></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&display=swap" rel="stylesheet">
+  <!-- 端末の枠（スマホのアドレスバー）も、ページの明暗に合わせる -->
+  <meta name="theme-color" media="(prefers-color-scheme: light)" content="#ffffff">
+  <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#171717">
+  <style>
+    /*
+      色の名前と、その明暗 2 組の値。**ページの色はここだけで決まる。**
+
+      本文には dark: を 1 つも書かない。図解は 1 枚ごとに新しく組まれるので、
+      色を書く場所が毎回ちがう——書き忘れた 1 か所は黒地に黒い字として残り、
+      書いた人の画面（たいてい明るい設定）では最後まで見えない。
+
+      値は Pages の画面と同じ（画面の値の正本は DESIGN.md と src/lib/settings/brand.ts）。
+      墨・地・灰の字・成功と危険の色は、画面と同じ値を使う。
+      ここで値を発明しない。変えるときは画面の正本を先に直し、ここをそろえる。
+
+        地 bg / 面 surface / 面 2 段目 surface-2 / 線 border … 画面の地・サイドバーの地・コードの面・区切り線
+                                                           （暗い側の面 2 段目だけ黒。地 → 面 → 面 2 段目を明暗とも同じ向きに沈める）
+        墨 text / 本文 body / 灰 muted                      … 画面の墨・neutral 700（暗 300）・画面の灰の字
+        図の線 line                                          … neutral 500（明暗とも。どちらの地でも 3 : 1 を超える中間の灰）
+        主要 accent                                          … 青（明 600 / 暗 400）。画面ではこの青を 8px の点にしか使わない。
+                                                             字の 1 語とそれに添える絵記号に使えるのは額縁だけ
+        成功 positive / 危険 negative                        … 画面の緑・赤
+
+      床は「最も不利な面（surface-2）の上で」測る。読む字 4.5 : 1、読まない印 3 : 1。
+    */
+    :root {
+      /* このページは明暗どちらでも読める、という宣言。
+         スクロールバー・フォーム部品・地の余白がこれで一緒に付いてくる */
+      color-scheme: light dark;
+
+      /* 面（地 → 面 → 重ね → 線）*/
+      --ads-bg:        255 255 255;  /* neutral 0   画面の地 */
+      --ads-surface:   250 250 250;  /* neutral 50  地との比 1.04 */
+      --ads-surface-2: 245 245 245;  /* neutral 100 地との比 1.09 */
+      --ads-border:    229 229 229;  /* neutral 200 地との比 1.26 */
+
+      /* 読む字（比は最も不利な面の上での値）*/
+      --ads-text:       23  23  23;  /* neutral 900 画面の墨  16.4 : 1 */
+      --ads-body:       64  64  64;  /* neutral 700            9.5 : 1（灰の字との差 1.73）*/
+      --ads-muted:      99  99  99;  /* neutral 550 画面の灰   5.5 : 1 */
+
+      /* 読まない印 */
+      --ads-line:      115 115 115;  /* neutral 500 図の矢印・経路・記号  4.3 : 1 */
+      --ads-accent:     37  99 235;  /* blue 600  主要  4.7 : 1 */
+      --ads-positive:   21 128  61;  /* green 700 成功  4.6 : 1 */
+      --ads-negative:  185  28  28;  /* red 700   危険  5.9 : 1 */
+    }
+
+    /*
+      `screen and` を付けているのは、紙に刷るときに暗い側が当たらないようにするため。
+      ただしそれだけに頼らず、下の @media print で明るい側を書き直してもいる。
+    */
+    @media screen and (prefers-color-scheme: dark) {
+      :root {
+        /* 地は画面の暗い地（neutral 900）。地を真っ黒にしないのは、低階調の
+           バンディングと黒スミアを避けるため・暗所のグレアを避けるため。
+           面と面 2 段目は明るい側と同じ向きに地より沈める（面は画面のサイドバーと同じ 950、
+           面 2 段目はその 1 段下の黒。小さな面なのでグレアにならない）。
+           カードの中のチップ（面の上の面 2 段目）の比は 明 1.05・暗 1.06 でそろう */
+        --ads-bg:        23  23  23;  /* neutral 900 */
+        --ads-surface:   10  10  10;  /* neutral 950 */
+        --ads-surface-2:  0   0   0;  /* 黒 */
+        --ads-border:    38  38  38;  /* neutral 800（画面の区切り線と同じ）*/
+
+        --ads-text:     245 245 245;  /* neutral 100 真っ白（255）にしない（細い日本語がにじむ）*/
+        --ads-body:     212 212 212;  /* neutral 300 */
+        --ads-muted:    163 163 163;  /* neutral 400 */
+
+        --ads-line:     115 115 115;  /* neutral 500（明るい側と同じ）*/
+        --ads-accent:    96 165 250;  /* blue 400 */
+        --ads-positive: 134 239 172;  /* green 300 */
+        --ads-negative: 252 165 165;  /* red 300 */
+      }
+      /* 暗い地では字が太って見える。macOS だけ効く指定だが、効く環境ではにじみが減る */
+      body { -webkit-font-smoothing: antialiased; }
+    }
+
+    /* 地の文の濃さは額縁が持つ。本文に色を書かせない＝書き忘れが起きない */
+    body { color: rgb(var(--ads-body)); }
+
+    /*
+      先頭へ戻る。**画面の左下に浮かせる**。理由は 2 つ。
+
+        ・指がいちばん届くのは画面の下。上端の隅は、スマホでは最も遠い
+        ・右下は配信側の道具の席（全幅で右下固定・268x44・右と下から 24px）
+
+      広い画面では、左下に貼り付けると本文から離れすぎるので、**本文の列の左肩**に寄せる。
+      下の calc は「本文の列（768px）の左端から、自分の幅ぶん外へ」。狭い画面では
+      負になるので max が 24px を選び、そのまま左下になる。
+
+      道具の帯（PDF）は**貼り付けない**。滅多に押さないものに画面の上端を
+      恒久的に使わせない。読みながら書き出したくなったら、この矢印で頭へ戻る。
+    */
+    html { scroll-behavior: smooth; }
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+    }
+    #sp-to-top {
+      position: fixed;
+      bottom: 24px;
+      left: max(24px, calc(50% - 384px - 56px));
+      z-index: 30;
+      transition: opacity 0.15s ease, visibility 0.15s ease, color 0.15s ease;
+    }
+    #sp-to-top[data-ads-at-top] {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+
+    /* 押せるもの・選んだところ・辿ってきたところ。本文に色を書かせないので額縁が持つ。
+       `body a` と書くのは、あとから読み込む見た目の道具（Tailwind）が同じ強さの
+       `a { color: inherit; text-decoration: inherit }` を持っていて、素の `a` だと負けるため
+       （リンクが地の文と同じ色・下線なしで出ていた）*/
+    body a { color: rgb(var(--ads-accent)); text-decoration: underline; text-underline-offset: 0.2em; }
+    ::selection { background: rgb(var(--ads-accent) / 0.25); color: rgb(var(--ads-text)); }
+    :focus-visible { outline: 2px solid rgb(var(--ads-accent)); outline-offset: 2px; }
+
+    /*
+      実在の画面を模した「絵」。中は生の色で閉じているので明暗で反転しない。
+      印を付けると、この 3 つがまとめて付いてくる。
+        1. 1px の輪郭 … 暗い絵は暗い地に、明るい絵は明るい地に溶ける
+        2. color-scheme … 絵の中のスクロールバー・フォーム部品・選択色を絵に合わせる
+        3. 紙では地ごと刷る … 背景を落として刷ると、黒い窓の中の明るい字が消える
+      コメントの赤入れも、この宣言を読んで絵の側の色で描かれる。
+    */
+    [data-ads-figure] {
+      box-shadow: 0 0 0 1px rgb(var(--ads-border));
+      print-color-adjust: exact;
+      -webkit-print-color-adjust: exact;
+    }
+    [data-ads-figure="light"] { color-scheme: light; }
+    [data-ads-figure="dark"]  { color-scheme: dark;  }
+
+    @media print {
+      /* 明るい側を書き直す。「暗い側が当たらないこと」だけに頼らない */
+      :root {
+        color-scheme: light;
+        --ads-bg: 255 255 255; --ads-surface: 250 250 250; --ads-surface-2: 245 245 245;
+        --ads-border: 229 229 229; --ads-text: 23 23 23; --ads-body: 64 64 64;
+        --ads-muted: 99 99 99; --ads-line: 115 115 115; --ads-accent: 37 99 235;
+        --ads-positive: 21 128 61; --ads-negative: 185 28 28;
+      }
+      .no-print { display: none !important; }
+      /* 先頭へ戻るには no-print を付けられない（配信側がその印を「書き出しの口の
+         置き場」の目印に使うので、道具の行より先に見つかると口がここへ入る）。
+         だから名指しで消す */
+      #sp-to-top { display: none !important; }
+      body { -webkit-font-smoothing: subpixel-antialiased; }
+      .rounded-xl { break-inside: avoid; }
+      .md\:flex-row { flex-direction: row !important; }
+      .md\:hidden { display: none !important; }
+      .hidden.md\:block { display: block !important; }
+      .md\:grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+      .sm\:grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)) !important; }
+      .md\:mb-20 { margin-bottom: 5rem !important; }
+      .md\:py-16 { padding-top: 4rem !important; padding-bottom: 4rem !important; }
+      /* 畳んだトグルの中身が紙から丸ごと落ちるのを防ぐ（印刷時は必ず開く） */
+      details { display: block !important; }
+      details > summary { list-style: none; }
+      details > *:not(summary) { display: revert !important; }
+    }
+  </style>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    /*
+      色は必ず `rgb(var(--x) / <alpha-value>)` の形で渡す。
+      素の `var(--x)` にすると、Tailwind が色として読めず
+      **不透明度の指定（border-ads-border/30 など）が黙って落ちる**。
+    */
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            ads: {
+              bg:          'rgb(var(--ads-bg) / <alpha-value>)',
+              surface:     'rgb(var(--ads-surface) / <alpha-value>)',
+              'surface-2': 'rgb(var(--ads-surface-2) / <alpha-value>)',
+              border:      'rgb(var(--ads-border) / <alpha-value>)',
+              text:        'rgb(var(--ads-text) / <alpha-value>)',
+              body:        'rgb(var(--ads-body) / <alpha-value>)',
+              muted:       'rgb(var(--ads-muted) / <alpha-value>)',
+              line:        'rgb(var(--ads-line) / <alpha-value>)',
+              accent:      'rgb(var(--ads-accent) / <alpha-value>)',
+              positive:    'rgb(var(--ads-positive) / <alpha-value>)',
+              negative:    'rgb(var(--ads-negative) / <alpha-value>)',
+            }
+          },
+          // 色を書かずに `border` だけ書いたときの既定。
+          // これが無いと Tailwind の既定（gray-200）が暗い側でも白く残る
+          borderColor: { DEFAULT: 'rgb(var(--ads-border))' },
+          // 書体は OS の書体が先頭（Pages の画面と同じ考え方。Web フォントを待たない）。
+          // Windows は欧文を Segoe UI、和文を Yu Gothic UI で出す。Yu Gothic UI は標準・太字を
+          // 本物の字形で持つので、本文が細く出ず、見出しの太字も合成にならない（900 は持たないので太字で出る）。
+          // 游ゴシックの「Medium」を先に置かないのは、あれが 1 つの太さしか持たず太字が合成になるため。
+          // 日本語の書体を持たない端末（Android・Linux）だけ、読み込んだ Noto Sans JP に落ちる。
+          // 図を貼る一式（src/templates/mermaid.html）も同じ並びを持つ
+          fontFamily: {
+            sans: ['-apple-system', 'BlinkMacSystemFont', '"Hiragino Sans"', '"Hiragino Kaku Gothic ProN"', '"Segoe UI"', '"Yu Gothic UI"', '"Meiryo"', '"Noto Sans JP"', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body id="sp-top" class="bg-ads-bg antialiased leading-relaxed">
+  <!--
+    道具の行（PDF）。**貼り付けない**——滅多に押さないものに画面の上端を恒久的に
+    使わせない。本文と一緒に流れていき、使いたくなったら左下の矢印で頭へ戻る。
+
+    no-print はこの横並びの行に付ける。配信側（surprise-pages）は公開時に
+    src/widget/reading/page-export.ts を走らせ、`最初の .no-print` を書き出しの口の置き場に選び、
+    **その中の `<button>` を全部消してから**自分の口（アイコンだけのメニュー）を足す。
+    外側にもう 1 枚箱を作ってそちらに付けると、口が行の外＝左端に出る。
+
+    PDF ボタンに**字を置かない**。置き換えは配信側の道具が届いてから起きるので、
+    その間だけ字が見える。差し替わると字が消えて幅が縮み、隣まで横へ跳ぶ
+    （実測で 60px → 32px）。向こうの口と同じ形（32px 角・角丸 4px。向こうの
+    --size-control と --radius-sm）にしておけば、入れ替わっても見た目が変わらない。
+  -->
+  <div class="no-print max-w-3xl mx-auto pl-5 pr-3 py-2 flex justify-end items-center">
+    <button type="button" onclick="window.print()" class="inline-flex items-center justify-center h-8 w-8 rounded text-ads-muted hover:text-ads-accent hover:bg-ads-surface transition-colors cursor-pointer" aria-label="PDF にする" title="PDF にする">
+      <i data-lucide="download" class="w-4 h-4"></i>
+    </button>
+  </div>
+  <main class="max-w-3xl mx-auto px-5 py-10 md:py-16">
+<!-- CONTENT_START -->
+
+<!-- CONTENT_END -->
+  </main>
+  <!--
+    先頭へ戻る。**道具の行の中に置かない**——あの行の中の <button> は配信側に
+    全部消されるので、外に出しておく（外なら button のままでよい）。
+    位置と理由は head の #sp-to-top のところに書いてある。
+
+    器は「必要なときだけ現れる」濃さにする。白い場所ではほぼ矢印だけに見え、
+    文字の上に来たときだけすりガラスが場所を空ける。丸にしないのは、丸が
+    「主要な操作」の記号で、配信側の角丸の道具とも別の系統に見えるため。
+  -->
+  <button type="button" id="sp-to-top" data-ads-at-top class="inline-flex items-center justify-center h-11 w-11 rounded-xl border border-ads-border/70 bg-ads-bg/80 backdrop-blur-md text-ads-muted hover:text-ads-accent cursor-pointer" aria-label="一番上に戻る" title="一番上に戻る">
+    <i data-lucide="arrow-up" class="w-5 h-5"></i>
+  </button>
+  <footer class="max-w-3xl mx-auto px-5 pb-10 pt-6 border-t border-ads-border/30">
+    <p class="text-xs text-ads-muted text-center">Pages</p>
+  </footer>
+  <!--
+    コメント機能の script タグはここに書かない。
+    配信時にサーバー側が自動で差し込むため、ページ側で読み込むと二重になる。
+  -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>
+    lucide.createIcons();
+    // 先頭へ戻るの出し入れと、押されたときの動き。
+    //
+    // 頭へ運ぶのは自分でやる。滑らかさと「動きを減らす」設定は、上の scroll-behavior が持つ。
+    (() => {
+      const button = document.getElementById("sp-to-top");
+      if (!button) return;
+      button.addEventListener("click", () => {
+        document.getElementById("sp-top").scrollIntoView();
+      });
+      // 出る境目と隠れる境目をずらす。1 点で切り替えると、その付近を行き来する
+      // 小さな上下（慣性スクロールの揺り戻しなど）でボタンが点滅する
+      const SHOW = 320;
+      const HIDE = 160;
+      let waiting = false;
+      const sync = () => {
+        waiting = false;
+        const y = window.scrollY;
+        const hidden = button.hasAttribute("data-ads-at-top");
+        if (hidden && y > SHOW) button.removeAttribute("data-ads-at-top");
+        else if (!hidden && y < HIDE) button.setAttribute("data-ads-at-top", "");
+      };
+      // scroll は 1 回の指の動きで何十回も来る。描画の 1 コマにつき 1 回へ間引く
+      window.addEventListener("scroll", () => {
+        if (waiting) return;
+        waiting = true;
+        requestAnimationFrame(sync);
+      }, { passive: true });
+      sync();
+    })();
+  </script>
+</body>
+</html>

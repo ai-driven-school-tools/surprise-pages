@@ -1,0 +1,48 @@
+export const workspace = {
+  places: {
+    home: "ホーム",
+    mine: "自分の資料",
+    favorites: "お気に入り",
+    activity: "自分の活動",
+    library: "{organization} の資料",
+    recordings: "録音",
+    repositories: "リポジトリ",
+  },
+  navigation: "ワークスペース",
+  // サイドバーのお気に入り（星を付けた資料の名前が並ぶ）。出し切れない分は 1 行で告げ、押すと一覧へ
+  favoritesMore: { one: "ほか {count} 件", other: "ほか {count} 件" },
+  // サイドバーの行に指を乗せると出る星。読み上げにはどの資料かまで言う（同じ名前のボタンが行の数だけ並ぶので）
+  favoriteRemove: "{title}をお気に入りから外す",
+  settings: "個人設定",
+  admin: "組織の設定",
+  adminPersonal: "管理",
+  keyboardShortcuts: "キーボードショートカット",
+  logout: "ログアウト",
+  skipToContent: "本文へ移動",
+  openMenu: "メニューを開く",
+  accountEmail: "（{email}）",
+  // 新しい資料を作る画面（src/app/new）。AI への依頼文そのものは原稿なので訳さない（画面のファイルに置く）
+  create: {
+    title: "作成",
+    motionDetail: "映像・テロップ・音声を時間軸で編集",
+    deck: "スライド",
+    deckDetail: "発表や提案に使う資料",
+    document: "文書",
+    documentDetail: "原稿を清書（AIに依頼）",
+    page: "図解・レポート",
+    pageDetail: "情報を整理した読み物（AIに依頼）",
+    documentDialog: "AIで文書を作成",
+    pageDialog: "AIで図解・レポートを作成",
+    dialogDetail: "Pages のスキルを使えるAIに、依頼文と原稿・内容を渡してください。",
+    request: "AIへの依頼文",
+    copyRequest: "依頼文をコピー",
+    copied: "依頼文をコピーしました。AIに貼り付けて原稿や内容を渡してください。",
+    copyManually: "依頼文を選択してコピーしてください。",
+    step1: "AIに依頼文と原稿・内容を渡します。",
+    step2: "AIから返されたページのリンクで内容を確認します。",
+    step3: "投稿したアカウントの「自分の資料」に表示されます。",
+    // {link} の所に「デバイスを追加」のリンクを置く
+    deviceNote: "AIから投稿するには、先に{link}します。",
+    addDevice: "デバイスを追加",
+  },
+} as const;

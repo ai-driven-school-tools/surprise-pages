@@ -1,0 +1,92 @@
+[
+  {
+    "id": "noto-sans-jp",
+    "family": "Noto Sans JP",
+    "weight": "100 900",
+    "file": "noto-sans-jp-0fdd2652a5a1.woff2",
+    "sha256": "0fdd2652a5a11791be3cbd15c918861425c2f564a3321853df037f2ab4d11222",
+    "source": "https://raw.githubusercontent.com/google/fonts/809e4d8b8d7e9364a914909bb777679606c178b8/ofl/notosansjp/NotoSansJP%5Bwght%5D.ttf",
+    "license": "notosansjp-OFL.txt"
+  },
+  {
+    "id": "noto-serif-jp",
+    "family": "Noto Serif JP",
+    "weight": "200 900",
+    "file": "noto-serif-jp-c0ff032d22f1.woff2",
+    "sha256": "c0ff032d22f1f9f455d0fb3ca1df400970848f9abc4899d51cf1e2191b6a27e3",
+    "source": "https://raw.githubusercontent.com/google/fonts/809e4d8b8d7e9364a914909bb777679606c178b8/ofl/notoserifjp/NotoSerifJP%5Bwght%5D.ttf",
+    "license": "notoserifjp-OFL.txt"
+  },
+  {
+    "id": "zen-kaku-regular",
+    "family": "Zen Kaku Gothic New",
+    "weight": "400",
+    "file": "zen-kaku-regular-9bf6fec410f4.woff2",
+    "sha256": "9bf6fec410f475966e487f8a21cc7adf2826c800aba8dcd720ee6ba50d017557",
+    "source": "https://raw.githubusercontent.com/google/fonts/809e4d8b8d7e9364a914909bb777679606c178b8/ofl/zenkakugothicnew/ZenKakuGothicNew-Regular.ttf",
+    "license": "zenkakugothicnew-OFL.txt"
+  },
+  {
+    "id": "zen-kaku-medium",
+    "family": "Zen Kaku Gothic New",
+    "weight": "500",
+    "file": "zen-kaku-medium-b578e26421ef.woff2",
+    "sha256": "b578e26421ef954a1b3e92c33737700a33749fe45e234c6a075f8492bf60e541",
+    "source": "https://raw.githubusercontent.com/google/fonts/809e4d8b8d7e9364a914909bb777679606c178b8/ofl/zenkakugothicnew/ZenKakuGothicNew-Medium.ttf",
+    "license": "zenkakugothicnew-OFL.txt"
+  },
+  {
+    "id": "zen-kaku-bold",
+    "family": "Zen Kaku Gothic New",
+    "weight": "700",
+    "file": "zen-kaku-bold-78545cae1cde.woff2",
+    "sha256": "78545cae1cdeb95de3a3d069172a6247b154f49dddfa23ca19465958a70c68df",
+    "source": "https://raw.githubusercontent.com/google/fonts/809e4d8b8d7e9364a914909bb777679606c178b8/ofl/zenkakugothicnew/ZenKakuGothicNew-Bold.ttf",
+    "license": "zenkakugothicnew-OFL.txt"
+  },
+  {
+    "id": "inter",
+    "family": "Inter",
+    "weight": "100 900",
+    "file": "inter-932a6a81fab0.woff2",
+    "sha256": "932a6a81fab09a73af93256782cef41609ca10352a8b63a78bdd646830a2d0f5",
+    "source": "https://raw.githubusercontent.com/google/fonts/809e4d8b8d7e9364a914909bb777679606c178b8/ofl/inter/Inter%5Bopsz%2Cwght%5D.ttf",
+    "license": "inter-OFL.txt"
+  },
+  {
+    "id": "manrope",
+    "family": "Manrope",
+    "weight": "200 800",
+    "file": "manrope-2884b34ddc5a.woff2",
+    "sha256": "2884b34ddc5a9a1df34f7de98806ff4451875044f7701287762c90607e3b4464",
+    "source": "https://raw.githubusercontent.com/google/fonts/809e4d8b8d7e9364a914909bb777679606c178b8/ofl/manrope/Manrope%5Bwght%5D.ttf",
+    "license": "manrope-OFL.txt"
+  },
+  {
+    "id": "line-seed-jp-rg",
+    "family": "LINE Seed JP",
+    "weight": "400",
+    "file": "line-seed-jp-rg-75a41f51f4b2.woff2",
+    "sha256": "75a41f51f4b2d3172fde7a45daf544a58df58f5791d996c3cb3fbf855f67c7a8",
+    "source": "https://seed.line.me/src/images/fonts/LINE_Seed_JP.zip",
+    "license": "line-seed-jp-OFL.txt"
+  },
+  {
+    "id": "line-seed-jp-bd",
+    "family": "LINE Seed JP",
+    "weight": "700",
+    "file": "line-seed-jp-bd-512c1b416bb2.woff2",
+    "sha256": "512c1b416bb24e281e182c5a70f3909a8ebd0b5494082f9b7a7c157452c7026f",
+    "source": "https://seed.line.me/src/images/fonts/LINE_Seed_JP.zip",
+    "license": "line-seed-jp-OFL.txt"
+  },
+  {
+    "id": "line-seed-jp-eb",
+    "family": "LINE Seed JP",
+    "weight": "800",
+    "file": "line-seed-jp-eb-257b1deca05c.woff2",
+    "sha256": "257b1deca05c31d7413568fce8e18935f02c48ba71a769d582243307eb0d457a",
+    "source": "https://seed.line.me/src/images/fonts/LINE_Seed_JP.zip",
+    "license": "line-seed-jp-OFL.txt"
+  }
+]

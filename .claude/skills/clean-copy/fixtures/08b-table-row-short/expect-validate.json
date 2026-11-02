@@ -1,0 +1,16 @@
+{
+  "findings": [
+    {
+      "code": "TABLE_ROW_SHORT",
+      "severity": "fixable",
+      "line": 8,
+      "detail": "見出し 3 マスに対して 2 マス",
+      "default": "空のマスを足して数を合わせる"
+    }
+  ],
+  "summary": {
+    "error": 0,
+    "fixable": 1,
+    "warn": 0
+  }
+}

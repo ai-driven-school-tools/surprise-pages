@@ -1,0 +1,2 @@
+/* 生成物。直接編集しない。元のコードは src/widget/*.ts、作り直しは `pnpm build:widget`。 */
+function o(t){return t.getAttribute("class")??""}function i(t,e){return new RegExp(`(^|\\s)${e}(\\s|$)`).test(t)}var r="data-surprise-mermaid",s="data-processed";function u(t){return i(o(t),"mermaid")}function a(t){for(let e of t.querySelectorAll(".mermaid")){if(!u(e)||e.hasAttribute(r)||e.hasAttribute(s))continue;let n=(e.textContent??"").trim();n.length!==0&&e.setAttribute(r,n)}}export{r as a,s as b,u as c,a as d};

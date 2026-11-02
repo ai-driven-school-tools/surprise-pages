@@ -1,0 +1,7 @@
+{
+  "note": "見出しが無く 2000 字以上ある長文。先頭の 1 行をそのまま表題に立てる（作文しない）",
+  "apply_defaults": false,
+  "convert": true,
+  "expect_verify_ok": true,
+  "expect_body_contains": ["<h1 class=", "昨年度の問い合わせ対応をふりかえって"]
+}

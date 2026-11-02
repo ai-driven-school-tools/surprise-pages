@@ -1,0 +1,37 @@
+{
+  "findings": [
+    {
+      "code": "RAW_STYLE",
+      "severity": "warn",
+      "line": 5,
+      "detail": "変換のときに丸ごと落とします",
+      "default": ""
+    },
+    {
+      "code": "RAW_COLOR",
+      "severity": "warn",
+      "line": 9,
+      "detail": "<div> の style に色が書かれています",
+      "default": ""
+    },
+    {
+      "code": "RAW_SCRIPT",
+      "severity": "warn",
+      "line": 13,
+      "detail": "変換のときに丸ごと落とします",
+      "default": ""
+    },
+    {
+      "code": "RAW_EXTERNAL",
+      "severity": "warn",
+      "line": 17,
+      "detail": "<link> の外部読み込みを落とします",
+      "default": ""
+    }
+  ],
+  "summary": {
+    "error": 0,
+    "fixable": 0,
+    "warn": 4
+  }
+}

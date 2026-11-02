@@ -1,0 +1,3776 @@
+[
+  {
+    "id": "deck/canvas.ts:ce191fbe5d663009cffa:1",
+    "owner": "listen",
+    "control": "doc.addEventListener(name)",
+    "covers": [
+      "select",
+      "multi-select",
+      "type",
+      "composition",
+      "paste",
+      "move",
+      "resize",
+      "image-crop",
+      "video-playback"
+    ]
+  },
+  {
+    "id": "deck/canvas.ts:588cb6ec54f74233568c:1",
+    "owner": "button",
+    "control": "node.addEventListener(\"pointerdown\")",
+    "covers": [
+      "select",
+      "multi-select",
+      "type",
+      "composition",
+      "paste",
+      "move",
+      "resize",
+      "image-crop",
+      "video-playback"
+    ]
+  },
+  {
+    "id": "deck/canvas.ts:7493643194a46e0cd1b5:1",
+    "owner": "button",
+    "control": "node.addEventListener(\"click\")",
+    "covers": [
+      "select",
+      "multi-select",
+      "type",
+      "composition",
+      "paste",
+      "move",
+      "resize",
+      "image-crop",
+      "video-playback"
+    ]
+  },
+  {
+    "id": "deck/canvas.ts:28bf1b2c3b5d933c7825:1",
+    "owner": "draw",
+    "control": "button(\"\")",
+    "covers": [
+      "select",
+      "multi-select",
+      "type",
+      "composition",
+      "paste",
+      "move",
+      "resize",
+      "image-crop",
+      "video-playback"
+    ]
+  },
+  {
+    "id": "deck/canvas.ts:fcb6dc00164f1b7e0e8b:1",
+    "owner": "draw",
+    "control": "handle.addEventListener(\"pointerdown\")",
+    "covers": [
+      "select",
+      "multi-select",
+      "type",
+      "composition",
+      "paste",
+      "move",
+      "resize",
+      "image-crop",
+      "video-playback"
+    ]
+  },
+  {
+    "id": "deck/canvas.ts:bb9938760bd95caf7191:1",
+    "owner": "draw",
+    "control": "handle.addEventListener(\"keydown\")",
+    "covers": [
+      "select",
+      "multi-select",
+      "type",
+      "composition",
+      "paste",
+      "move",
+      "resize",
+      "image-crop",
+      "video-playback"
+    ]
+  },
+  {
+    "id": "deck/canvas.ts:520b0f50da610d06184f:1",
+    "owner": "draw",
+    "control": "button(t(\"deckEditor.canvas.textOverflow\"))",
+    "covers": [
+      "select",
+      "multi-select",
+      "type",
+      "composition",
+      "paste",
+      "move",
+      "resize",
+      "image-crop",
+      "video-playback"
+    ]
+  },
+  {
+    "id": "deck/canvas.ts:441dac2dde22659c3cdc:1",
+    "owner": "draw",
+    "control": "button(t(\"deckEditor.canvas.editText\"))",
+    "covers": [
+      "select",
+      "multi-select",
+      "type",
+      "composition",
+      "paste",
+      "move",
+      "resize",
+      "image-crop",
+      "video-playback"
+    ]
+  },
+  {
+    "id": "deck/canvas.ts:0fa99742b4600d19ccd2:1",
+    "owner": "draw",
+    "control": "button(cropping ? t(\"deckEditor.canvas.cropEnd\") : t(\"deckEditor.canvas.cropPosition\"))",
+    "covers": [
+      "select",
+      "multi-select",
+      "type",
+      "composition",
+      "paste",
+      "move",
+      "resize",
+      "image-crop",
+      "video-playback"
+    ]
+  },
+  {
+    "id": "deck/canvas.ts:bcfa389b89f80e3468fa:1",
+    "owner": "draw",
+    "control": "range.addEventListener(\"input\")",
+    "covers": [
+      "select",
+      "multi-select",
+      "type",
+      "composition",
+      "paste",
+      "move",
+      "resize",
+      "image-crop",
+      "video-playback"
+    ]
+  },
+  {
+    "id": "deck/canvas.ts:8a43de599617541061da:1",
+    "owner": "draw",
+    "control": "range.addEventListener(\"change\")",
+    "covers": [
+      "select",
+      "multi-select",
+      "type",
+      "composition",
+      "paste",
+      "move",
+      "resize",
+      "image-crop",
+      "video-playback"
+    ]
+  },
+  {
+    "id": "deck/canvas.ts:efec7da6c6b4815b5250:1",
+    "owner": "draw",
+    "control": "button(t(\"deckEditor.canvas.showAll\"))",
+    "covers": [
+      "select",
+      "multi-select",
+      "type",
+      "composition",
+      "paste",
+      "move",
+      "resize",
+      "image-crop",
+      "video-playback"
+    ]
+  },
+  {
+    "id": "deck/canvas.ts:d0a1742d442a36d1b6c6:1",
+    "owner": "draw",
+    "control": "button(previewVideo===video?t(\"deckEditor.canvas.backToEdit\"):t(\"deckEditor.canvas.playVideo\"))",
+    "covers": [
+      "select",
+      "multi-select",
+      "type",
+      "composition",
+      "paste",
+      "move",
+      "resize",
+      "image-crop",
+      "video-playback"
+    ]
+  },
+  {
+    "id": "deck/canvas.ts:c08ba35195d0de869570:1",
+    "owner": "draw",
+    "control": "button(t(\"deckEditor.canvas.alignLeft\"))",
+    "covers": [
+      "select",
+      "multi-select",
+      "type",
+      "composition",
+      "paste",
+      "move",
+      "resize",
+      "image-crop",
+      "video-playback"
+    ]
+  },
+  {
+    "id": "deck/canvas.ts:15414fd112df0c2a23db:1",
+    "owner": "draw",
+    "control": "button(t(\"deckEditor.canvas.alignTop\"))",
+    "covers": [
+      "select",
+      "multi-select",
+      "type",
+      "composition",
+      "paste",
+      "move",
+      "resize",
+      "image-crop",
+      "video-playback"
+    ]
+  },
+  {
+    "id": "deck/canvas.ts:8fae7286bd4b94c2cae3:1",
+    "owner": "createDeckCanvas",
+    "control": "listen(\"pointerdown\")",
+    "covers": [
+      "select",
+      "multi-select",
+      "type",
+      "composition",
+      "paste",
+      "move",
+      "resize",
+      "image-crop",
+      "video-playback"
+    ]
+  },
+  {
+    "id": "deck/canvas.ts:505ae78a5ed8a834db92:1",
+    "owner": "createDeckCanvas",
+    "control": "listen(\"pointermove\")",
+    "covers": [
+      "select",
+      "multi-select",
+      "type",
+      "composition",
+      "paste",
+      "move",
+      "resize",
+      "image-crop",
+      "video-playback"
+    ]
+  },
+  {
+    "id": "deck/canvas.ts:08f1b2ef710967f9a5e8:1",
+    "owner": "createDeckCanvas",
+    "control": "listen(\"pointermove\")",
+    "covers": [
+      "select",
+      "multi-select",
+      "type",
+      "composition",
+      "paste",
+      "move",
+      "resize",
+      "image-crop",
+      "video-playback"
+    ]
+  },
+  {
+    "id": "deck/canvas.ts:2b362e13fc1f9bd64647:1",
+    "owner": "createDeckCanvas",
+    "control": "listen(\"pointerup\")",
+    "covers": [
+      "select",
+      "multi-select",
+      "type",
+      "composition",
+      "paste",
+      "move",
+      "resize",
+      "image-crop",
+      "video-playback"
+    ]
+  },
+  {
+    "id": "deck/canvas.ts:09e9bc4ab4d1272fc7b8:1",
+    "owner": "createDeckCanvas",
+    "control": "listen(\"pointercancel\")",
+    "covers": [
+      "select",
+      "multi-select",
+      "type",
+      "composition",
+      "paste",
+      "move",
+      "resize",
+      "image-crop",
+      "video-playback"
+    ]
+  },
+  {
+    "id": "deck/canvas.ts:1174adb43ef09066489c:1",
+    "owner": "createDeckCanvas",
+    "control": "listen(\"pointerup\")",
+    "covers": [
+      "select",
+      "multi-select",
+      "type",
+      "composition",
+      "paste",
+      "move",
+      "resize",
+      "image-crop",
+      "video-playback"
+    ]
+  },
+  {
+    "id": "deck/canvas.ts:a4b6163b005840066b14:1",
+    "owner": "createDeckCanvas",
+    "control": "listen(\"pointercancel\")",
+    "covers": [
+      "select",
+      "multi-select",
+      "type",
+      "composition",
+      "paste",
+      "move",
+      "resize",
+      "image-crop",
+      "video-playback"
+    ]
+  },
+  {
+    "id": "deck/canvas.ts:f7e709f811a2cbfbc599:1",
+    "owner": "createDeckCanvas",
+    "control": "listen(\"dblclick\")",
+    "covers": [
+      "select",
+      "multi-select",
+      "type",
+      "composition",
+      "paste",
+      "move",
+      "resize",
+      "image-crop",
+      "video-playback"
+    ]
+  },
+  {
+    "id": "deck/canvas.ts:e20061472409177411c4:1",
+    "owner": "createDeckCanvas",
+    "control": "listen(\"compositionstart\")",
+    "covers": [
+      "select",
+      "multi-select",
+      "type",
+      "composition",
+      "paste",
+      "move",
+      "resize",
+      "image-crop",
+      "video-playback"
+    ]
+  },
+  {
+    "id": "deck/canvas.ts:c41ce3fed6941f332a91:1",
+    "owner": "createDeckCanvas",
+    "control": "listen(\"compositionend\")",
+    "covers": [
+      "select",
+      "multi-select",
+      "type",
+      "composition",
+      "paste",
+      "move",
+      "resize",
+      "image-crop",
+      "video-playback"
+    ]
+  },
+  {
+    "id": "deck/canvas.ts:5e08bc7e163f10b79227:1",
+    "owner": "createDeckCanvas",
+    "control": "listen(\"input\")",
+    "covers": [
+      "select",
+      "multi-select",
+      "type",
+      "composition",
+      "paste",
+      "move",
+      "resize",
+      "image-crop",
+      "video-playback"
+    ]
+  },
+  {
+    "id": "deck/canvas.ts:7992c1600685a947236f:1",
+    "owner": "createDeckCanvas",
+    "control": "listen(\"beforeinput\")",
+    "covers": [
+      "select",
+      "multi-select",
+      "type",
+      "composition",
+      "paste",
+      "move",
+      "resize",
+      "image-crop",
+      "video-playback"
+    ]
+  },
+  {
+    "id": "deck/canvas.ts:be8fe5eea3c7e697626f:1",
+    "owner": "createDeckCanvas",
+    "control": "listen(\"paste\")",
+    "covers": [
+      "select",
+      "multi-select",
+      "type",
+      "composition",
+      "paste",
+      "move",
+      "resize",
+      "image-crop",
+      "video-playback"
+    ]
+  },
+  {
+    "id": "deck/canvas.ts:b608dad3995c14a0bfb0:1",
+    "owner": "createDeckCanvas",
+    "control": "listen(\"cut\")",
+    "covers": [
+      "select",
+      "multi-select",
+      "type",
+      "composition",
+      "paste",
+      "move",
+      "resize",
+      "image-crop",
+      "video-playback"
+    ]
+  },
+  {
+    "id": "deck/canvas.ts:861a701701bcc16612b6:1",
+    "owner": "createDeckCanvas",
+    "control": "listen(\"keydown\")",
+    "covers": [
+      "select",
+      "multi-select",
+      "type",
+      "composition",
+      "paste",
+      "move",
+      "resize",
+      "image-crop",
+      "video-playback"
+    ]
+  },
+  {
+    "id": "deck/canvas.ts:e664d6a20b46038fece3:1",
+    "owner": "createDeckCanvas",
+    "control": "listen(\"dragover\")",
+    "covers": [
+      "select",
+      "multi-select",
+      "type",
+      "composition",
+      "paste",
+      "move",
+      "resize",
+      "image-crop",
+      "video-playback"
+    ]
+  },
+  {
+    "id": "deck/canvas.ts:a75f809e01da18a75fa1:1",
+    "owner": "createDeckCanvas",
+    "control": "listen(\"dragleave\")",
+    "covers": [
+      "select",
+      "multi-select",
+      "type",
+      "composition",
+      "paste",
+      "move",
+      "resize",
+      "image-crop",
+      "video-playback"
+    ]
+  },
+  {
+    "id": "deck/canvas.ts:155591bcd70e43194aac:1",
+    "owner": "createDeckCanvas",
+    "control": "listen(\"drop\")",
+    "covers": [
+      "select",
+      "multi-select",
+      "type",
+      "composition",
+      "paste",
+      "move",
+      "resize",
+      "image-crop",
+      "video-playback"
+    ]
+  },
+  {
+    "id": "deck/canvas.ts:680125cc40cea6e5f73a:1",
+    "owner": "createDeckCanvas",
+    "control": "listen(\"paste\")",
+    "covers": [
+      "select",
+      "multi-select",
+      "type",
+      "composition",
+      "paste",
+      "move",
+      "resize",
+      "image-crop",
+      "video-playback"
+    ]
+  },
+  {
+    "id": "deck/canvas.ts:9fe16d23d67394b87352:1",
+    "owner": "createDeckCanvas",
+    "control": "doc.addEventListener(\"scroll\")",
+    "covers": [
+      "select",
+      "multi-select",
+      "type",
+      "composition",
+      "paste",
+      "move",
+      "resize",
+      "image-crop",
+      "video-playback"
+    ]
+  },
+  {
+    "id": "deck/canvas.ts:217c17b20c187743e6d8:1",
+    "owner": "createDeckCanvas",
+    "control": "view.addEventListener(\"resize\")",
+    "covers": [
+      "select",
+      "multi-select",
+      "type",
+      "composition",
+      "paste",
+      "move",
+      "resize",
+      "image-crop",
+      "video-playback"
+    ]
+  },
+  {
+    "id": "deck/canvas.ts:module:6c495ac82120cfc1770c",
+    "owner": "module",
+    "control": "module definitions, including data-driven actions",
+    "covers": [
+      "select",
+      "multi-select",
+      "type",
+      "composition",
+      "paste",
+      "move",
+      "resize",
+      "image-crop",
+      "video-playback",
+      "select-slide"
+    ]
+  },
+  {
+    "id": "deck/edit/design-editor.ts:3b62e7ce8f73520e7e07:1",
+    "owner": "createDeckDesigner",
+    "control": "button(t(\"decks.designEditor.openAdjust\"))",
+    "covers": [
+      "appearance",
+      "font"
+    ]
+  },
+  {
+    "id": "deck/edit/design-editor.ts:7ee5a76df3cb9b1bbbe9:1",
+    "owner": "createDeckDesigner",
+    "control": "button(t(\"decks.designEditor.design\"))",
+    "covers": [
+      "appearance",
+      "font"
+    ]
+  },
+  {
+    "id": "deck/edit/design-editor.ts:fc07fd92bcd0d1843e9f:1",
+    "owner": "createDeckDesigner",
+    "control": "input.frame.addEventListener(\"load\")",
+    "covers": [
+      "appearance",
+      "font"
+    ]
+  },
+  {
+    "id": "deck/edit/design-editor.ts:8af83eb1ab8b54744a8d:1",
+    "owner": "renderList",
+    "control": "button(\"\")",
+    "covers": [
+      "appearance",
+      "font"
+    ]
+  },
+  {
+    "id": "deck/edit/design-editor.ts:16331c099b1ec5649835:1",
+    "owner": "renderControls",
+    "control": "button(title)",
+    "covers": [
+      "appearance",
+      "font"
+    ]
+  },
+  {
+    "id": "deck/edit/design-editor.ts:ace313f1b335d2beaaba:1",
+    "owner": "renderControls",
+    "control": "target.addEventListener(\"change\")",
+    "covers": [
+      "appearance",
+      "font"
+    ]
+  },
+  {
+    "id": "deck/edit/design-editor.ts:fc300eb5120cc880eb95:1",
+    "owner": "renderControls",
+    "control": "button(text.name)",
+    "covers": [
+      "appearance",
+      "font"
+    ]
+  },
+  {
+    "id": "deck/edit/design-editor.ts:471fd82bf55624ae04cc:1",
+    "owner": "renderControls",
+    "control": "advanced.addEventListener(\"toggle\")",
+    "covers": [
+      "appearance",
+      "font"
+    ]
+  },
+  {
+    "id": "deck/edit/design-editor.ts:56cc7ee68168722f6755:1",
+    "owner": "renderControls",
+    "control": "font.addEventListener(\"change\")",
+    "covers": [
+      "appearance",
+      "font"
+    ]
+  },
+  {
+    "id": "deck/edit/design-editor.ts:015da80187811c6a2728:1",
+    "owner": "renderControls",
+    "control": "ornament.addEventListener(\"change\")",
+    "covers": [
+      "appearance",
+      "font"
+    ]
+  },
+  {
+    "id": "deck/edit/design-editor.ts:95aa6defea7b3e61ff4a:1",
+    "owner": "renderControls",
+    "control": "picker.addEventListener(\"input\")",
+    "covers": [
+      "appearance",
+      "font"
+    ]
+  },
+  {
+    "id": "deck/edit/design-editor.ts:ac7f1a32710dfb1c8486:1",
+    "owner": "renderControls",
+    "control": "decoration.addEventListener(\"change\")",
+    "covers": [
+      "appearance",
+      "font"
+    ]
+  },
+  {
+    "id": "deck/edit/design-editor.ts:0e8719d15e0e3d319500:1",
+    "owner": "renderControls",
+    "control": "motion.addEventListener(\"change\")",
+    "covers": [
+      "appearance",
+      "font"
+    ]
+  },
+  {
+    "id": "deck/edit/design-editor.ts:dc52ae97389d2c33ef94:1",
+    "owner": "renderControls",
+    "control": "button(scope === \"slide\" ? t(\"decks.designEditor.followDocument\") : t(\"decks.designEditor.resetToCreated\"))",
+    "covers": [
+      "appearance",
+      "font"
+    ]
+  },
+  {
+    "id": "deck/edit/design-editor.ts:cb86adb58bce16f64250:1",
+    "owner": "renderControls",
+    "control": "button(t(\"decks.designEditor.export\"))",
+    "covers": [
+      "appearance",
+      "font"
+    ]
+  },
+  {
+    "id": "deck/edit/design-editor.ts:81d244c9390a87874ae4:1",
+    "owner": "renderControls",
+    "control": "file.addEventListener(\"change\")",
+    "covers": [
+      "appearance",
+      "font"
+    ]
+  },
+  {
+    "id": "deck/edit/design-editor.ts:d3cc46abb9deec4f97d3:1",
+    "owner": "renderControls",
+    "control": "button(t(\"decks.designEditor.import\"))",
+    "covers": [
+      "appearance",
+      "font"
+    ]
+  },
+  {
+    "id": "deck/edit/design-editor.ts:cdf75401eaecc8b24f74:1",
+    "owner": "slider",
+    "control": "range.addEventListener(\"input\")",
+    "covers": [
+      "appearance",
+      "font"
+    ]
+  },
+  {
+    "id": "deck/edit/design-editor.ts:5a1ec9d4933f719774b6:1",
+    "owner": "button",
+    "control": "result.addEventListener(\"click\")",
+    "covers": [
+      "appearance",
+      "font"
+    ]
+  },
+  {
+    "id": "deck/edit/design-editor.ts:module:b19439ee757a7e981096",
+    "owner": "module",
+    "control": "module definitions, including data-driven actions",
+    "covers": [
+      "appearance",
+      "font"
+    ]
+  },
+  {
+    "id": "deck/edit/focus-editor.ts:5a1ec9d4933f719774b6:1",
+    "owner": "button",
+    "control": "result.addEventListener(\"click\")",
+    "covers": [
+      "focus"
+    ]
+  },
+  {
+    "id": "deck/edit/focus-editor.ts:eae26e0e7f8673d1aeb9:1",
+    "owner": "createDeckFocusEditor",
+    "control": "slidePicker.addEventListener(\"change\")",
+    "covers": [
+      "focus"
+    ]
+  },
+  {
+    "id": "deck/edit/focus-editor.ts:961f69d3aeef5ed9db5b:1",
+    "owner": "renderTargets",
+    "control": "button(label)",
+    "covers": [
+      "focus"
+    ]
+  },
+  {
+    "id": "deck/edit/focus-editor.ts:04924638d3227214486a:1",
+    "owner": "renderSteps",
+    "control": "button(t(\"decks.focusEditor.stepLabel\", { number: index + 1, title: step.title || t(\"decks.focusEditor.untitledStep\") })",
+    "covers": [
+      "focus"
+    ]
+  },
+  {
+    "id": "deck/edit/focus-editor.ts:38ce02e165e94716923d:1",
+    "owner": "renderSteps",
+    "control": "button(t(\"decks.focusEditor.addStep\"))",
+    "covers": [
+      "focus"
+    ]
+  },
+  {
+    "id": "deck/edit/focus-editor.ts:619e3a011f317fb492a8:1",
+    "owner": "renderInspector",
+    "control": "title.addEventListener(\"change\")",
+    "covers": [
+      "focus"
+    ]
+  },
+  {
+    "id": "deck/edit/focus-editor.ts:02d1ef7ad2e0943a4775:1",
+    "owner": "renderInspector",
+    "control": "supplement.addEventListener(\"change\")",
+    "covers": [
+      "focus"
+    ]
+  },
+  {
+    "id": "deck/edit/focus-editor.ts:6f5dcbc1cd1f63e82c4f:1",
+    "owner": "renderInspector",
+    "control": "button(t(\"decks.focusEditor.stepLabel\", { number: index + 1, title: actionName(action.kind) }))",
+    "covers": [
+      "focus"
+    ]
+  },
+  {
+    "id": "deck/edit/focus-editor.ts:6e4ffb953bec3d243f61:1",
+    "owner": "renderInspector",
+    "control": "button(t(\"decks.focusEditor.addAction\"))",
+    "covers": [
+      "focus"
+    ]
+  },
+  {
+    "id": "deck/edit/focus-editor.ts:1eca430bff3e081855e6:1",
+    "owner": "renderInspector",
+    "control": "kind.addEventListener(\"change\")",
+    "covers": [
+      "focus"
+    ]
+  },
+  {
+    "id": "deck/edit/focus-editor.ts:6a01e84959526cba30c9:1",
+    "owner": "renderInspector",
+    "control": "note.addEventListener(\"change\")",
+    "covers": [
+      "focus"
+    ]
+  },
+  {
+    "id": "deck/edit/focus-editor.ts:ac1fb436860403b8817a:1",
+    "owner": "renderInspector",
+    "control": "range.addEventListener(\"input\")",
+    "covers": [
+      "focus"
+    ]
+  },
+  {
+    "id": "deck/edit/focus-editor.ts:9c832f4f39bc36d75347:1",
+    "owner": "renderInspector",
+    "control": "button(t(\"decks.focusEditor.removeAction\"))",
+    "covers": [
+      "focus"
+    ]
+  },
+  {
+    "id": "deck/edit/focus-editor.ts:cacfd6f62719ce72ac3d:1",
+    "owner": "renderInspector",
+    "control": "button(t(\"decks.focusEditor.stepEarlier\"))",
+    "covers": [
+      "focus"
+    ]
+  },
+  {
+    "id": "deck/edit/focus-editor.ts:8b485d3e4c73adc8ad81:1",
+    "owner": "renderInspector",
+    "control": "button(t(\"decks.focusEditor.stepLater\"))",
+    "covers": [
+      "focus"
+    ]
+  },
+  {
+    "id": "deck/edit/focus-editor.ts:21117d6e37cac436d996:1",
+    "owner": "renderInspector",
+    "control": "button(t(\"decks.focusEditor.overview\"))",
+    "covers": [
+      "focus"
+    ]
+  },
+  {
+    "id": "deck/edit/focus-editor.ts:55963e49b8036aaf53a1:1",
+    "owner": "renderInspector",
+    "control": "button(t(\"decks.focusEditor.removeStep\"))",
+    "covers": [
+      "focus"
+    ]
+  },
+  {
+    "id": "deck/edit/focus-editor.ts:module:27b597fd2a8b5889cb8b",
+    "owner": "module",
+    "control": "module definitions, including data-driven actions",
+    "covers": [
+      "focus"
+    ]
+  },
+  {
+    "id": "deck/edit/image-palette.ts:70b8a1771e99b93cbeec:1",
+    "owner": "control",
+    "control": "button.onclick",
+    "covers": [
+      "image-library",
+      "image-upload",
+      "image-replace"
+    ]
+  },
+  {
+    "id": "deck/edit/image-palette.ts:1829686f2fe830f0f8d3:1",
+    "owner": "card",
+    "control": "image.onerror",
+    "covers": [
+      "image-library",
+      "image-upload",
+      "image-replace"
+    ]
+  },
+  {
+    "id": "deck/edit/image-palette.ts:4f07ffd5bcd172c6a56c:1",
+    "owner": "card",
+    "control": "button.ondragstart",
+    "covers": [
+      "image-library",
+      "image-upload",
+      "image-replace"
+    ]
+  },
+  {
+    "id": "deck/edit/image-palette.ts:a216c3699911dbe93cc7:1",
+    "owner": "createDeckImagePalette",
+    "control": "tabs.addEventListener(\"keydown\")",
+    "covers": [
+      "image-library",
+      "image-upload",
+      "image-replace"
+    ]
+  },
+  {
+    "id": "deck/edit/image-palette.ts:3595be08ebed69e6d9f8:1",
+    "owner": "createDeckImagePalette",
+    "control": "root.addEventListener(\"keydown\")",
+    "covers": [
+      "image-library",
+      "image-upload",
+      "image-replace"
+    ]
+  },
+  {
+    "id": "deck/edit/image-palette.ts:module:afdf7d791ddb7fdbef26",
+    "owner": "module",
+    "control": "module definitions, including data-driven actions",
+    "covers": [
+      "image-library",
+      "image-upload",
+      "image-replace"
+    ]
+  },
+  {
+    "id": "deck/edit/library-picker.ts:4b9dcadd02f62e0d104a:1",
+    "owner": "createDeckLibraryPicker",
+    "control": "confirm.onclick",
+    "covers": [
+      "insert",
+      "template-library",
+      "insert-slide"
+    ]
+  },
+  {
+    "id": "deck/edit/library-picker.ts:19f1fafbf01bc7b016a3:1",
+    "owner": "enlarge",
+    "control": "close.onclick",
+    "covers": [
+      "insert",
+      "template-library",
+      "insert-slide"
+    ]
+  },
+  {
+    "id": "deck/edit/library-picker.ts:33207ec090c7595c0023:1",
+    "owner": "enlarge",
+    "control": "zoom.onclose",
+    "covers": [
+      "insert",
+      "template-library",
+      "insert-slide"
+    ]
+  },
+  {
+    "id": "deck/edit/library-picker.ts:f997b833ab87a2b799f4:1",
+    "owner": "render",
+    "control": "card.onclick",
+    "covers": [
+      "insert",
+      "template-library",
+      "insert-slide"
+    ]
+  },
+  {
+    "id": "deck/edit/library-picker.ts:04b0fbb1abe81929c119:1",
+    "owner": "createDeckLibraryPicker",
+    "control": "filter.onchange",
+    "covers": [
+      "insert",
+      "template-library",
+      "insert-slide"
+    ]
+  },
+  {
+    "id": "deck/edit/library-picker.ts:d4c066222cf2da5bffbf:1",
+    "owner": "createDeckLibraryPicker",
+    "control": "button.onclick",
+    "covers": [
+      "insert",
+      "template-library",
+      "insert-slide"
+    ]
+  },
+  {
+    "id": "deck/edit/library-picker.ts:7228deb38aaa836b695c:1",
+    "owner": "createDeckLibraryPicker",
+    "control": "search.addEventListener('input')",
+    "covers": [
+      "insert",
+      "template-library",
+      "insert-slide"
+    ]
+  },
+  {
+    "id": "deck/edit/library-picker.ts:31516ced893569888432:1",
+    "owner": "createDeckLibraryPicker",
+    "control": "results.addEventListener('keydown')",
+    "covers": [
+      "insert",
+      "template-library",
+      "insert-slide"
+    ]
+  },
+  {
+    "id": "deck/edit/library-picker.ts:module:9739e2547ac6e111245c",
+    "owner": "module",
+    "control": "module definitions, including data-driven actions",
+    "covers": [
+      "insert",
+      "template-library",
+      "insert-slide"
+    ]
+  },
+  {
+    "id": "deck/edit/logo-editor.ts:5a1ec9d4933f719774b6:1",
+    "owner": "button",
+    "control": "result.addEventListener(\"click\")",
+    "covers": [
+      "logo"
+    ]
+  },
+  {
+    "id": "deck/edit/logo-editor.ts:fc89d82aef45c2809306:1",
+    "owner": "readAsDataUrl",
+    "control": "reader.addEventListener(\"load\")",
+    "covers": [
+      "logo"
+    ]
+  },
+  {
+    "id": "deck/edit/logo-editor.ts:6b2ab83449ee7d5a43c6:1",
+    "owner": "readAsDataUrl",
+    "control": "reader.addEventListener(\"error\")",
+    "covers": [
+      "logo"
+    ]
+  },
+  {
+    "id": "deck/edit/logo-editor.ts:70a242c56e4f8eb0ba09:1",
+    "owner": "slider",
+    "control": "control.addEventListener(\"input\")",
+    "covers": [
+      "logo"
+    ]
+  },
+  {
+    "id": "deck/edit/logo-editor.ts:d873bbe25c7ec3d83d42:1",
+    "owner": "render",
+    "control": "file.addEventListener(\"change\")",
+    "covers": [
+      "logo"
+    ]
+  },
+  {
+    "id": "deck/edit/logo-editor.ts:b7007fbc1ac1fe778629:1",
+    "owner": "render",
+    "control": "button(working === \"upload\" ? t(\"decks.logoEditor.sending\") : t(\"decks.logoEditor.choose\"))",
+    "covers": [
+      "logo"
+    ]
+  },
+  {
+    "id": "deck/edit/logo-editor.ts:4ff0a0b718865720b5a2:1",
+    "owner": "render",
+    "control": "button(t(\"decks.logoEditor.remove\"))",
+    "covers": [
+      "logo"
+    ]
+  },
+  {
+    "id": "deck/edit/logo-editor.ts:f3f18c56bf6b4f5f638d:1",
+    "owner": "render",
+    "control": "scopeSelect.addEventListener(\"change\")",
+    "covers": [
+      "logo"
+    ]
+  },
+  {
+    "id": "deck/edit/logo-editor.ts:1fd2a0264951cbe28654:1",
+    "owner": "render",
+    "control": "slideSelect.addEventListener(\"change\")",
+    "covers": [
+      "logo"
+    ]
+  },
+  {
+    "id": "deck/edit/logo-editor.ts:d38ce6a5c7d265de0948:1",
+    "owner": "render",
+    "control": "placement.addEventListener(\"change\")",
+    "covers": [
+      "logo"
+    ]
+  },
+  {
+    "id": "deck/edit/logo-editor.ts:84d76aa3e1be8b843b42:1",
+    "owner": "render",
+    "control": "variant.addEventListener(\"change\")",
+    "covers": [
+      "logo"
+    ]
+  },
+  {
+    "id": "deck/edit/logo-editor.ts:7a25f1179cd371b477e9:1",
+    "owner": "render",
+    "control": "monochrome.addEventListener(\"change\")",
+    "covers": [
+      "logo"
+    ]
+  },
+  {
+    "id": "deck/edit/logo-editor.ts:2c8db639dded31ee997e:1",
+    "owner": "render",
+    "control": "backplate.addEventListener(\"change\")",
+    "covers": [
+      "logo"
+    ]
+  },
+  {
+    "id": "deck/edit/logo-editor.ts:4002b39077d6185b78b6:1",
+    "owner": "render",
+    "control": "button(scope === \"slide\" ? t(\"decks.logoEditor.followDocument\") : t(\"decks.logoEditor.resetToCreated\"))",
+    "covers": [
+      "logo"
+    ]
+  },
+  {
+    "id": "deck/edit/logo-editor.ts:e20b13c54fd8bf172c87:1",
+    "owner": "render",
+    "control": "button(working === \"export\" ? t(\"decks.logoEditor.preparing\") : t(\"decks.logoEditor.export\"))",
+    "covers": [
+      "logo"
+    ]
+  },
+  {
+    "id": "deck/edit/logo-editor.ts:c251e158c2e2ba24edb3:1",
+    "owner": "render",
+    "control": "importFile.addEventListener(\"change\")",
+    "covers": [
+      "logo"
+    ]
+  },
+  {
+    "id": "deck/edit/logo-editor.ts:aec9297d379e694d70ee:1",
+    "owner": "render",
+    "control": "button(working === \"import\" ? t(\"decks.logoEditor.reading\") : t(\"decks.logoEditor.import\"))",
+    "covers": [
+      "logo"
+    ]
+  },
+  {
+    "id": "deck/edit/logo-editor.ts:module:0ac9d98c78a7f34d6f0d",
+    "owner": "module",
+    "control": "module definitions, including data-driven actions",
+    "covers": [
+      "logo"
+    ]
+  },
+  {
+    "id": "deck/edit/media-queue.ts:6a71e03e3189afd0d9c7:1",
+    "owner": "createDeckMediaQueue",
+    "control": "control.onclick",
+    "covers": [
+      "image-upload",
+      "offline"
+    ]
+  },
+  {
+    "id": "deck/edit/media-queue.ts:a01809f34e72794a1f7e:1",
+    "owner": "createDeckMediaQueue",
+    "control": "button(\"\")",
+    "covers": [
+      "image-upload",
+      "offline"
+    ]
+  },
+  {
+    "id": "deck/edit/media-queue.ts:caa6f3c8066c73d7d0e9:1",
+    "owner": "createDeckMediaQueue",
+    "control": "trigger.onclick",
+    "covers": [
+      "image-upload",
+      "offline"
+    ]
+  },
+  {
+    "id": "deck/edit/media-queue.ts:a9865de107122dd576cc:1",
+    "owner": "createDeckMediaQueue",
+    "control": "root.addEventListener(\"keydown\")",
+    "covers": [
+      "image-upload",
+      "offline"
+    ]
+  },
+  {
+    "id": "deck/edit/media-queue.ts:4b35552e0c1a9ff76dc7:1",
+    "owner": "paint",
+    "control": "button(issue.label)",
+    "covers": [
+      "image-upload",
+      "offline"
+    ]
+  },
+  {
+    "id": "deck/edit/media-queue.ts:a23037c2e245015a213a:1",
+    "owner": "paint",
+    "control": "button(secondary.label)",
+    "covers": [
+      "image-upload",
+      "offline"
+    ]
+  },
+  {
+    "id": "deck/edit/media-queue.ts:03f308736188e7367d7a:1",
+    "owner": "paint",
+    "control": "button(t(\"deckEditor.mediaQueue.stop\"))",
+    "covers": [
+      "image-upload",
+      "offline"
+    ]
+  },
+  {
+    "id": "deck/edit/media-queue.ts:5639f364302ca0ea3618:1",
+    "owner": "paint",
+    "control": "button(t(\"deckEditor.mediaQueue.resume\"))",
+    "covers": [
+      "image-upload",
+      "offline"
+    ]
+  },
+  {
+    "id": "deck/edit/media-queue.ts:57a31cbfd923fb2e7201:1",
+    "owner": "paint",
+    "control": "button(t(\"deckEditor.mediaQueue.useOriginal\"))",
+    "covers": [
+      "image-upload",
+      "offline"
+    ]
+  },
+  {
+    "id": "deck/edit/media-queue.ts:b2bba762814505783597:1",
+    "owner": "makeItem",
+    "control": "button(\"\")",
+    "covers": [
+      "image-upload",
+      "offline"
+    ]
+  },
+  {
+    "id": "deck/edit/media-queue.ts:module:83050842564f02e31b38",
+    "owner": "module",
+    "control": "module definitions, including data-driven actions",
+    "covers": [
+      "image-upload",
+      "offline"
+    ]
+  },
+  {
+    "id": "deck/edit/outline-drag.ts:c94a3b15c139f122d69c:1",
+    "owner": "createDeckOutlineDrag",
+    "control": "input.screen.addEventListener(\"keydown\")",
+    "covers": [
+      "reorder",
+      "outline"
+    ]
+  },
+  {
+    "id": "deck/edit/outline-drag.ts:cd89ba1b92a39781d2cd:1",
+    "owner": "bind",
+    "control": "row.addEventListener(\"click\")",
+    "covers": [
+      "reorder",
+      "outline"
+    ]
+  },
+  {
+    "id": "deck/edit/outline-drag.ts:d90c404f65af24ec060e:1",
+    "owner": "bind",
+    "control": "row.onpointerdown",
+    "covers": [
+      "reorder",
+      "outline",
+      "outline-drag"
+    ]
+  },
+  {
+    "id": "deck/edit/outline-drag.ts:653e36ca7004648ce66b:1",
+    "owner": "bind",
+    "control": "row.onpointermove",
+    "covers": [
+      "reorder",
+      "outline"
+    ]
+  },
+  {
+    "id": "deck/edit/outline-drag.ts:b91dd907f0cb4b382cf3:1",
+    "owner": "bind",
+    "control": "row.onpointerup",
+    "covers": [
+      "reorder",
+      "outline"
+    ]
+  },
+  {
+    "id": "deck/edit/outline-drag.ts:04d9a9da96b87f7f5607:1",
+    "owner": "bind",
+    "control": "row.onpointercancel",
+    "covers": [
+      "reorder",
+      "outline"
+    ]
+  },
+  {
+    "id": "deck/edit/outline-drag.ts:7b0ec6b75cbf5fd1abf4:1",
+    "owner": "bind",
+    "control": "row.onlostpointercapture",
+    "covers": [
+      "reorder",
+      "outline"
+    ]
+  },
+  {
+    "id": "deck/edit/outline-drag.ts:d5425c2aa9e39eafa212:1",
+    "owner": "bind",
+    "control": "row.ondragstart",
+    "covers": [
+      "reorder",
+      "outline"
+    ]
+  },
+  {
+    "id": "deck/edit/outline-drag.ts:module:116fb927de838165aba4",
+    "owner": "module",
+    "control": "module definitions, including data-driven actions",
+    "covers": [
+      "reorder",
+      "outline",
+      "outline-drag"
+    ]
+  },
+  {
+    "id": "deck/edit/session.ts:bd53825de9f60ff29b32:1",
+    "owner": "button",
+    "control": "result.addEventListener(\"click\")",
+    "covers": [
+      "open",
+      "close",
+      "save",
+      "undo",
+      "redo",
+      "remote",
+      "offline",
+      "draft"
+    ]
+  },
+  {
+    "id": "deck/edit/session.ts:43ffe12e8167d5ba8d21:1",
+    "owner": "replacePreview",
+    "control": "signal.addEventListener(\"abort\")",
+    "covers": [
+      "open",
+      "close",
+      "save",
+      "undo",
+      "redo",
+      "remote",
+      "offline",
+      "draft"
+    ]
+  },
+  {
+    "id": "deck/edit/session.ts:4c845bd7650030fb1019:1",
+    "owner": "replacePreview",
+    "control": "next.addEventListener(\"load\")",
+    "covers": [
+      "open",
+      "close",
+      "save",
+      "undo",
+      "redo",
+      "remote",
+      "offline",
+      "draft"
+    ]
+  },
+  {
+    "id": "deck/edit/session.ts:7cd6109d61559e7466ff:1",
+    "owner": "openDeckEditSession",
+    "control": "button(t(\"deckEditor.session.reviewChanges\"))",
+    "covers": [
+      "open",
+      "close",
+      "save",
+      "undo",
+      "redo",
+      "remote",
+      "offline",
+      "draft"
+    ]
+  },
+  {
+    "id": "deck/edit/session.ts:d3721fd694a3e0c011e0:1",
+    "owner": "startPresentation",
+    "control": "lifetime.signal.addEventListener(\"abort\")",
+    "covers": [
+      "open",
+      "close",
+      "save",
+      "undo",
+      "redo",
+      "remote",
+      "offline",
+      "draft"
+    ]
+  },
+  {
+    "id": "deck/edit/session.ts:944832c338ad686afcb3:1",
+    "owner": "openDeckEditSession",
+    "control": "button(t(\"deckEditor.session.undo\"))",
+    "covers": [
+      "open",
+      "close",
+      "save",
+      "undo",
+      "redo",
+      "remote",
+      "offline",
+      "draft"
+    ]
+  },
+  {
+    "id": "deck/edit/session.ts:810365d9ff7dee07de4f:1",
+    "owner": "openDeckEditSession",
+    "control": "button(t(\"deckEditor.session.redo\"))",
+    "covers": [
+      "open",
+      "close",
+      "save",
+      "undo",
+      "redo",
+      "remote",
+      "offline",
+      "draft"
+    ]
+  },
+  {
+    "id": "deck/edit/session.ts:c598f87ebffaa0c8892f:1",
+    "owner": "openDeckEditSession",
+    "control": "button(t(\"deckEditor.session.retry\"))",
+    "covers": [
+      "open",
+      "close",
+      "save",
+      "undo",
+      "redo",
+      "remote",
+      "offline",
+      "draft"
+    ]
+  },
+  {
+    "id": "deck/edit/session.ts:89e515bf7c280ad1d028:1",
+    "owner": "openDeckEditSession",
+    "control": "button(t(\"deckEditor.session.reloadLatest\"))",
+    "covers": [
+      "open",
+      "close",
+      "save",
+      "undo",
+      "redo",
+      "remote",
+      "offline",
+      "draft"
+    ]
+  },
+  {
+    "id": "deck/edit/session.ts:3ba8514d90a63dfc3379:1",
+    "owner": "openDeckEditSession",
+    "control": "button(t(\"deckEditor.session.done\"))",
+    "covers": [
+      "open",
+      "close",
+      "save",
+      "undo",
+      "redo",
+      "remote",
+      "offline",
+      "draft"
+    ]
+  },
+  {
+    "id": "deck/edit/session.ts:e0885e3440e7543b33d3:1",
+    "owner": "openDeckEditSession",
+    "control": "button(t(\"deckEditor.session.design\"))",
+    "covers": [
+      "open",
+      "close",
+      "save",
+      "undo",
+      "redo",
+      "remote",
+      "offline",
+      "draft"
+    ]
+  },
+  {
+    "id": "deck/edit/session.ts:5435b520d7deaf94b277:1",
+    "owner": "openDeckEditSession",
+    "control": "button(t(\"deckEditor.session.insertButton\"))",
+    "covers": [
+      "open",
+      "close",
+      "save",
+      "undo",
+      "redo",
+      "remote",
+      "offline",
+      "draft"
+    ]
+  },
+  {
+    "id": "deck/edit/session.ts:78b54f89c80c2433192d:1",
+    "owner": "openDeckEditSession",
+    "control": "button(t(\"deckEditor.session.images\"))",
+    "covers": [
+      "open",
+      "close",
+      "save",
+      "undo",
+      "redo",
+      "remote",
+      "offline",
+      "draft"
+    ]
+  },
+  {
+    "id": "deck/edit/session.ts:223407cbc7051bf1dec7:1",
+    "owner": "openDeckEditSession",
+    "control": "button(t(\"deckEditor.session.present\"))",
+    "covers": [
+      "open",
+      "close",
+      "save",
+      "undo",
+      "redo",
+      "remote",
+      "offline",
+      "draft"
+    ]
+  },
+  {
+    "id": "deck/edit/session.ts:024142c1279beb80fdbf:1",
+    "owner": "openDeckEditSession",
+    "control": "button(t(\"deckEditor.session.presenterView\"))",
+    "covers": [
+      "presenter"
+    ]
+  },
+  {
+    "id": "deck/edit/session.ts:d81f9212c67d3086040b:1",
+    "owner": "openDeckEditSession",
+    "control": "title.onclick",
+    "covers": [
+      "open",
+      "close",
+      "save",
+      "undo",
+      "redo",
+      "remote",
+      "offline",
+      "draft"
+    ]
+  },
+  {
+    "id": "deck/edit/session.ts:1cb57be53825cf1cf1d2:1",
+    "owner": "openDeckEditSession",
+    "control": "fileInput.addEventListener(\"cancel\")",
+    "covers": [
+      "open",
+      "close",
+      "save",
+      "undo",
+      "redo",
+      "remote",
+      "offline",
+      "draft"
+    ]
+  },
+  {
+    "id": "deck/edit/session.ts:b22026e66386ca9dde54:1",
+    "owner": "openDeckEditSession",
+    "control": "fileInput.addEventListener(\"change\")",
+    "covers": [
+      "open",
+      "close",
+      "save",
+      "undo",
+      "redo",
+      "remote",
+      "offline",
+      "draft"
+    ]
+  },
+  {
+    "id": "deck/edit/session.ts:0980903502e0a9e75ac4:1",
+    "owner": "openDeckEditSession",
+    "control": "chooser.onchange",
+    "covers": [
+      "open",
+      "close",
+      "save",
+      "undo",
+      "redo",
+      "remote",
+      "offline",
+      "draft"
+    ]
+  },
+  {
+    "id": "deck/edit/session.ts:873eb27ef6b5b6d06521:1",
+    "owner": "openDeckEditSession",
+    "control": "chooser.oncancel",
+    "covers": [
+      "open",
+      "close",
+      "save",
+      "undo",
+      "redo",
+      "remote",
+      "offline",
+      "draft"
+    ]
+  },
+  {
+    "id": "deck/edit/session.ts:3b342c91baf3bc479f04:1",
+    "owner": "addLink",
+    "control": "button(t(\"deckEditor.session.add\"))",
+    "covers": [
+      "open",
+      "close",
+      "save",
+      "undo",
+      "redo",
+      "remote",
+      "offline",
+      "draft"
+    ]
+  },
+  {
+    "id": "deck/edit/session.ts:ae99abb22d834101adc8:1",
+    "owner": "addLink",
+    "control": "button(t(\"deckEditor.session.cancel\"))",
+    "covers": [
+      "open",
+      "close",
+      "save",
+      "undo",
+      "redo",
+      "remote",
+      "offline",
+      "draft"
+    ]
+  },
+  {
+    "id": "deck/edit/session.ts:e4b570b39a7ee8d7b6fb:1",
+    "owner": "openDeckEditSession",
+    "control": "screen.addEventListener(\"paste\")",
+    "covers": [
+      "open",
+      "close",
+      "save",
+      "undo",
+      "redo",
+      "remote",
+      "offline",
+      "draft"
+    ]
+  },
+  {
+    "id": "deck/edit/session.ts:64dc63eca2966e26e8c6:1",
+    "owner": "openDeckEditSession",
+    "control": "screen.addEventListener(\"dragover\")",
+    "covers": [
+      "open",
+      "close",
+      "save",
+      "undo",
+      "redo",
+      "remote",
+      "offline",
+      "draft"
+    ]
+  },
+  {
+    "id": "deck/edit/session.ts:e192e1377dcb4d32f85a:1",
+    "owner": "openDeckEditSession",
+    "control": "screen.addEventListener(\"drop\")",
+    "covers": [
+      "open",
+      "close",
+      "save",
+      "undo",
+      "redo",
+      "remote",
+      "offline",
+      "draft"
+    ]
+  },
+  {
+    "id": "deck/edit/session.ts:c871202131c1a577bf4c:1",
+    "owner": "openDeckEditSession",
+    "control": "picker.addEventListener(\"change\")",
+    "covers": [
+      "draft"
+    ]
+  },
+  {
+    "id": "deck/edit/session.ts:d036ddab19a56854d78f:1",
+    "owner": "openDeckEditSession",
+    "control": "button(t(\"deckEditor.session.restoreDraft\"))",
+    "covers": [
+      "open",
+      "close",
+      "save",
+      "undo",
+      "redo",
+      "remote",
+      "offline",
+      "draft"
+    ]
+  },
+  {
+    "id": "deck/edit/session.ts:09453f73aa9dc99dc61b:1",
+    "owner": "openDeckEditSession",
+    "control": "button(t(\"deckEditor.session.exportDraft\"))",
+    "covers": [
+      "open",
+      "close",
+      "save",
+      "undo",
+      "redo",
+      "remote",
+      "offline",
+      "draft"
+    ]
+  },
+  {
+    "id": "deck/edit/session.ts:ad7c092921faca7ec6ec:1",
+    "owner": "openDeckEditSession",
+    "control": "button(t(\"deckEditor.session.discardDraft\"))",
+    "covers": [
+      "open",
+      "close",
+      "save",
+      "undo",
+      "redo",
+      "remote",
+      "offline",
+      "draft"
+    ]
+  },
+  {
+    "id": "deck/edit/session.ts:f1741c5622480655d0dc:1",
+    "owner": "openDeckEditSession",
+    "control": "window.addEventListener(\"beforeunload\")",
+    "covers": [
+      "open",
+      "close",
+      "save",
+      "undo",
+      "redo",
+      "remote",
+      "offline",
+      "draft"
+    ]
+  },
+  {
+    "id": "deck/edit/session.ts:9de87891565f950ed6ff:1",
+    "owner": "openDeckEditSession",
+    "control": "window.addEventListener(\"pagehide\")",
+    "covers": [
+      "offline",
+      "draft",
+      "close"
+    ]
+  },
+  {
+    "id": "deck/edit/session.ts:8c890d34815d5931844a:1",
+    "owner": "openDeckEditSession",
+    "control": "window.addEventListener(\"pageshow\")",
+    "covers": [
+      "offline",
+      "draft",
+      "open"
+    ]
+  },
+  {
+    "id": "deck/edit/session.ts:26c3f4a3c542cb87c1f2:1",
+    "owner": "openDeckEditSession",
+    "control": "window.addEventListener(\"online\")",
+    "covers": [
+      "open",
+      "close",
+      "save",
+      "undo",
+      "redo",
+      "remote",
+      "offline",
+      "draft"
+    ]
+  },
+  {
+    "id": "deck/edit/session.ts:e1cc2f91b3a92a8f858d:1",
+    "owner": "openDeckEditSession",
+    "control": "window.addEventListener(\"offline\")",
+    "covers": [
+      "open",
+      "close",
+      "save",
+      "undo",
+      "redo",
+      "remote",
+      "offline",
+      "draft"
+    ]
+  },
+  {
+    "id": "deck/edit/session.ts:c9490c66f7f17007402b:1",
+    "owner": "openDeckEditSession",
+    "control": "window.addEventListener(\"online\")",
+    "covers": [
+      "open",
+      "close",
+      "save",
+      "undo",
+      "redo",
+      "remote",
+      "offline",
+      "draft"
+    ]
+  },
+  {
+    "id": "deck/edit/session.ts:9c60ca54ef49bbb23920:1",
+    "owner": "openDeckEditSession",
+    "control": "document.addEventListener(\"visibilitychange\")",
+    "covers": [
+      "remote",
+      "offline"
+    ]
+  },
+  {
+    "id": "deck/edit/session.ts:module:79f28a4261d099d29b65",
+    "owner": "module",
+    "control": "module definitions, including data-driven actions",
+    "covers": [
+      "open",
+      "close",
+      "type",
+      "save",
+      "undo",
+      "redo",
+      "remote",
+      "offline",
+      "draft",
+      "present",
+      "appearance",
+      "document-appearance",
+      "chart",
+      "font",
+      "presenter"
+    ]
+  },
+  {
+    "id": "deck/edit/template-preview.ts:c8f373a77d8505888901:1",
+    "owner": "until",
+    "control": "signal.addEventListener('abort')",
+    "covers": [
+      "template-library"
+    ]
+  },
+  {
+    "id": "deck/edit/template-preview.ts:cc130c16ce25dd8d7d07:1",
+    "owner": "bounded",
+    "control": "life.addEventListener('abort')",
+    "covers": [
+      "template-library"
+    ]
+  },
+  {
+    "id": "deck/edit/template-preview.ts:260e28a6781246f201f6:1",
+    "owner": "load",
+    "control": "next.addEventListener('load')",
+    "covers": [
+      "template-library"
+    ]
+  },
+  {
+    "id": "deck/edit/template-preview.ts:module:41cb09a3175513d65f42",
+    "owner": "module",
+    "control": "module definitions, including data-driven actions",
+    "covers": [
+      "template-library"
+    ]
+  },
+  {
+    "id": "deck/edit/theme-dialog.ts:cddb597bf99eba44afcc:1",
+    "owner": "openThemeDialog",
+    "control": "dialog.addEventListener('cancel')",
+    "covers": [
+      "document-appearance"
+    ]
+  },
+  {
+    "id": "deck/edit/theme-dialog.ts:ecaeaff5071d741bd71b:1",
+    "owner": "openThemeDialog",
+    "control": "b.onclick",
+    "covers": [
+      "document-appearance"
+    ]
+  },
+  {
+    "id": "deck/edit/theme-dialog.ts:3b02640d0c1d2fb1da53:1",
+    "owner": "prepare",
+    "control": "selector.onchange",
+    "covers": [
+      "document-appearance"
+    ]
+  },
+  {
+    "id": "deck/edit/theme-dialog.ts:2aa9943664aaa50b4033:1",
+    "owner": "prepare",
+    "control": "button(t('decks.themeDialog.close'))",
+    "covers": [
+      "document-appearance"
+    ]
+  },
+  {
+    "id": "deck/edit/theme-dialog.ts:07a1d9dca2763e562bc2:1",
+    "owner": "prepare",
+    "control": "button(t('decks.themeDialog.retrySame'))",
+    "covers": [
+      "document-appearance"
+    ]
+  },
+  {
+    "id": "deck/edit/theme-dialog.ts:2aa9943664aaa50b4033:2",
+    "owner": "prepare",
+    "control": "button(t('decks.themeDialog.close'))",
+    "covers": [
+      "document-appearance"
+    ]
+  },
+  {
+    "id": "deck/edit/theme-dialog.ts:17b968474dcd49e56f52:1",
+    "owner": "prepare",
+    "control": "button(t('decks.themeDialog.delete'))",
+    "covers": [
+      "document-appearance"
+    ]
+  },
+  {
+    "id": "deck/edit/theme-dialog.ts:755bd68ca3e41380bd84:1",
+    "owner": "prepare",
+    "control": "button(t('decks.themeDialog.back'))",
+    "covers": [
+      "document-appearance"
+    ]
+  },
+  {
+    "id": "deck/edit/theme-dialog.ts:c3ac8ccaca59d2830b1b:1",
+    "owner": "prepare",
+    "control": "button(t('decks.themeDialog.deleteTheme'))",
+    "covers": [
+      "document-appearance"
+    ]
+  },
+  {
+    "id": "deck/edit/theme-dialog.ts:feceb2542567cee74b5e:1",
+    "owner": "prepare",
+    "control": "button(t('decks.themeDialog.rename'))",
+    "covers": [
+      "document-appearance"
+    ]
+  },
+  {
+    "id": "deck/edit/theme-dialog.ts:5b84c688c3116205cdf0:1",
+    "owner": "prepare",
+    "control": "button(mode==='save'?t('decks.themeDialog.save'):t('decks.themeDialog.apply'))",
+    "covers": [
+      "document-appearance"
+    ]
+  },
+  {
+    "id": "deck/edit/theme-dialog.ts:fc45714692dcbca3aa05:1",
+    "owner": "prepare",
+    "control": "button(t('decks.themeDialog.retry'))",
+    "covers": [
+      "document-appearance"
+    ]
+  },
+  {
+    "id": "deck/edit/theme-dialog.ts:2aa9943664aaa50b4033:3",
+    "owner": "prepare",
+    "control": "button(t('decks.themeDialog.close'))",
+    "covers": [
+      "document-appearance"
+    ]
+  },
+  {
+    "id": "deck/edit/theme-dialog.ts:module:55b77f46682221f3f06b",
+    "owner": "module",
+    "control": "module definitions, including data-driven actions",
+    "covers": [
+      "document-appearance"
+    ]
+  },
+  {
+    "id": "deck/edit/thumbnails.ts:e3e9032961cc7f7b7c97:1",
+    "owner": "waitForStyle",
+    "control": "view?.addEventListener(\"pagehide\")",
+    "covers": [
+      "open"
+    ]
+  },
+  {
+    "id": "deck/edit/thumbnails.ts:f93df63890f51f7f93bc:1",
+    "owner": "paint",
+    "control": "thumb.addEventListener(\"load\")",
+    "covers": [
+      "scroll",
+      "select-slide",
+      "appearance"
+    ]
+  },
+  {
+    "id": "deck/edit/thumbnails.ts:1d1e8ca6c18d34289496:1",
+    "owner": "createDeckThumbnails",
+    "control": "nav.addEventListener(\"scroll\")",
+    "covers": [
+      "scroll",
+      "select-slide",
+      "appearance"
+    ]
+  },
+  {
+    "id": "deck/edit/thumbnails.ts:68a2af2c8b7114d26a1a:1",
+    "owner": "createDeckThumbnails",
+    "control": "nav.ownerDocument.addEventListener(\"pointerdown\")",
+    "covers": [
+      "scroll",
+      "select-slide",
+      "appearance"
+    ]
+  },
+  {
+    "id": "deck/edit/thumbnails.ts:719705b49698e7692cbc:1",
+    "owner": "createDeckThumbnails",
+    "control": "nav.ownerDocument.addEventListener(\"keydown\")",
+    "covers": [
+      "scroll",
+      "select-slide",
+      "appearance"
+    ]
+  },
+  {
+    "id": "deck/edit/thumbnails.ts:b4b3e05f4e4353e699e1:1",
+    "owner": "createDeckThumbnails",
+    "control": "window.addEventListener(\"online\")",
+    "covers": [
+      "scroll",
+      "select-slide",
+      "appearance"
+    ]
+  },
+  {
+    "id": "deck/edit/thumbnails.ts:module:41ac5328564a7f56c33a",
+    "owner": "module",
+    "control": "module definitions, including data-driven actions",
+    "covers": [
+      "scroll",
+      "select-slide",
+      "appearance"
+    ]
+  },
+  {
+    "id": "deck/edit/video-upload.ts:43ffe12e8167d5ba8d21:1",
+    "owner": "delay",
+    "control": "signal.addEventListener(\"abort\")",
+    "covers": [
+      "video-upload"
+    ]
+  },
+  {
+    "id": "deck/edit/video-upload.ts:5f14cc874bd7e084009c:1",
+    "owner": "uploadMediaFile",
+    "control": "outerSignal.addEventListener(\"abort\")",
+    "covers": [
+      "video-upload"
+    ]
+  },
+  {
+    "id": "deck/edit/video-upload.ts:module:e68f401d60a780c41733",
+    "owner": "module",
+    "control": "module definitions, including data-driven actions",
+    "covers": [
+      "video-upload"
+    ]
+  },
+  {
+    "id": "deck/present/launch.ts:3ccbce50ef6b71ea1033:1",
+    "owner": "addLauncher",
+    "control": "launcher.addEventListener(\"click\")",
+    "covers": [
+      "presenter"
+    ]
+  },
+  {
+    "id": "deck/present/launch.ts:e49e5740eacd54911949:1",
+    "owner": "addLauncher",
+    "control": "present.parentElement?.addEventListener(\"click\")",
+    "covers": [
+      "present",
+      "presenter"
+    ]
+  },
+  {
+    "id": "deck/present/launch.ts:module:54e2bac493b8a63127f5",
+    "owner": "module",
+    "control": "module definitions, including data-driven actions",
+    "covers": [
+      "present",
+      "presenter"
+    ]
+  },
+  {
+    "id": "deck/present/presenter.ts:d04b87c3ddf7ad4bce1a:1",
+    "owner": "openDeckPresenter",
+    "control": "b.onclick",
+    "covers": [
+      "presenter"
+    ]
+  },
+  {
+    "id": "deck/present/presenter.ts:6c0dd8ad2fb2d2ebb1e7:1",
+    "owner": "openDeckPresenter",
+    "control": "notes.addEventListener(\"compositionstart\")",
+    "covers": [
+      "notes",
+      "composition"
+    ]
+  },
+  {
+    "id": "deck/present/presenter.ts:7ed1f19635740a7252ce:1",
+    "owner": "openDeckPresenter",
+    "control": "notes.addEventListener(\"compositionend\")",
+    "covers": [
+      "notes",
+      "composition"
+    ]
+  },
+  {
+    "id": "deck/present/presenter.ts:ddd01c4445c2cbd0b32e:1",
+    "owner": "openDeckPresenter",
+    "control": "notes.addEventListener(\"input\")",
+    "covers": [
+      "notes",
+      "save",
+      "offline"
+    ]
+  },
+  {
+    "id": "deck/present/presenter.ts:f0b4b27f08ad0f6377ae:1",
+    "owner": "openDeckPresenter",
+    "control": "notes.addEventListener(\"blur\")",
+    "covers": [
+      "notes",
+      "save"
+    ]
+  },
+  {
+    "id": "deck/present/presenter.ts:aee0800b73755010eb33:1",
+    "owner": "openDeckPresenter",
+    "control": "notes.addEventListener(\"keydown\")",
+    "covers": [
+      "notes",
+      "presenter"
+    ]
+  },
+  {
+    "id": "deck/present/presenter.ts:c83085f6ebfba10a3a47:1",
+    "owner": "openDeckPresenter",
+    "control": "noteRead.addEventListener(\"click\")",
+    "covers": [
+      "notes",
+      "presenter"
+    ]
+  },
+  {
+    "id": "deck/present/presenter.ts:1940366db035e9a24264:1",
+    "owner": "load",
+    "control": "buffer.frame.addEventListener(\"load\")",
+    "covers": [
+      "presenter"
+    ]
+  },
+  {
+    "id": "deck/present/presenter.ts:13d8663955fd6bdcc898:1",
+    "owner": "load",
+    "control": "doc.addEventListener(\"keydown\")",
+    "covers": [
+      "presenter"
+    ]
+  },
+  {
+    "id": "deck/present/presenter.ts:f7c0c79b55f876926f1b:1",
+    "owner": "load",
+    "control": "doc.addEventListener(\"pointermove\")",
+    "covers": [
+      "presenter"
+    ]
+  },
+  {
+    "id": "deck/present/presenter.ts:715eb7cf8cd77a3e0994:1",
+    "owner": "mountAudience",
+    "control": "full.onclick",
+    "covers": [
+      "presenter"
+    ]
+  },
+  {
+    "id": "deck/present/presenter.ts:f7c0c79b55f876926f1b:2",
+    "owner": "mountAudience",
+    "control": "doc.addEventListener(\"pointermove\")",
+    "covers": [
+      "presenter"
+    ]
+  },
+  {
+    "id": "deck/present/presenter.ts:535db62bdd63cf357e1c:1",
+    "owner": "mountAudience",
+    "control": "doc.addEventListener(\"keydown\")",
+    "covers": [
+      "presenter"
+    ]
+  },
+  {
+    "id": "deck/present/presenter.ts:c5eacaeb6a77cc7900f7:1",
+    "owner": "openConflict",
+    "control": "button(t(\"decks.presenter.backToInput\"))",
+    "covers": [
+      "notes",
+      "remote"
+    ]
+  },
+  {
+    "id": "deck/present/presenter.ts:fc667588ac7d47e668ed:1",
+    "owner": "openConflict",
+    "control": "button(t(\"decks.presenter.useLatest\"))",
+    "covers": [
+      "notes",
+      "remote"
+    ]
+  },
+  {
+    "id": "deck/present/presenter.ts:d971089f083365bfb2cc:1",
+    "owner": "openConflict",
+    "control": "button(t(\"decks.presenter.overwrite\"))",
+    "covers": [
+      "notes",
+      "remote",
+      "save"
+    ]
+  },
+  {
+    "id": "deck/present/presenter.ts:70f3c03ba182e58eb0ca:1",
+    "owner": "openConflict",
+    "control": "backdrop.addEventListener(\"keydown\")",
+    "covers": [
+      "notes",
+      "remote"
+    ]
+  },
+  {
+    "id": "deck/present/presenter.ts:d05af4008f6f3b1a8ace:1",
+    "owner": "openDeckPresenter",
+    "control": "button(t(\"decks.presenter.adopt\"))",
+    "covers": [
+      "presenter",
+      "remote"
+    ]
+  },
+  {
+    "id": "deck/present/presenter.ts:aea59424242c5f9bbe6c:1",
+    "owner": "openDeckPresenter",
+    "control": "button(t(\"decks.presenter.retry\"))",
+    "covers": [
+      "presenter",
+      "offline"
+    ]
+  },
+  {
+    "id": "deck/present/presenter.ts:062fbdbae24662236899:1",
+    "owner": "openDeckPresenter",
+    "control": "button(t(\"decks.presenter.conflictLabel\"))",
+    "covers": [
+      "notes",
+      "remote"
+    ]
+  },
+  {
+    "id": "deck/present/presenter.ts:8e0daff48de32ef6ae3b:1",
+    "owner": "openDeckPresenter",
+    "control": "button(t(\"decks.presenter.pauseTimer\"))",
+    "covers": [
+      "presenter"
+    ]
+  },
+  {
+    "id": "deck/present/presenter.ts:3c497a38836ff997a9fc:1",
+    "owner": "openDeckPresenter",
+    "control": "button(closeLabel)",
+    "covers": [
+      "presenter"
+    ]
+  },
+  {
+    "id": "deck/present/presenter.ts:8a72ae73986d5adf2c6a:1",
+    "owner": "openDeckPresenter",
+    "control": "button(t(\"decks.presenter.start\"))",
+    "covers": [
+      "presenter"
+    ]
+  },
+  {
+    "id": "deck/present/presenter.ts:6b6705c4d4bf15521add:1",
+    "owner": "openDeckPresenter",
+    "control": "button(t(\"decks.presenter.previous\"))",
+    "covers": [
+      "presenter"
+    ]
+  },
+  {
+    "id": "deck/present/presenter.ts:70cb34bc0ed78bb352f8:1",
+    "owner": "openDeckPresenter",
+    "control": "button(t(\"decks.presenter.nextButton\"))",
+    "covers": [
+      "presenter"
+    ]
+  },
+  {
+    "id": "deck/present/presenter.ts:f5e95bddcb45d2529c92:1",
+    "owner": "openDeckPresenter",
+    "control": "button(t(\"decks.presenter.openAudience\"))",
+    "covers": [
+      "presenter"
+    ]
+  },
+  {
+    "id": "deck/present/presenter.ts:c1cacbed7ce9f21ec321:1",
+    "owner": "openDeckPresenter",
+    "control": "button(t(\"decks.presenter.hideNotes\"))",
+    "covers": [
+      "presenter"
+    ]
+  },
+  {
+    "id": "deck/present/presenter.ts:d010e681ba5d7bce5730:1",
+    "owner": "openDeckPresenter",
+    "control": "button(t(\"decks.presenter.editNotes\"))",
+    "covers": [
+      "notes",
+      "presenter"
+    ]
+  },
+  {
+    "id": "deck/present/presenter.ts:87232e8b22000665d8ee:1",
+    "owner": "openDeckPresenter",
+    "control": "button(\"A−\")",
+    "covers": [
+      "notes",
+      "presenter"
+    ]
+  },
+  {
+    "id": "deck/present/presenter.ts:84b194992ff9f10eb101:1",
+    "owner": "openDeckPresenter",
+    "control": "button(\"A+\")",
+    "covers": [
+      "notes",
+      "presenter"
+    ]
+  },
+  {
+    "id": "deck/present/presenter.ts:d0e4e8cb35e5356ad0d0:1",
+    "owner": "openDeckPresenter",
+    "control": "root.addEventListener(\"keydown\")",
+    "covers": [
+      "presenter"
+    ]
+  },
+  {
+    "id": "deck/present/presenter.ts:module:f3bf5e0bec36d756cc05",
+    "owner": "module",
+    "control": "module definitions, including data-driven actions",
+    "covers": [
+      "presenter",
+      "notes",
+      "composition",
+      "remote",
+      "offline",
+      "save"
+    ]
+  },
+  {
+    "id": "deck/workspace/data.ts:0e259211aba1eca2a1e9:1",
+    "owner": "createDeckWorkspaceData",
+    "control": "connections.button(...args)",
+    "covers": [
+      "table",
+      "chart"
+    ]
+  },
+  {
+    "id": "deck/workspace/data.ts:b417a6efe4a748247143:1",
+    "owner": "dataEditor",
+    "control": "field.oninput",
+    "covers": [
+      "table",
+      "chart"
+    ]
+  },
+  {
+    "id": "deck/workspace/data.ts:dde5ee744e746d6f8d4b:1",
+    "owner": "dataEditor",
+    "control": "field.onpaste",
+    "covers": [
+      "table",
+      "chart"
+    ]
+  },
+  {
+    "id": "deck/workspace/data.ts:dc7e24ca970ed7834329:1",
+    "owner": "dataEditor",
+    "control": "button(t(\"deckEditor.data.addRow\"))",
+    "covers": [
+      "table",
+      "chart"
+    ]
+  },
+  {
+    "id": "deck/workspace/data.ts:330a0361c44dfe4d2dfd:1",
+    "owner": "dataEditor",
+    "control": "button(t(\"deckEditor.data.addColumn\"))",
+    "covers": [
+      "table",
+      "chart"
+    ]
+  },
+  {
+    "id": "deck/workspace/data.ts:69d768dc0b58c83e9fee:1",
+    "owner": "dataEditor",
+    "control": "button(t(\"deckEditor.data.deleteRow\"))",
+    "covers": [
+      "table",
+      "chart"
+    ]
+  },
+  {
+    "id": "deck/workspace/data.ts:9765699e48a89096bfa9:1",
+    "owner": "dataEditor",
+    "control": "button(t(\"deckEditor.data.deleteColumn\"))",
+    "covers": [
+      "table",
+      "chart"
+    ]
+  },
+  {
+    "id": "deck/workspace/data.ts:module:dcfae2e7bab8c9039881",
+    "owner": "module",
+    "control": "module definitions, including data-driven actions",
+    "covers": [
+      "table",
+      "chart"
+    ]
+  },
+  {
+    "id": "deck/workspace/design.ts:0e259211aba1eca2a1e9:1",
+    "owner": "createDeckWorkspaceDesign",
+    "control": "connections.button(...args)",
+    "covers": [
+      "appearance",
+      "document-appearance",
+      "font",
+      "logo",
+      "focus"
+    ]
+  },
+  {
+    "id": "deck/workspace/design.ts:2116bfc629d5698ffb1f:1",
+    "owner": "renderDesign",
+    "control": "button(t(\"decks.workspaceDesign.saveTheme\"))",
+    "covers": [
+      "appearance",
+      "document-appearance",
+      "font",
+      "logo",
+      "focus"
+    ]
+  },
+  {
+    "id": "deck/workspace/design.ts:3b58ccdc519b9c9a29c4:1",
+    "owner": "renderDesign",
+    "control": "button(t(\"decks.workspaceDesign.useTheme\"))",
+    "covers": [
+      "appearance",
+      "document-appearance",
+      "font",
+      "logo",
+      "focus"
+    ]
+  },
+  {
+    "id": "deck/workspace/design.ts:7f3b8ff5ba9755c2f9f1:1",
+    "owner": "renderDesign",
+    "control": "button(label)",
+    "covers": [
+      "appearance",
+      "document-appearance",
+      "font",
+      "logo",
+      "focus"
+    ]
+  },
+  {
+    "id": "deck/workspace/design.ts:322ca6bb011164bd0fd2:1",
+    "owner": "renderDesign",
+    "control": "button(\"\")",
+    "covers": [
+      "appearance",
+      "document-appearance",
+      "font",
+      "logo",
+      "focus"
+    ]
+  },
+  {
+    "id": "deck/workspace/design.ts:module:e609eb91dc0eb65716a3",
+    "owner": "module",
+    "control": "module definitions, including data-driven actions",
+    "covers": [
+      "appearance",
+      "document-appearance",
+      "font",
+      "logo",
+      "focus"
+    ]
+  },
+  {
+    "id": "deck/workspace/dialogs.ts:0e259211aba1eca2a1e9:1",
+    "owner": "createDeckWorkspaceDialogs",
+    "control": "connections.button(...args)",
+    "covers": [
+      "insert",
+      "duplicate",
+      "delete",
+      "skip",
+      "template-library",
+      "insert-slide"
+    ]
+  },
+  {
+    "id": "deck/workspace/dialogs.ts:2af766367e478412c1b3:1",
+    "owner": "slideMenu",
+    "control": "button(label)",
+    "covers": [
+      "insert",
+      "duplicate",
+      "delete",
+      "skip",
+      "template-library",
+      "insert-slide"
+    ]
+  },
+  {
+    "id": "deck/workspace/dialogs.ts:13fa019d873578b822b5:1",
+    "owner": "slideMenu",
+    "control": "menu.addEventListener(\"keydown\")",
+    "covers": [
+      "insert",
+      "duplicate",
+      "delete",
+      "skip",
+      "template-library",
+      "insert-slide"
+    ]
+  },
+  {
+    "id": "deck/workspace/dialogs.ts:d9e87d59bd16d01844c1:1",
+    "owner": "modal",
+    "control": "backdrop.addEventListener(\"keydown\")",
+    "covers": [
+      "insert",
+      "duplicate",
+      "delete",
+      "skip",
+      "template-library",
+      "insert-slide"
+    ]
+  },
+  {
+    "id": "deck/workspace/dialogs.ts:674506b6befa06f9a726:1",
+    "owner": "actions",
+    "control": "button(t(\"deckEditor.dialogs.cancel\"))",
+    "covers": [
+      "insert",
+      "duplicate",
+      "delete",
+      "skip",
+      "template-library",
+      "insert-slide"
+    ]
+  },
+  {
+    "id": "deck/workspace/dialogs.ts:8d71eac7c5c126147570:1",
+    "owner": "actions",
+    "control": "button(label)",
+    "covers": [
+      "insert",
+      "duplicate",
+      "delete",
+      "skip",
+      "template-library",
+      "insert-slide"
+    ]
+  },
+  {
+    "id": "deck/workspace/dialogs.ts:43c0eec747a3436ba780:1",
+    "owner": "layouts",
+    "control": "themeSelect.onchange",
+    "covers": [
+      "insert",
+      "duplicate",
+      "delete",
+      "skip",
+      "template-library",
+      "insert-slide"
+    ]
+  },
+  {
+    "id": "deck/workspace/dialogs.ts:83b506359d68d1aaec0d:1",
+    "owner": "layouts",
+    "control": "button(t(\"deckEditor.dialogs.close\"))",
+    "covers": [
+      "insert",
+      "duplicate",
+      "delete",
+      "skip",
+      "template-library",
+      "insert-slide"
+    ]
+  },
+  {
+    "id": "deck/workspace/dialogs.ts:bc797d166b9f060c6d1f:1",
+    "owner": "layouts",
+    "control": "button(\"\")",
+    "covers": [
+      "insert",
+      "duplicate",
+      "delete",
+      "skip",
+      "template-library",
+      "insert-slide"
+    ]
+  },
+  {
+    "id": "deck/workspace/dialogs.ts:83b506359d68d1aaec0d:2",
+    "owner": "layouts",
+    "control": "button(t(\"deckEditor.dialogs.close\"))",
+    "covers": [
+      "insert",
+      "duplicate",
+      "delete",
+      "skip",
+      "template-library",
+      "insert-slide"
+    ]
+  },
+  {
+    "id": "deck/workspace/dialogs.ts:d034668fd79246dfd38b:1",
+    "owner": "insertionMenu",
+    "control": "button(label)",
+    "covers": [
+      "insert",
+      "duplicate",
+      "delete",
+      "skip",
+      "template-library",
+      "insert-slide"
+    ]
+  },
+  {
+    "id": "deck/workspace/dialogs.ts:83b506359d68d1aaec0d:3",
+    "owner": "insertionMenu",
+    "control": "button(t(\"deckEditor.dialogs.close\"))",
+    "covers": [
+      "insert",
+      "duplicate",
+      "delete",
+      "skip",
+      "template-library",
+      "insert-slide"
+    ]
+  },
+  {
+    "id": "deck/workspace/dialogs.ts:0d9fe1ecf10205467513:1",
+    "owner": "documentMenu",
+    "control": "button(t(\"deckEditor.dialogs.sharing\"))",
+    "covers": [
+      "insert",
+      "duplicate",
+      "delete",
+      "skip",
+      "template-library",
+      "insert-slide"
+    ]
+  },
+  {
+    "id": "deck/workspace/dialogs.ts:baa549f9cfb41d42a31d:1",
+    "owner": "documentMenu",
+    "control": "button(t(\"deckEditor.dialogs.history\"))",
+    "covers": [
+      "insert",
+      "duplicate",
+      "delete",
+      "skip",
+      "template-library",
+      "insert-slide"
+    ]
+  },
+  {
+    "id": "deck/workspace/dialogs.ts:4610a445abded20f26c0:1",
+    "owner": "documentMenu",
+    "control": "button(t(\"deckEditor.dialogs.thisChange\"))",
+    "covers": [
+      "insert",
+      "duplicate",
+      "delete",
+      "skip",
+      "template-library",
+      "insert-slide"
+    ]
+  },
+  {
+    "id": "deck/workspace/dialogs.ts:99a30167b345f5514073:1",
+    "owner": "documentMenu",
+    "control": "button(t(\"deckEditor.dialogs.exportDraft\"))",
+    "covers": [
+      "insert",
+      "duplicate",
+      "delete",
+      "skip",
+      "template-library",
+      "insert-slide"
+    ]
+  },
+  {
+    "id": "deck/workspace/dialogs.ts:5bfaa37cd9f6bc83360e:1",
+    "owner": "documentMenu",
+    "control": "button(t(\"deckEditor.dialogs.exportHtml\"))",
+    "covers": [
+      "insert",
+      "duplicate",
+      "delete",
+      "skip",
+      "template-library",
+      "insert-slide"
+    ]
+  },
+  {
+    "id": "deck/workspace/dialogs.ts:83b506359d68d1aaec0d:4",
+    "owner": "documentMenu",
+    "control": "button(t(\"deckEditor.dialogs.close\"))",
+    "covers": [
+      "insert",
+      "duplicate",
+      "delete",
+      "skip",
+      "template-library",
+      "insert-slide"
+    ]
+  },
+  {
+    "id": "deck/workspace/dialogs.ts:module:4b99dfc9a950e41d1840",
+    "owner": "module",
+    "control": "module definitions, including data-driven actions",
+    "covers": [
+      "insert",
+      "duplicate",
+      "delete",
+      "skip",
+      "template-library",
+      "insert-slide"
+    ]
+  },
+  {
+    "id": "deck/workspace/inspector.ts:0e259211aba1eca2a1e9:1",
+    "owner": "createDeckWorkspaceInspector",
+    "control": "connections.button(...args)",
+    "covers": [
+      "select",
+      "align",
+      "group",
+      "image-crop",
+      "resize"
+    ]
+  },
+  {
+    "id": "deck/workspace/inspector.ts:e03e1b88fae0074dc117:1",
+    "owner": "field",
+    "control": "control.addEventListener(\"change\")",
+    "covers": [
+      "select",
+      "align",
+      "group",
+      "image-crop",
+      "resize"
+    ]
+  },
+  {
+    "id": "deck/workspace/inspector.ts:0f83ea9dc2405c78e11b:1",
+    "owner": "selectField",
+    "control": "button(text)",
+    "covers": [
+      "select",
+      "align",
+      "group",
+      "image-crop",
+      "resize"
+    ]
+  },
+  {
+    "id": "deck/workspace/inspector.ts:18948e5683ea5c081d61:1",
+    "owner": "selectField",
+    "control": "control.onchange",
+    "covers": [
+      "select",
+      "align",
+      "group",
+      "image-crop",
+      "resize"
+    ]
+  },
+  {
+    "id": "deck/workspace/inspector.ts:a00d66fa5617ea65601c:1",
+    "owner": "refreshInspector",
+    "control": "button(t(\"deckEditor.inspector.changeType\"))",
+    "covers": [
+      "select",
+      "align",
+      "group",
+      "image-crop",
+      "resize"
+    ]
+  },
+  {
+    "id": "deck/workspace/inspector.ts:a198db08dcb917754b29:1",
+    "owner": "refreshInspector",
+    "control": "button(t(\"deckEditor.inspector.changeBackground\"))",
+    "covers": [
+      "select",
+      "align",
+      "group",
+      "image-crop",
+      "resize"
+    ]
+  },
+  {
+    "id": "deck/workspace/inspector.ts:5039546793c8b38a74a3:1",
+    "owner": "refreshInspector",
+    "control": "button(node.hasAttribute(\"data-deck-sample-image\") ? t(\"deckEditor.inspector.replaceImage\") : t(\"deckEditor.inspector.ad",
+    "covers": [
+      "select",
+      "align",
+      "group",
+      "image-crop",
+      "resize"
+    ]
+  },
+  {
+    "id": "deck/workspace/inspector.ts:a7976b0820d91e9f3bc8:1",
+    "owner": "refreshInspector",
+    "control": "button(t(\"deckEditor.inspector.unlock\"))",
+    "covers": [
+      "select",
+      "align",
+      "group",
+      "image-crop",
+      "resize"
+    ]
+  },
+  {
+    "id": "deck/workspace/inspector.ts:f504072fe4560b9a44bf:1",
+    "owner": "refreshInspector",
+    "control": "button(t(\"deckEditor.inspector.replaceImage\"))",
+    "covers": [
+      "select",
+      "align",
+      "group",
+      "image-crop",
+      "resize"
+    ]
+  },
+  {
+    "id": "deck/workspace/inspector.ts:1c3b71692a4b9fc0d737:1",
+    "owner": "refreshInspector",
+    "control": "button(connections.input.canvas()?.isCropping() ? t(\"deckEditor.inspector.cropping\") : t(\"deckEditor.inspector.crop\"))",
+    "covers": [
+      "select",
+      "align",
+      "group",
+      "image-crop",
+      "resize"
+    ]
+  },
+  {
+    "id": "deck/workspace/inspector.ts:7cc80259a925cb91d555:1",
+    "owner": "refreshInspector",
+    "control": "button(t(\"deckEditor.inspector.showAll\"))",
+    "covers": [
+      "select",
+      "align",
+      "group",
+      "image-crop",
+      "resize"
+    ]
+  },
+  {
+    "id": "deck/workspace/inspector.ts:f19061b6294f98a64bfb:1",
+    "owner": "refreshInspector",
+    "control": "button(t(\"deckEditor.inspector.decorative\"))",
+    "covers": [
+      "select",
+      "align",
+      "group",
+      "image-crop",
+      "resize"
+    ]
+  },
+  {
+    "id": "deck/workspace/inspector.ts:eef1a985c9cf60aca41d:1",
+    "owner": "refreshInspector",
+    "control": "button(t(\"deckEditor.inspector.confirm\"))",
+    "covers": [
+      "select",
+      "align",
+      "group",
+      "image-crop",
+      "resize"
+    ]
+  },
+  {
+    "id": "deck/workspace/inspector.ts:d98bf8d662d8af64ef51:1",
+    "owner": "refreshInspector",
+    "control": "button(t(\"deckEditor.inspector.cancel\"))",
+    "covers": [
+      "select",
+      "align",
+      "group",
+      "image-crop",
+      "resize"
+    ]
+  },
+  {
+    "id": "deck/workspace/inspector.ts:83f13247f07bc924c0b1:1",
+    "owner": "refreshInspector",
+    "control": "button(t(\"deckEditor.inspector.checkPlayback\"))",
+    "covers": [
+      "select",
+      "align",
+      "group",
+      "image-crop",
+      "resize"
+    ]
+  },
+  {
+    "id": "deck/workspace/inspector.ts:4927da15f9a768ed92ee:1",
+    "owner": "refreshInspector",
+    "control": "button(node.tagName === \"TABLE\"\n                ? t(\"deckEditor.inspector.editTable\")\n                : t(\"deckEditor.in",
+    "covers": [
+      "select",
+      "align",
+      "group",
+      "image-crop",
+      "resize"
+    ]
+  },
+  {
+    "id": "deck/workspace/inspector.ts:adbe81ebe707d229b4ed:1",
+    "owner": "refreshInspector",
+    "control": "button(t(\"deckEditor.inspector.bold\"))",
+    "covers": [
+      "select",
+      "align",
+      "group",
+      "image-crop",
+      "resize"
+    ]
+  },
+  {
+    "id": "deck/workspace/inspector.ts:aade599ba706ba61151e:1",
+    "owner": "refreshInspector",
+    "control": "button(t(\"deckEditor.inspector.italic\"))",
+    "covers": [
+      "select",
+      "align",
+      "group",
+      "image-crop",
+      "resize"
+    ]
+  },
+  {
+    "id": "deck/workspace/inspector.ts:64a15e8b7659c3852720:1",
+    "owner": "refreshInspector",
+    "control": "button(label)",
+    "covers": [
+      "select",
+      "align",
+      "group",
+      "image-crop",
+      "resize"
+    ]
+  },
+  {
+    "id": "deck/workspace/inspector.ts:6abc9e3bb23d24d50f50:1",
+    "owner": "refreshInspector",
+    "control": "button(t(\"deckEditor.inspector.distributeHorizontal\"))",
+    "covers": [
+      "select",
+      "align",
+      "group",
+      "image-crop",
+      "resize"
+    ]
+  },
+  {
+    "id": "deck/workspace/inspector.ts:b255d867711b46a8c53a:1",
+    "owner": "refreshInspector",
+    "control": "button(t(\"deckEditor.inspector.distributeVertical\"))",
+    "covers": [
+      "select",
+      "align",
+      "group",
+      "image-crop",
+      "resize"
+    ]
+  },
+  {
+    "id": "deck/workspace/inspector.ts:24cd010e8253a19e6227:1",
+    "owner": "refreshInspector",
+    "control": "button(t(\"deckEditor.inspector.group\"))",
+    "covers": [
+      "select",
+      "align",
+      "group",
+      "image-crop",
+      "resize"
+    ]
+  },
+  {
+    "id": "deck/workspace/inspector.ts:5dd4389f0e7d06d7d941:1",
+    "owner": "refreshInspector",
+    "control": "button(t(\"deckEditor.inspector.ungroup\"))",
+    "covers": [
+      "select",
+      "align",
+      "group",
+      "image-crop",
+      "resize"
+    ]
+  },
+  {
+    "id": "deck/workspace/inspector.ts:04763d2f685ef09c3971:1",
+    "owner": "refreshInspector",
+    "control": "button(t(\"deckEditor.inspector.bringForward\"))",
+    "covers": [
+      "select",
+      "align",
+      "group",
+      "image-crop",
+      "resize"
+    ]
+  },
+  {
+    "id": "deck/workspace/inspector.ts:4deb0b84c18227b7307c:1",
+    "owner": "refreshInspector",
+    "control": "button(t(\"deckEditor.inspector.sendBackward\"))",
+    "covers": [
+      "select",
+      "align",
+      "group",
+      "image-crop",
+      "resize"
+    ]
+  },
+  {
+    "id": "deck/workspace/inspector.ts:641c61bf9f6b386db3f0:1",
+    "owner": "refreshInspector",
+    "control": "button(t(\"deckEditor.inspector.resetLayout\"))",
+    "covers": [
+      "select",
+      "align",
+      "group",
+      "image-crop",
+      "resize"
+    ]
+  },
+  {
+    "id": "deck/workspace/inspector.ts:4c667b49e17ced8a3b46:1",
+    "owner": "refreshInspector",
+    "control": "button(t(\"deckEditor.inspector.duplicate\"))",
+    "covers": [
+      "select",
+      "align",
+      "group",
+      "image-crop",
+      "resize"
+    ]
+  },
+  {
+    "id": "deck/workspace/inspector.ts:adfd1d21e8edf60e8cf3:1",
+    "owner": "refreshInspector",
+    "control": "button(t(\"deckEditor.inspector.delete\"))",
+    "covers": [
+      "select",
+      "align",
+      "group",
+      "image-crop",
+      "resize"
+    ]
+  },
+  {
+    "id": "deck/workspace/inspector.ts:68aebef729eeebe1e964:1",
+    "owner": "refreshInspector",
+    "control": "button(t(\"deckEditor.inspector.lock\"))",
+    "covers": [
+      "select",
+      "align",
+      "group",
+      "image-crop",
+      "resize"
+    ]
+  },
+  {
+    "id": "deck/workspace/inspector.ts:module:1ec8c32f27078b63345b",
+    "owner": "module",
+    "control": "module definitions, including data-driven actions",
+    "covers": [
+      "select",
+      "align",
+      "group",
+      "image-crop",
+      "resize"
+    ]
+  },
+  {
+    "id": "deck/workspace/navigation.ts:0e259211aba1eca2a1e9:1",
+    "owner": "createDeckWorkspaceNavigation",
+    "control": "connections.button(...args)",
+    "covers": [
+      "select-slide",
+      "scroll",
+      "zoom",
+      "present",
+      "notes",
+      "outline",
+      "reorder"
+    ]
+  },
+  {
+    "id": "deck/workspace/navigation.ts:4df0fcb2ecf327bd8f89:1",
+    "owner": "runSlideCommand",
+    "control": "button(t(\"deckEditor.navigation.deleteOnly\"))",
+    "covers": [
+      "select-slide",
+      "scroll",
+      "zoom",
+      "present",
+      "notes",
+      "outline",
+      "reorder"
+    ]
+  },
+  {
+    "id": "deck/workspace/navigation.ts:b8c7407c020981b9a3dc:1",
+    "owner": "runSlideCommand",
+    "control": "button(t(\"deckEditor.navigation.deleteTree\"))",
+    "covers": [
+      "select-slide",
+      "scroll",
+      "zoom",
+      "present",
+      "notes",
+      "outline",
+      "reorder"
+    ]
+  },
+  {
+    "id": "deck/workspace/navigation.ts:d446696ce41f135915c4:1",
+    "owner": "runSlideCommand",
+    "control": "button(t(\"deckEditor.navigation.cancel\"))",
+    "covers": [
+      "select-slide",
+      "scroll",
+      "zoom",
+      "present",
+      "notes",
+      "outline",
+      "reorder"
+    ]
+  },
+  {
+    "id": "deck/workspace/navigation.ts:00102235749d686bdc02:1",
+    "owner": "renderFooter",
+    "control": "button(t(\"deckEditor.navigation.list\"))",
+    "covers": [
+      "select-slide",
+      "scroll",
+      "zoom",
+      "present",
+      "notes",
+      "outline",
+      "reorder"
+    ]
+  },
+  {
+    "id": "deck/workspace/navigation.ts:d1e9f45758572cf6e786:1",
+    "owner": "renderFooter",
+    "control": "button(connections.notes.hidden ? t(\"deckEditor.navigation.openNotes\") : t(\"deckEditor.navigation.closeNotes\"))",
+    "covers": [
+      "select-slide",
+      "scroll",
+      "zoom",
+      "present",
+      "notes",
+      "outline",
+      "reorder"
+    ]
+  },
+  {
+    "id": "deck/workspace/navigation.ts:f2849d4ef3601ecf5180:1",
+    "owner": "renderFooter",
+    "control": "button(t(\"deckEditor.navigation.guide\"))",
+    "covers": [
+      "select-slide",
+      "scroll",
+      "zoom",
+      "present",
+      "notes",
+      "outline",
+      "reorder"
+    ]
+  },
+  {
+    "id": "deck/workspace/navigation.ts:4c960f785096dac10d28:1",
+    "owner": "renderFooter",
+    "control": "button(t(\"deckEditor.navigation.close\"))",
+    "covers": [
+      "select-slide",
+      "scroll",
+      "zoom",
+      "present",
+      "notes",
+      "outline",
+      "reorder"
+    ]
+  },
+  {
+    "id": "deck/workspace/navigation.ts:fdcffa38ee76805cf8a1:1",
+    "owner": "renderFooter",
+    "control": "button(t(\"deckEditor.navigation.adjust\"))",
+    "covers": [
+      "select-slide",
+      "scroll",
+      "zoom",
+      "present",
+      "notes",
+      "outline",
+      "reorder"
+    ]
+  },
+  {
+    "id": "deck/workspace/navigation.ts:8b31ef704c204108f1bc:1",
+    "owner": "renderFooter",
+    "control": "button(t(\"deckEditor.navigation.fit\"))",
+    "covers": [
+      "select-slide",
+      "scroll",
+      "zoom",
+      "present",
+      "notes",
+      "outline",
+      "reorder"
+    ]
+  },
+  {
+    "id": "deck/workspace/navigation.ts:362d5a0aa66e40532467:1",
+    "owner": "renderFooter",
+    "control": "button(\"−\")",
+    "covers": [
+      "select-slide",
+      "scroll",
+      "zoom",
+      "present",
+      "notes",
+      "outline",
+      "reorder"
+    ]
+  },
+  {
+    "id": "deck/workspace/navigation.ts:006e8bbfdbca1ad2687b:1",
+    "owner": "renderFooter",
+    "control": "button(\"＋\")",
+    "covers": [
+      "select-slide",
+      "scroll",
+      "zoom",
+      "present",
+      "notes",
+      "outline",
+      "reorder"
+    ]
+  },
+  {
+    "id": "deck/workspace/navigation.ts:c0056d7529ad3fedf809:1",
+    "owner": "renderNotes",
+    "control": "area.onchange",
+    "covers": [
+      "notes"
+    ]
+  },
+  {
+    "id": "deck/workspace/navigation.ts:b5d09c07f33cf17dcbfe:1",
+    "owner": "renderNotes",
+    "control": "publicText.onchange",
+    "covers": [
+      "select-slide",
+      "scroll",
+      "zoom",
+      "present",
+      "notes",
+      "outline",
+      "reorder"
+    ]
+  },
+  {
+    "id": "deck/workspace/navigation.ts:589cb3da952988f87068:1",
+    "owner": "renderNav",
+    "control": "button(connections.navMode === \"slides\" ? t(\"deckEditor.navigation.elementList\") : t(\"deckEditor.navigation.slideList\"))",
+    "covers": [
+      "select-slide",
+      "scroll",
+      "zoom",
+      "present",
+      "notes",
+      "outline",
+      "reorder"
+    ]
+  },
+  {
+    "id": "deck/workspace/navigation.ts:e18d04ca78d0f273f5f5:1",
+    "owner": "renderNav",
+    "control": "button(t(\"deckEditor.navigation.addSlide\"))",
+    "covers": [
+      "select-slide",
+      "scroll",
+      "zoom",
+      "present",
+      "notes",
+      "outline",
+      "reorder"
+    ]
+  },
+  {
+    "id": "deck/workspace/navigation.ts:f294aed5762b8b799478:1",
+    "owner": "renderNav",
+    "control": "button(t(\"deckEditor.navigation.slideActions\"))",
+    "covers": [
+      "select-slide",
+      "scroll",
+      "zoom",
+      "present",
+      "notes",
+      "outline",
+      "reorder"
+    ]
+  },
+  {
+    "id": "deck/workspace/navigation.ts:0d6cb97b2a0af3f8d6ad:1",
+    "owner": "renderNav",
+    "control": "button(node.hasAttribute(\"data-deck-locked\") ? t(\"deckEditor.navigation.lockedElement\",{label:labelOf(node)}) : labelOf(",
+    "covers": [
+      "select-slide",
+      "scroll",
+      "zoom",
+      "present",
+      "notes",
+      "outline",
+      "reorder"
+    ]
+  },
+  {
+    "id": "deck/workspace/navigation.ts:125e06a4c05bbddc4223:1",
+    "owner": "paintSkip",
+    "control": "fold.onclick",
+    "covers": [
+      "select-slide",
+      "scroll",
+      "zoom",
+      "present",
+      "notes",
+      "outline",
+      "reorder"
+    ]
+  },
+  {
+    "id": "deck/workspace/navigation.ts:06bed82cc19d0c0e2aca:1",
+    "owner": "paintSkip",
+    "control": "fold.onkeydown",
+    "covers": [
+      "select-slide",
+      "scroll",
+      "zoom",
+      "present",
+      "notes",
+      "outline",
+      "reorder"
+    ]
+  },
+  {
+    "id": "deck/workspace/navigation.ts:dad344c7a4844185e413:1",
+    "owner": "renderNav",
+    "control": "button(\"\")",
+    "covers": [
+      "select-slide",
+      "scroll",
+      "zoom",
+      "present",
+      "notes",
+      "outline",
+      "reorder"
+    ]
+  },
+  {
+    "id": "deck/workspace/navigation.ts:26d18035c3809afcd2b9:1",
+    "owner": "renderNav",
+    "control": "b.onclick",
+    "covers": [
+      "select-slide",
+      "scroll",
+      "zoom",
+      "present",
+      "notes",
+      "outline",
+      "reorder"
+    ]
+  },
+  {
+    "id": "deck/workspace/navigation.ts:00f448c13c0a65bd708f:1",
+    "owner": "renderNav",
+    "control": "seam.onclick",
+    "covers": [
+      "template-library",
+      "insert-slide"
+    ]
+  },
+  {
+    "id": "deck/workspace/navigation.ts:1f506e7f8dbbdb1a04b7:1",
+    "owner": "renderNav",
+    "control": "seam.onkeydown",
+    "covers": [
+      "template-library",
+      "insert-slide"
+    ]
+  },
+  {
+    "id": "deck/workspace/navigation.ts:a264e0610d79be512eb3:1",
+    "owner": "renderNav",
+    "control": "b.oncontextmenu",
+    "covers": [
+      "select-slide",
+      "scroll",
+      "zoom",
+      "present",
+      "notes",
+      "outline",
+      "reorder"
+    ]
+  },
+  {
+    "id": "deck/workspace/navigation.ts:0356cc9d4369476412b5:1",
+    "owner": "renderNav",
+    "control": "b.onkeydown",
+    "covers": [
+      "select-slide",
+      "scroll",
+      "zoom",
+      "present",
+      "notes",
+      "outline",
+      "reorder"
+    ]
+  },
+  {
+    "id": "deck/workspace/navigation.ts:module:941171a8cd96bc54582c",
+    "owner": "module",
+    "control": "module definitions, including data-driven actions",
+    "covers": [
+      "select-slide",
+      "scroll",
+      "zoom",
+      "present",
+      "notes",
+      "outline",
+      "reorder",
+      "duplicate",
+      "delete",
+      "skip"
+    ]
+  },
+  {
+    "id": "deck/workspace/workspace.ts:d04b87c3ddf7ad4bce1a:1",
+    "owner": "module",
+    "control": "b.onclick",
+    "covers": [
+      "group",
+      "align",
+      "duplicate",
+      "delete",
+      "remote",
+      "draft"
+    ]
+  },
+  {
+    "id": "deck/workspace/workspace.ts:f2bd964e1ff48af8bfb7:1",
+    "owner": "createDeckWorkspace",
+    "control": "button(t(\"deckEditor.workspace.addFirst\"))",
+    "covers": [
+      "group",
+      "align",
+      "duplicate",
+      "delete",
+      "remote",
+      "draft"
+    ]
+  },
+  {
+    "id": "deck/workspace/workspace.ts:87eb658b20ba6d6ad08b:1",
+    "owner": "createDeckWorkspace",
+    "control": "screen.addEventListener(\"pointerover\")",
+    "covers": [
+      "group",
+      "align",
+      "duplicate",
+      "delete",
+      "remote",
+      "draft"
+    ]
+  },
+  {
+    "id": "deck/workspace/workspace.ts:9b9bf477dbda26fcf045:1",
+    "owner": "createDeckWorkspace",
+    "control": "screen.addEventListener(\"focusin\")",
+    "covers": [
+      "group",
+      "align",
+      "duplicate",
+      "delete",
+      "remote",
+      "draft"
+    ]
+  },
+  {
+    "id": "deck/workspace/workspace.ts:227b16fb6fdad449dd93:1",
+    "owner": "createDeckWorkspace",
+    "control": "screen.addEventListener(\"pointerout\")",
+    "covers": [
+      "group",
+      "align",
+      "duplicate",
+      "delete",
+      "remote",
+      "draft"
+    ]
+  },
+  {
+    "id": "deck/workspace/workspace.ts:c6d9cc9c35720a9adab4:1",
+    "owner": "createDeckWorkspace",
+    "control": "screen.addEventListener(\"focusout\")",
+    "covers": [
+      "group",
+      "align",
+      "duplicate",
+      "delete",
+      "remote",
+      "draft"
+    ]
+  },
+  {
+    "id": "deck/workspace/workspace.ts:be617f98a02fd7a0dad5:1",
+    "owner": "createDeckWorkspace",
+    "control": "screen.addEventListener(\"pointerdown\")",
+    "covers": [
+      "group",
+      "align",
+      "duplicate",
+      "delete",
+      "remote",
+      "draft"
+    ]
+  },
+  {
+    "id": "deck/workspace/workspace.ts:ec0a71a18bfee4944e80:1",
+    "owner": "createDeckWorkspace",
+    "control": "scheme?.addEventListener(\"change\")",
+    "covers": [
+      "group",
+      "align",
+      "duplicate",
+      "delete",
+      "remote",
+      "draft"
+    ]
+  },
+  {
+    "id": "deck/workspace/workspace.ts:54744e13bc38c8d9c269:1",
+    "owner": "recovery",
+    "control": "button(t(\"deckEditor.workspace.close\"))",
+    "covers": [
+      "group",
+      "align",
+      "duplicate",
+      "delete",
+      "remote",
+      "draft"
+    ]
+  },
+  {
+    "id": "deck/workspace/workspace.ts:c38e80abe317d192634a:1",
+    "owner": "recovery",
+    "control": "button(t(\"deckEditor.workspace.useLatest\"))",
+    "covers": [
+      "group",
+      "align",
+      "duplicate",
+      "delete",
+      "remote",
+      "draft"
+    ]
+  },
+  {
+    "id": "deck/workspace/workspace.ts:18ab65ce084df43df040:1",
+    "owner": "recovery",
+    "control": "button(t(\"deckEditor.workspace.applyMine\"))",
+    "covers": [
+      "group",
+      "align",
+      "duplicate",
+      "delete",
+      "remote",
+      "draft"
+    ]
+  },
+  {
+    "id": "deck/workspace/workspace.ts:module:dc3cd3b893afe17d6f7e",
+    "owner": "module",
+    "control": "module definitions, including data-driven actions",
+    "covers": [
+      "group",
+      "align",
+      "duplicate",
+      "delete",
+      "remote",
+      "draft"
+    ]
+  },
+  {
+    "id": "editor/opening.ts:e38d530462723fa2d6d7:1",
+    "owner": "createEditorOpening",
+    "control": "back.addEventListener(\"click\")",
+    "covers": [
+      "open",
+      "close"
+    ]
+  },
+  {
+    "id": "editor/opening.ts:43e7990b619eec480007:1",
+    "owner": "createEditorOpening",
+    "control": "again.addEventListener(\"click\")",
+    "covers": [
+      "open",
+      "close"
+    ]
+  },
+  {
+    "id": "editor/opening.ts:faada2c739ef039557b6:1",
+    "owner": "createEditorOpening",
+    "control": "screen.addEventListener(\"keydown\")",
+    "covers": [
+      "open",
+      "close"
+    ]
+  },
+  {
+    "id": "editor/opening.ts:module:c28a1044fbd34d0ab46d",
+    "owner": "module",
+    "control": "module definitions, including data-driven actions",
+    "covers": [
+      "open",
+      "close"
+    ]
+  }
+]

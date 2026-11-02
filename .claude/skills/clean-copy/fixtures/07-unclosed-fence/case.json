@@ -1,0 +1,7 @@
+{
+  "note": "閉じられていない囲み。止めて聞く（既定は末尾で閉じる）。了承後は組めて照合も通る",
+  "apply_defaults": true,
+  "convert": true,
+  "expect_verify_ok": true,
+  "expect_body_contains": ["打ち終わったら、管理画面を開いて反映を確かめる。"]
+}

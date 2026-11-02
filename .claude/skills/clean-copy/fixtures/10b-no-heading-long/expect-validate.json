@@ -1,0 +1,16 @@
+{
+  "findings": [
+    {
+      "code": "NO_HEADING_LONG",
+      "severity": "warn",
+      "line": 1,
+      "detail": "見出しが 1 つも無く、2036 字あります",
+      "default": "先頭の空でない 1 行を、そのまま表題にする（作文しない）"
+    }
+  ],
+  "summary": {
+    "error": 0,
+    "fixable": 0,
+    "warn": 1
+  }
+}

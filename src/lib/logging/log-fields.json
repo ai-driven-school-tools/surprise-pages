@@ -1,0 +1,6 @@
+{
+  "$comment": "ログに添える項目（fields）のうち、数と真偽で渡してよい名前の正本。名前も通してよいものだけを通す（名前の側に題名・呼び名・アドレスを入れられないように）。書くのは src/lib/logging/log-record.ts、読み返して出すのは scripts/ops/investigate.mjs で、どちらもここを読む。文字の項目は src/lib/logging/log-record.ts の STRING_FIELDS（形の検査つき）。足すときは logEvent を呼ぶ側と一緒に足す。context は 1 行の頭に並ぶ項目のうち、入口の外枠（src/lib/logging/server-log.ts の routeLog・apiV1）が要求の文脈から 1 度だけ置くもので、logEvent を呼ぶ側は渡さない（検査は scripts/rules/log-rules.mjs の organizationProblems）。organization は組織の目印（uuid）だけで、形の検査は src/lib/logging/log-record.ts の organizationIdOf。",
+  "numbers": ["status", "count", "retentionDays", "tokens", "cited", "head", "accessMs", "permissionMs", "headMs", "syncMs", "changeMs", "renderMs", "lost", "issued", "unreadable", "corrected", "rows", "blobs", "parts"],
+  "context": ["organization"],
+  "booleans": ["stale", "edited", "database", "assets", "synced", "remembered", "headRemembered"]
+}

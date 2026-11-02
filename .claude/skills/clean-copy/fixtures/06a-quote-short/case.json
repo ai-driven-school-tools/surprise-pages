@@ -1,0 +1,7 @@
+{
+  "note": "短い一句の引用。箱ごと中央に置いてよい",
+  "apply_defaults": false,
+  "convert": true,
+  "expect_verify_ok": true,
+  "expect_body_contains": ["text-center", "inline-block text-left"]
+}

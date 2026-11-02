@@ -1,0 +1,16 @@
+{
+  "findings": [
+    {
+      "code": "TABLE_HEADER_SEP_MISMATCH",
+      "severity": "error",
+      "line": 5,
+      "detail": "見出し行 3 マス / 区切り行 2 マス",
+      "default": "多いほうに合わせて、足りないマスを空で埋める（言葉は落とさない）"
+    }
+  ],
+  "summary": {
+    "error": 1,
+    "fixable": 0,
+    "warn": 0
+  }
+}

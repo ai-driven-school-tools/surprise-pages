@@ -1,0 +1,71 @@
+name: Quality setup
+description: Pinned tools and optional browser installation for isolated quality jobs
+inputs:
+  browser:
+    description: Browser to install, or empty for non-browser jobs
+    default: ''
+  media-tools:
+    description: Install the video tools used by the performance suite
+    default: 'false'
+runs:
+  using: composite
+  steps:
+    - shell: bash
+      if: runner.os == 'Linux'
+      run: |
+        # The runner's Azure mirror repeatedly stalls for 30 seconds per package.
+        # Keep Ubuntu's signed package indexes and use its official HTTPS archive.
+        if [ -f /etc/apt/apt-mirrors.txt ]; then
+          sudo sed -i 's|http://azure.archive.ubuntu.com/ubuntu|https://archive.ubuntu.com/ubuntu|g' /etc/apt/apt-mirrors.txt
+        fi
+    - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413
+    - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1
+      env:
+        SEGMENT_DOWNLOAD_TIMEOUT_MINS: '1'
+      with:
+        node-version: '24.x'
+        cache: pnpm
+    - shell: bash
+      run: pnpm install --frozen-lockfile
+    - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9
+      if: inputs.browser != ''
+      env:
+        SEGMENT_DOWNLOAD_TIMEOUT_MINS: '1'
+      with:
+        path: ~/.cache/ms-playwright
+        key: browsers-${{ runner.os }}-${{ runner.arch }}-${{ inputs.browser }}-${{ hashFiles('pnpm-lock.yaml') }}
+        restore-keys: browsers-${{ runner.os }}-${{ runner.arch }}-${{ inputs.browser }}-
+    - shell: bash
+      if: inputs.browser != ''
+      run: |
+        mkdir -p "$HOME/.cache/pages-ci-apt"
+        printf 'Dir::Cache::archives "%s";\nAPT::Keep-Downloaded-Packages "true";\nBinary::apt::APT::Keep-Downloaded-Packages "true";\n' "$HOME/.cache/pages-ci-apt" | sudo tee /etc/apt/apt.conf.d/99-pages-ci-cache > /dev/null
+    - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9
+      if: inputs.browser != ''
+      env:
+        SEGMENT_DOWNLOAD_TIMEOUT_MINS: '1'
+      with:
+        path: ~/.cache/pages-ci-apt/*.deb
+        key: browser-deps-ubuntu24-${{ runner.arch }}-${{ inputs.browser }}-${{ hashFiles('pnpm-lock.yaml') }}-https${{ inputs.media-tools == 'true' && '-media' || '' }}
+        restore-keys: |
+          browser-deps-ubuntu24-${{ runner.arch }}-${{ inputs.browser }}-${{ hashFiles('pnpm-lock.yaml') }}
+          browser-deps-ubuntu24-${{ runner.arch }}-${{ inputs.browser }}-
+    - shell: bash
+      if: inputs.browser != ''
+      env:
+        TEST_BROWSER: ${{ inputs.browser }}
+        MEDIA_TOOLS: ${{ inputs.media-tools }}
+      run: |
+        pnpm exec playwright install --with-deps "$TEST_BROWSER"
+        if [ "$MEDIA_TOOLS" = true ]; then
+          sudo apt-get install -y ffmpeg
+        fi
+    # 画面検査はアプリと同じ機械の中（127.0.0.1）で通信する。Linux のこの経路は 1 回に送れる塊が約 64KB と大きく、
+    # 受け手が少し読んでも 64KB 空くまで「空いた」と知らせない。WebKit が読むのを一瞬止めると、送り手は 0.2 秒ごとの
+    # 様子見でしか進めず、1MB の書体が 5 秒以上かかって閲覧用の 2 秒の待ちを越えていた（docs/guides/testing.md）。
+    # 実際の回線と同じ塊（1500）にそろえる。待ち時間や上限は変えない。
+    - shell: bash
+      if: inputs.browser != ''
+      run: |
+        sudo ip link set dev lo mtu 1500
+        test "$(cat /sys/class/net/lo/mtu)" = 1500

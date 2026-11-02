@@ -1,0 +1,16 @@
+<!-- 形の正本は lib/brand.ts。道筋（d="…"）を直すときは両方そろえる（検査表が見張る） -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <style>
+    .tile { fill: #171717 }
+    .sheet { fill: #ffffff; stroke: #ffffff }
+    .fold { fill: #171717; stroke: #171717 }
+    @media (prefers-color-scheme: dark) {
+      .tile { fill: #f5f5f5 }
+      .sheet { fill: #0a0a0a; stroke: #0a0a0a }
+      .fold { fill: #f5f5f5; stroke: #f5f5f5 }
+    }
+  </style>
+  <rect class="tile" width="32" height="32" rx="7.5" />
+  <path class="sheet" d="M8 5h8l8 8v14H8z" stroke-width="1.4" stroke-linejoin="round" />
+  <path class="fold" d="M16 5l8 8h-8z" stroke-width="1.4" stroke-linejoin="round" />
+</svg>

@@ -1,0 +1,92 @@
+{
+  "$comment": "ログの決まりの台帳。入口・定期処理・自動実行を 1 つ残らず「記録する／しない（理由つき）」のどちらかに載せる。判定は scripts/rules/log-rules.mjs、検査は tests/checks/check-log-rules.mjs（台帳に無いものが増えたら落ち、直し方を出す）。決まりは AGENTS.md の「ログ・監視の決まり」と docs/guides/server-logs.md。",
+  "rawConsole": [
+    {
+      "file": "src/lib/deck/edit/service.ts",
+      "count": 1,
+      "reason": "共同編集の計測の行（deck_collaboration_*）。形を検査と文書（tests/checks/deck-edit-harness.mjs・tests/support/deck-collaboration-*.test.mjs・docs/deck-collaboration.md）が読んでいる。logEvent の 1 行の形へ寄せると読む側が壊れるので、形を移す作業と一緒に寄せる"
+    },
+    {
+      "file": "src/lib/pages/local-preview.ts",
+      "count": 1,
+      "reason": "手元の pnpm dev でだけ出る、人が読むための 1 回きりの案内（ログインを省いていること）。本番では通らない道で、記録ではない"
+    },
+    {
+      "file": "src/lib/pages/store.ts",
+      "count": 1,
+      "reason": "共同編集の計測の行（deck_collaboration_*）。形を検査と文書（tests/checks/deck-edit-harness.mjs・tests/support/deck-collaboration-*.test.mjs・docs/deck-collaboration.md）が読んでいる。logEvent の 1 行の形へ寄せると読む側が壊れるので、形を移す作業と一緒に寄せる"
+    },
+    {
+      "file": "src/lib/logging/server-log.ts",
+      "count": 2,
+      "reason": "ログを出す口そのもの（logEvent の書き出しと、書き出しに失敗したときの固定の 1 行）。生の出力はここに集める"
+    }
+  ],
+  "routes": {
+    "src/app/api/access-requests/route.ts": "routeLog",
+    "src/app/api/auth/[...nextauth]/route.ts": {
+      "none": "Auth.js が配る関数をそのまま出すので外枠を掛けられない。投げっぱなしの失敗は取りこぼしの受け皿（src/instrumentation.ts）が request.unhandled として残す"
+    },
+    "src/app/api/avatars/[id]/route.ts": "routeLog",
+    "src/app/api/cli-login/pending/claim/route.ts": "routeLog",
+    "src/app/api/cli-login/pending/route.ts": "routeLog",
+    "src/app/api/comments/[id]/route.ts": "routeLog",
+    "src/app/api/comments/outcomes/route.ts": "routeLog",
+    "src/app/api/comments/route.ts": "routeLog",
+    "src/app/api/cron/views/route.ts": "routeLog",
+    "src/app/api/deck-themes/[id]/logo/[version]/route.ts": "routeLog",
+    "src/app/api/deck-themes/route.ts": "routeLog",
+    "src/app/api/history/route.ts": "routeLog",
+    "src/app/api/pages/access/route.ts": "routeLog",
+    "src/app/api/pages/agent/route.ts": "routeLog",
+    "src/app/api/pages/deck-edit/assets/route.ts": "routeLog",
+    "src/app/api/pages/deck-edit/create/route.ts": "routeLog",
+    "src/app/api/pages/deck-edit/image-library/preview/route.ts": "routeLog",
+    "src/app/api/pages/deck-edit/image-library/route.ts": "routeLog",
+    "src/app/api/pages/deck-edit/media/import/route.ts": "routeLog",
+    "src/app/api/pages/deck-edit/media/upload/route.ts": "routeLog",
+    "src/app/api/pages/deck-edit/route.ts": "routeLog",
+    "src/app/api/pages/edit/route.ts": "routeLog",
+    "src/app/api/pages/logo/route.ts": "routeLog",
+    "src/app/api/pages/prepare/route.ts": "routeLog",
+    "src/app/api/pages/route.ts": "routeLog",
+    "src/app/api/pages/source/route.ts": "routeLog",
+    "src/app/api/pages/upload/route.ts": "routeLog",
+    "src/app/api/tokens/[id]/route.ts": "routeLog",
+    "src/app/api/tokens/route.ts": "routeLog",
+    "src/app/api/views/route.ts": "routeLog",
+    "src/app/api/workspace/route.ts": "routeLog",
+    "src/app/cli/[name]/route.ts": "routeLog",
+    "src/app/comments-widget.js/[[...stamp]]/route.ts": "routeLog",
+    "src/app/history/[visibility]/[...slug]/route.ts": "routeLog",
+    "src/app/internal/[...slug]/route.ts": "routeLog",
+    "src/app/public/[...slug]/route.ts": "routeLog",
+    "src/app/page-images.js/[[...stamp]]/route.ts": "routeLog",
+    "src/app/vendor/[name]/[[...stamp]]/route.ts": "routeLog",
+    "src/app/vendor/deck-fonts/[file]/route.ts": "routeLog"
+  },
+  "crons": {
+    "/api/cron/views": {
+      "records": "片付けごとに cron.swept（step と件数）。落ちた片付けは step つきの error の行（形は check-server-log の 5 が見る）"
+    }
+  },
+  "workflows": {},
+  "fields": {
+    "$comment": "外へ送ってよい項目の一覧の正本と、一覧に無い項目がログに出ないことを実物を動かして確かめている検査。検査表はここを読んで、正本の場所と検査の項目が残っていることを固定する。",
+    "allowList": [
+      "src/lib/logging/log-record.ts#STRING_FIELDS",
+      "src/lib/logging/log-record.ts#LIST_FIELDS",
+      "src/lib/logging/log-fields.json#numbers",
+      "src/lib/logging/log-fields.json#booleans"
+    ],
+    "provenBy": "tests/checks/check-server-log.mjs",
+    "proofs": [
+      "知らない項目は落とす",
+      "台帳に無い名前の数と真偽は落とす",
+      "決めた項目でも、形が違えば落とす",
+      "項目の名前そのものに文を入れても通らない",
+      "組織の印は目印（uuid）の形だけ通す。名前・呼び名・宛先・ドメイン・大文字の目印は通さない",
+      "組織の名前・呼び名・宛先・ドメインは 1 字も出ない"
+    ]
+  }
+}

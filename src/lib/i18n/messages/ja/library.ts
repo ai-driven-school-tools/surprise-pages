@@ -1,0 +1,67 @@
+export const library = {
+  // 資料の形式（src/lib/workspace/model.ts の KIND_LABELS）
+  kinds: {
+    deck: "スライド",
+    document: "文書",
+    page: "図解・レポート",
+    unknown: "形式未確認",
+  },
+  // 共有範囲（src/lib/workspace/model.ts の SCOPE_LABELS）
+  scopes: {
+    company: "{organization} の全員",
+    restricted: "指定した人",
+    public: "組織の外に公開",
+  },
+  // 作った人が台帳に無い資料。保存先（一覧の行）には日本語のまま置き、出すときに訳す
+  unknownAuthor: "作成者不明",
+  create: "作成",
+  tabs: {
+    label: "自分の資料の種類",
+    created: "自分が作成",
+    shared: "共同編集",
+  },
+  searchLabel: "{title}を検索",
+  filter: "絞り込み",
+  sort: {
+    label: "並び替え",
+    new: "更新が新しい順",
+    old: "更新が古い順",
+    name: "名前順",
+  },
+  kindFilter: "形式",
+  allKinds: "すべての形式",
+  scopeFilter: "共有範囲",
+  allScopes: "すべての共有範囲",
+  count: { one: "{count}件", other: "{count}件" },
+  countPaged: { one: "{count}件 · {current} / {pages}", other: "{count}件 · {current} / {pages}" },
+  columns: {
+    name: "資料名",
+    scope: "共有範囲",
+    updated: "更新日",
+  },
+  // 読み上げだけに出す、形式の前置き
+  kindPrefix: "{kind}：",
+  accessRequests: { one: "閲覧申請 {count}件", other: "閲覧申請 {count}件" },
+  favoriteAdd: "お気に入りに追加",
+  favoriteRemove: "お気に入りから外す",
+  favoriteFailed: "お気に入りを保存できませんでした。もう一度お試しください。",
+  rowActions: "{title}の操作",
+  open: "開く",
+  sharing: "共有設定",
+  copyLink: "リンクをコピー",
+  checkLink: "リンクを確認",
+  linkCopied: "リンクをコピーしました。",
+  link: "資料のリンク",
+  previousPage: "前のページ",
+  nextPage: "次のページ",
+  empty: {
+    filteredTitle: "条件に合う資料がありません",
+    filteredDetail: "検索語や絞り込み条件を変えてお試しください。",
+    favoritesTitle: "お気に入りはまだありません",
+    favoritesDetail: "資料の星を押すと、ここからすぐに開けます。",
+    sharedTitle: "共同編集する資料はまだありません",
+    noneTitle: "資料はまだありません",
+    noneDetail: "資料を作成するか、{organization} の資料を探してみましょう。",
+    browseLibrary: "{organization} の資料を見る",
+  },
+} as const;

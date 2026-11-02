@@ -1,0 +1,534 @@
+{
+  "check-access.mjs": {
+    "items": 178,
+    "sections": 7
+  },
+  "check-accessibility.mjs": {
+    "items": 17,
+    "sections": 0
+  },
+  "check-agent-client-contract.mjs": {
+    "items": 4,
+    "sections": 0
+  },
+  "check-app-speed.mjs": {
+    "items": 85,
+    "sections": 8
+  },
+  "check-asset-pass.mjs": {
+    "items": 39,
+    "sections": 7
+  },
+  "check-avatar.mjs": {
+    "items": 65,
+    "sections": 7
+  },
+  "check-beta-features.mjs": {
+    "items": 34,
+    "sections": 5
+  },
+  "check-bulk-resolve.mjs": {
+    "items": 47,
+    "sections": 6
+  },
+  "check-clean-copy-look.mjs": {
+    "items": 21,
+    "sections": 4
+  },
+  "check-cli-login-remote.mjs": {
+    "items": 90,
+    "sections": 9
+  },
+  "check-cli-login.mjs": {
+    "items": 147,
+    "sections": 11
+  },
+  "check-clipboard.mjs": {
+    "items": 17,
+    "sections": 0
+  },
+  "check-cloud.mjs": {
+    "items": 26,
+    "sections": 3
+  },
+  "check-comment-list.mjs": {
+    "items": 147,
+    "sections": 13
+  },
+  "check-comment-outcome.mjs": {
+    "items": 44,
+    "sections": 7
+  },
+  "check-comment-story.mjs": {
+    "items": 61,
+    "sections": 5
+  },
+  "check-compact.mjs": {
+    "items": 14,
+    "sections": 3
+  },
+  "check-copylink.mjs": {
+    "items": 45,
+    "sections": 4
+  },
+  "check-deck-authoring.mjs": {
+    "items": 31,
+    "sections": 0
+  },
+  "check-deck-canvas.mjs": {
+    "items": 39,
+    "sections": 0
+  },
+  "check-deck-card.mjs": {
+    "items": 75,
+    "sections": 7
+  },
+  "check-deck-chart-data.mjs": {
+    "items": 29,
+    "sections": 0
+  },
+  "check-deck-create.mjs": {
+    "items": 71,
+    "sections": 0
+  },
+  "check-deck-customization.mjs": {
+    "items": 63,
+    "sections": 3
+  },
+  "check-deck-design-save.mjs": {
+    "items": 23,
+    "sections": 3
+  },
+  "check-deck-design.mjs": {
+    "items": 70,
+    "sections": 3
+  },
+  "check-deck-edit-api.mjs": {
+    "items": 12,
+    "sections": 0
+  },
+  "check-deck-edit-service.mjs": {
+    "items": 4,
+    "sections": 0
+  },
+  "check-deck-edit-source.mjs": {
+    "items": 64,
+    "sections": 0
+  },
+  "check-deck-edit-sync.mjs": {
+    "items": 29,
+    "sections": 0
+  },
+  "check-deck-edit-upload-ui.mjs": {
+    "items": 6,
+    "sections": 0
+  },
+  "check-deck-flow-layout.mjs": {
+    "items": 68,
+    "sections": 0
+  },
+  "check-deck-flow-renderer.mjs": {
+    "items": 12,
+    "sections": 0
+  },
+  "check-deck-flow-time.mjs": {
+    "items": 12,
+    "sections": 0
+  },
+  "check-deck-formats.mjs": {
+    "items": 55,
+    "sections": 4
+  },
+  "check-deck-image-palette.mjs": {
+    "items": 6,
+    "sections": 0
+  },
+  "check-deck-image-quality.mjs": {
+    "items": 6,
+    "sections": 0
+  },
+  "check-deck-library.mjs": {
+    "items": 100,
+    "sections": 0
+  },
+  "check-deck-media-feedback.mjs": {
+    "items": 7,
+    "sections": 0
+  },
+  "check-deck-media.mjs": {
+    "items": 8,
+    "sections": 0
+  },
+  "check-deck-message.mjs": {
+    "items": 6,
+    "sections": 0
+  },
+  "check-deck-outline.mjs": {
+    "items": 10,
+    "sections": 0
+  },
+  "check-deck-playback.mjs": {
+    "items": 11,
+    "sections": 0
+  },
+  "check-deck-presenter.mjs": {
+    "items": 9,
+    "sections": 0
+  },
+  "check-deck-preview.mjs": {
+    "items": 6,
+    "sections": 0
+  },
+  "check-deck-render.mjs": {
+    "items": 7,
+    "sections": 0
+  },
+  "check-deck-step-controls.mjs": {
+    "items": 50,
+    "sections": 0
+  },
+  "check-deck-styles.mjs": {
+    "items": 44,
+    "sections": 0
+  },
+  "check-deck-template-preview.mjs": {
+    "items": 6,
+    "sections": 0
+  },
+  "check-deck-text-sync.mjs": {
+    "items": 6,
+    "sections": 0
+  },
+  "check-deck-themes.mjs": {
+    "items": 12,
+    "sections": 0
+  },
+  "check-deck-video-upload.mjs": {
+    "items": 32,
+    "sections": 0
+  },
+  "check-deck.mjs": {
+    "items": 208,
+    "sections": 7
+  },
+  "check-design.mjs": {
+    "items": 121,
+    "sections": 3
+  },
+  "check-diff.mjs": {
+    "items": 51,
+    "sections": 12
+  },
+  "check-dismiss.mjs": {
+    "items": 68,
+    "sections": 4
+  },
+  "check-distribution-clean.mjs": {
+    "items": 6,
+    "sections": 1
+  },
+  "check-distribution.mjs": {
+    "items": 77,
+    "sections": 7
+  },
+  "check-dock.mjs": {
+    "items": 41,
+    "sections": 11
+  },
+  "check-draftmark.mjs": {
+    "items": 160,
+    "sections": 21
+  },
+  "check-editorial-compositions.mjs": {
+    "items": 27,
+    "sections": 0
+  },
+  "check-feature-switches.mjs": {
+    "items": 50,
+    "sections": 6
+  },
+  "check-features.mjs": {
+    "items": 20,
+    "sections": 6
+  },
+  "check-first-paint-chrome.mjs": {
+    "items": 26,
+    "sections": 5
+  },
+  "check-first-paint.mjs": {
+    "items": 59,
+    "sections": 6
+  },
+  "check-fontsize.mjs": {
+    "items": 6,
+    "sections": 0
+  },
+  "check-gate.mjs": {
+    "items": 196,
+    "sections": 9
+  },
+  "check-good.mjs": {
+    "items": 25,
+    "sections": 4
+  },
+  "check-guest-key.mjs": {
+    "items": 7,
+    "sections": 0
+  },
+  "check-guest.mjs": {
+    "items": 13,
+    "sections": 0
+  },
+  "check-highlight.mjs": {
+    "items": 9,
+    "sections": 6
+  },
+  "check-i18n.mjs": {
+    "items": 81,
+    "sections": 7
+  },
+  "check-identity-token.mjs": {
+    "items": 60,
+    "sections": 6
+  },
+  "check-inject.mjs": {
+    "items": 42,
+    "sections": 6
+  },
+  "check-layout.mjs": {
+    "items": 5,
+    "sections": 0
+  },
+  "check-listkeep.mjs": {
+    "items": 26,
+    "sections": 3
+  },
+  "check-live-refresh.mjs": {
+    "items": 7,
+    "sections": 2
+  },
+  "check-local-preview.mjs": {
+    "items": 140,
+    "sections": 8
+  },
+  "check-log-rules.mjs": {
+    "items": 70,
+    "sections": 5
+  },
+  "check-long-selection.mjs": {
+    "items": 35,
+    "sections": 2
+  },
+  "check-me.mjs": {
+    "items": 263,
+    "sections": 12
+  },
+  "check-media-delivery.mjs": {
+    "items": 40,
+    "sections": 0
+  },
+  "check-media-routes.mjs": {
+    "items": 27,
+    "sections": 0
+  },
+  "check-media-storage.mjs": {
+    "items": 18,
+    "sections": 0
+  },
+  "check-message-image-compositions.mjs": {
+    "items": 25,
+    "sections": 0
+  },
+  "check-noindex.mjs": {
+    "items": 22,
+    "sections": 6
+  },
+  "check-page-agent.mjs": {
+    "items": 30,
+    "sections": 0
+  },
+  "check-page-cache.mjs": {
+    "items": 81,
+    "sections": 6
+  },
+  "check-page-edit.mjs": {
+    "items": 196,
+    "sections": 7
+  },
+  "check-page-export.mjs": {
+    "items": 47,
+    "sections": 5
+  },
+  "check-page-markdown.mjs": {
+    "items": 87,
+    "sections": 8
+  },
+  "check-page-nesting.mjs": {
+    "items": 39,
+    "sections": 5
+  },
+  "check-page-tools.mjs": {
+    "items": 67,
+    "sections": 5
+  },
+  "check-peek.mjs": {
+    "items": 13,
+    "sections": 6
+  },
+  "check-peekfix.mjs": {
+    "items": 60,
+    "sections": 9
+  },
+  "check-peekswipe.mjs": {
+    "items": 145,
+    "sections": 16
+  },
+  "check-process-compositions.mjs": {
+    "items": 17,
+    "sections": 0
+  },
+  "check-publish-token.mjs": {
+    "items": 47,
+    "sections": 5
+  },
+  "check-publish-update.mjs": {
+    "items": 6,
+    "sections": 0
+  },
+  "check-quickwrite.mjs": {
+    "items": 106,
+    "sections": 7
+  },
+  "check-rate-limit.mjs": {
+    "items": 24,
+    "sections": 4
+  },
+  "check-reading-nav.mjs": {
+    "items": 61,
+    "sections": 4
+  },
+  "check-red-test-first.mjs": {
+    "items": 36,
+    "sections": 6
+  },
+  "check-redline.mjs": {
+    "items": 151,
+    "sections": 20
+  },
+  "check-restricted-publish.mjs": {
+    "items": 19,
+    "sections": 4
+  },
+  "check-revision-chain.mjs": {
+    "items": 50,
+    "sections": 7
+  },
+  "check-roundtrips.mjs": {
+    "items": 114,
+    "sections": 6
+  },
+  "check-secret-scan.mjs": {
+    "items": 6,
+    "sections": 3
+  },
+  "check-selbar.mjs": {
+    "items": 16,
+    "sections": 4
+  },
+  "check-selection.mjs": {
+    "items": 28,
+    "sections": 4
+  },
+  "check-sendrow.mjs": {
+    "items": 78,
+    "sections": 13
+  },
+  "check-server-log.mjs": {
+    "items": 179,
+    "sections": 7
+  },
+  "check-share-panel.mjs": {
+    "items": 252,
+    "sections": 13
+  },
+  "check-share.mjs": {
+    "items": 72,
+    "sections": 7
+  },
+  "check-sheetopen.mjs": {
+    "items": 73,
+    "sections": 6
+  },
+  "check-shortcuts.mjs": {
+    "items": 42,
+    "sections": 5
+  },
+  "check-skill-pages.mjs": {
+    "items": 49,
+    "sections": 4
+  },
+  "check-skill-scripts.mjs": {
+    "items": 4,
+    "sections": 3
+  },
+  "check-slidefeel.mjs": {
+    "items": 43,
+    "sections": 5
+  },
+  "check-tenant-scope.mjs": {
+    "items": 88,
+    "sections": 5
+  },
+  "check-tokens-ui.mjs": {
+    "items": 120,
+    "sections": 7
+  },
+  "check-toolbox-menu.mjs": {
+    "items": 187,
+    "sections": 9
+  },
+  "check-ui-motion.mjs": {
+    "items": 53,
+    "sections": 4
+  },
+  "check-v3.mjs": {
+    "items": 77,
+    "sections": 12
+  },
+  "check-vendor.mjs": {
+    "items": 269,
+    "sections": 19
+  },
+  "check-version-list.mjs": {
+    "items": 34,
+    "sections": 6
+  },
+  "check-viewport.mjs": {
+    "items": 9,
+    "sections": 0
+  },
+  "check-views.mjs": {
+    "items": 169,
+    "sections": 9
+  },
+  "check-widget-cache.mjs": {
+    "items": 46,
+    "sections": 6
+  },
+  "check-widget-features.mjs": {
+    "items": 14,
+    "sections": 4
+  },
+  "check-window-titlebar.mjs": {
+    "items": 38,
+    "sections": 7
+  },
+  "check-workspace-list.mjs": {
+    "items": 35,
+    "sections": 5
+  },
+  "check-workspace.mjs": {
+    "items": 32,
+    "sections": 0
+  }
+}

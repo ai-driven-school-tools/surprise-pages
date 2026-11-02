@@ -1,0 +1,10 @@
+import assert from 'node:assert/strict';
+import {readFile} from 'node:fs/promises';
+import {build} from 'esbuild';
+import {root} from './paths.mjs';
+const built=await build({entryPoints:[`${root}/src/lib/page-agent/exports.ts`],outfile:`${root}/bin/page-agent-schema.mjs`,bundle:true,write:false,format:'esm',platform:'node',external:['zod','parse5']});
+assert.equal(await readFile(`${root}/bin/page-agent-schema.mjs`,'utf8'),built.outputFiles[0].text);console.log('OK  エージェントの入力契約は保存処理と同じ定義から生成されている');
+const {deckEditOperationsSchema}=await import(`${root}/bin/page-agent-schema.mjs`);
+assert.equal(deckEditOperationsSchema.safeParse([{kind:'style',target:'heading',property:'letter-spacing',before:null,after:'0.02em'}]).success,true);console.log('OK  文字組みの変更を推測なしで指定できる');
+assert.equal(deckEditOperationsSchema.safeParse([{type:'style',target:'heading',property:'color',before:null,after:'red'}]).success,false);console.log('OK  変更形式の誤りは保存前に明確に拒否する');
+assert.equal(deckEditOperationsSchema.safeParse([{kind:'setting-field',target:'deck-document',name:'appearance',path:['__proto__','x'],before:null,after:'x'}]).success,false);console.log('OK  設定の部分更新から特別なプロパティを操作できない');

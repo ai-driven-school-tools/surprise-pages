@@ -1,0 +1,35 @@
+export const common = {
+  // 組織の名前が分からないときに {organization} へ差し込む一般語（src/lib/i18n/translate.ts）
+  thisOrganization: "この組織",
+  retry: "再試行",
+  loading: "読み込み中…",
+  saving: "保存中…",
+  cancel: "キャンセル",
+  manage: "管理",
+  edit: "編集",
+  on: "オン",
+  off: "オフ",
+  saveFailedRetry: "保存できませんでした。もう一度お試しください。",
+  saveFailed: "保存できませんでした。",
+  // 共通部品（src/app/_components）の文言
+  close: "閉じる",
+  moreActions: "その他の操作",
+  delete: "消す",
+  // 消す前の確認で、実行しないほうのボタン
+  dismiss: "やめる",
+  clearSearch: "検索を消去",
+  search: "検索",
+  copy: "コピー",
+  copied: "コピーしました",
+  copyNamed: "{name}をコピーする",
+  copiedNamed: "{name}をコピーしました",
+  copyFailed: "コピーできませんでした。上の行を選んでコピーしてください。",
+  backTo: "{label}に戻る",
+  history: "履歴",
+  back: "戻る",
+  forward: "進む",
+  loadingScreen: "読み込んでいます…",
+  // 保存先に日本語のまま置く既定の文（出すときに localizeStored で訳す）
+  untitled: "（名前なし）",
+  noDescription: "（説明なし）",
+} as const;

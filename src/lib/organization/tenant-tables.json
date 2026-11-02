@@ -1,0 +1,222 @@
+{
+  "$comment": "組織に属する表・属さない表・保存先の関数の台帳。正本はここ。新しい表・関数を足したら、必ずどれか 1 つに書く（書き忘れは tests/checks/check-tenant-scope.mjs が落とし、src/lib/db/database.ts は実行時に断る）。keyed の stage は「組織を取る形へ直す段」。null は組織の中で引き当てた目印（ページ・処理）で引くので直さなくてよいもの。stage の付いた関数が 1 つでも残っている間は、本番で 2 つ目の組織を作らない。",
+  "organization": {
+    "pages": "ページの台帳",
+    "page_revisions": "ページの版（追記専用）",
+    "page_comments": "ページのコメント",
+    "organization_secrets": "組織ごとの秘密の鍵（封をした値）。読み書きは src/lib/organization-secrets.ts だけ",
+    "organization_secret_checks": "組織の秘密の鍵の「確かめる」の回数の控え（値は持たない）",
+    "publish_tokens": "投稿の鍵・アプリの鍵",
+    "groups": "見る人を絞るときのまとまり",
+    "group_members": "まとまりに入っている人",
+    "page_permissions": "ページごとの見てよい人・共同の作った人",
+    "access_requests": "見せてほしいの申し出",
+    "page_views": "会社の人が見たページの控え",
+    "page_view_optouts": "「記録を残さない」の本人の設定（組織ごとに違ってよい）",
+    "page_favorites": "星を付けた資料",
+    "page_catalog": "資料の形式の分類",
+    "page_edit_drafts": "AI の変更案",
+    "inbox_reads": "「あなたの番」をどこまで見たか（組織ごとに違ってよい）",
+    "beta_feature_optins": "ベータ機能を入れたか（組織ごとに違ってよい）",
+    "cli_login_pending": "クラウド環境からのログインの郵便受け",
+    "app_login_codes": "アプリのログインの引換券",
+    "deck_edit_sessions": "スライドの直接編集の参加者",
+    "deck_edit_submissions": "スライドの共同保存の順番待ち",
+    "deck_edit_processors": "スライドの共同保存の係",
+    "deck_edit_receipts": "スライドの編集操作の受領記録",
+    "deck_collaboration_rooms": "スライドの共同編集の部屋",
+    "deck_collaboration_events": "スライドの共同編集の出来事",
+    "deck_media_jobs": "スライドの動画の軽量化の処理台帳",
+    "deck_image_assets": "スライドの画像の素材台帳",
+    "deck_image_uses": "最近使ったスライドの画像",
+    "deck_image_search_usage": "画像検索の 1 日の使用量（組織の予算）",
+    "deck_my_themes": "自分のスライドのテーマ",
+    "deck_theme_versions": "自分のスライドのテーマの版",
+    "deck_theme_requests": "自分のスライドのテーマの保存の受領",
+    "recordings": "録音",
+    "recording_grants": "録音を共有した相手",
+    "recording_generations": "録音から作った成果物の生成",
+    "recording_generation_inputs": "生成に使った録音",
+    "recording_artifacts": "生成した成果物（議事録のページ）",
+    "recording_events": "録音の出来事",
+    "recording_commands": "録音の操作の依頼",
+    "recording_progress": "録音の処理の進み具合",
+    "recording_scene_proposals": "録音を場面で分ける提案",
+    "recording_scenes": "録音の場面",
+    "recording_participant_proposals": "録音の参加者の候補（処理側の鏡）",
+    "recording_participants": "録音の参加者の人の直した顔ぶれ",
+    "recording_ai_settings": "録音の AI の設定",
+    "recording_github_connections": "録音の GitHub のつながり",
+    "recording_github_pending": "録音の GitHub をつなぐ途中",
+    "recording_github_controls": "録音の GitHub の操作の控え",
+    "recording_calendar_connections": "録音のカレンダーのつながり",
+    "recording_calendar_pending": "録音のカレンダーをつなぐ途中",
+    "recording_calendar_controls": "録音のカレンダーの操作の控え",
+    "recording_repository_catalog": "組織が登録したリポジトリ（議事録の材料・文書を読む）",
+    "repository_comments": "リポジトリの文書へのコメント",
+    "repository_document_views": "リポジトリの文書を見た控え",
+    "terms_acceptances": "規約への同意の記録（組織 × 人 × 版 × 時刻。持ち主として組織を受け取るときに残す）。書くのは src/lib/terms.ts だけ",
+    "organization_invitations": "組織への招待（リンクで渡す・相手のアドレスと役割に縛る・7 日・1 回で使い切る。）",
+    "organization_ai_usage": "組織ごとの 1 日の AI の回数（自然な声の読み上げ）。読み書きは src/lib/organization-usage.ts だけ",
+    "organization_audit_log": "組織の中の権限と設定に関わる操作の記録（追記専用・本文と鍵の値は入れない）。書くのは src/lib/audit-log.ts の recordAudit だけ",
+    "organization_exports": "組織のデータの書き出し（zip）の進み具合。zip は素材の置き場の組織の頭の下 _exports/。読み書きは src/lib/organization-export.ts だけ"
+  },
+  "global": {
+    "organizations": "組織の台帳そのもの",
+    "organization_domains": "組織のドメイン（自動参加）",
+    "organization_domains_custom": "組織の独自ドメイン。宛先 → 組織は組織が決まる前に関所が引くので組織に属さない。読み書きは src/lib/organization-custom-domains.ts で、組織の目印で絞る",
+    "organization_members": "所属の名簿（主キーに組織の目印を持つ）",
+    "organization_slack_connections": "組織の Slack のつながり。Slack からの知らせの team_id で組織を引く台帳（organization_domains と同じ形・team_id は全体で一意）。鍵は組織の目印を付加データにして封をしてある。読み書きは src/lib/slack-connections.ts だけで、組織の中の読み書きは必ず organization_id で絞る（check-organization-integrations）",
+    "organization_github_installations": "組織の GitHub アプリの導入。GitHub からの知らせの導入番号で組織を引く台帳（導入番号は全体で一意）。鍵は持たない。読み書きは src/lib/github-installations.ts だけで、組織の中の読み書きは必ず organization_id で絞る（check-organization-integrations）",
+    "platform_operators": "運営者の名簿（組織の中身は読めない）",
+    "organization_requests": "運営者への依頼（個人の組織を頼む・個人の組織の自動参加のドメイン）。運営者が組織をまたいで読む",
+    "pages_installation": "配布版の設置の印",
+    "pages_schema_migrations": "配布版の設置が持つ DB の変更の台帳",
+    "admins": "昔の会社の管理者の名簿。A4で所属の役割に置き換えたあと縮める",
+    "workspace_preferences": "外観・言語・読み上げの速さ。人に付く（組織をまたいで同じ）",
+    "repository_heads": "GitHub のリポジトリの写し（main の先頭）。読めるかは本人の GitHub の権限と組織の登録で決まる",
+    "repository_head_checks": "GitHub の main の先頭を確かめた覚え（写し）",
+    "repository_documents": "GitHub のリポジトリの文書の写し。読めるかは本人の GitHub の権限と組織の登録で決まる",
+    "repository_document_moves": "GitHub の文書の改名・移動の写し",
+    "repository_renders": "GitHub の文書の変換の控え（中身の指紋で引く）",
+    "repository_render_work": "GitHub の文書の変換の順番待ち",
+    "repository_access_memory": "本人の GitHub の「読める」の覚え（GitHub の答え。人とリポジトリに付く）",
+    "repository_access_generation": "GitHub の「読める」の覚えを捨てた回数",
+    "repository_webhook_deliveries": "GitHub からの知らせの受け取り記録",
+    "organization_usage": "組織ごとの使用量（人数・資料・素材の容量）。運営者が組織をまたいで数字だけ読むので組織に属さない表（所属の名簿と同じく主キーに組織の目印を持つ）。読み書きは src/lib/organization-usage.ts だけで、必ず organization_id で絞る（check-quota）"
+  },
+  "functions": {
+    "organization": {
+      "org_page_access_facts": "見る人を絞ったページの可否の材料",
+      "org_member_page_grants": "その人に出ている許可の全部",
+      "org_workspace_member_reads": "本人まわりの小さな問い合わせ 13 本を 1 回で",
+      "org_home_comment_reads": "ホームのコメントの節の材料",
+      "org_member_page_kinds": "一覧とホームに出やすい資料の形式",
+      "org_recording_page_sources": "議事録の材料",
+      "org_open_page_comments": "未解決の親コメント（呼び名で引く）",
+      "org_record_page_view": "見たページを控える",
+      "org_mark_inbox_seen": "「あなたの番」をどこまで見たかを進める",
+      "org_record_repository_document_view": "リポジトリの文書を見たことを控える",
+      "org_consume_deck_image_search": "画像検索の予算を 1 回ぶん使う",
+      "org_consume_secret_check": "組織の秘密の鍵の「確かめる」を 1 回ぶん使う",
+      "org_member_identity": "要求のたびに引く所属（役割）。自動参加のドメインに合う人は member で所属を作る",
+      "org_member_identity_audited": "org_member_identity と同じ答え。自動参加で所属を作ったときは参加した記録（organization_audit_log）も同じ取引で積む",
+      "org_change_recording_access": "録音の共有先を、組織の所属と自動参加のドメインで確かめて変える",
+      "org_report_recording_participants": "録音の参加者の候補を処理側から受ける",
+      "org_report_recording_progress": "処理の進み具合を処理側から受ける",
+      "org_report_recording_scenes": "場面の分け方の提案を処理側から受ける",
+      "org_begin_recording_calendar": "本人のカレンダーをつなぎ始める",
+      "org_finish_recording_calendar": "本人のカレンダーをつなぎ終える",
+      "org_disconnect_recording_calendar": "本人のカレンダーを外す",
+      "org_begin_recording_github": "本人の GitHub をつなぎ始める",
+      "org_finish_recording_github": "本人の GitHub をつなぎ終える",
+      "org_disconnect_recording_github": "本人の GitHub を外す",
+      "org_request_recording_control": "録音の操作（止める・作り直す・分ける・参加者）を依頼する",
+      "org_ack_recording_control": "処理側が操作の依頼を受け取ったと知らせる",
+      "org_prepare_recording_output": "議事録のページの置き場を用意する",
+      "org_sync_recording_service": "処理側からの受付の同期",
+      "org_add_usage": "組織の使用量を足し引きする（素材の容量の受け取り・数える番人）",
+      "org_recount_usage": "組織の使用量を実際の行と素材の置き場の実測で置き直す（夜間の数え直し）",
+      "org_consume_ai_usage": "1 日の AI の回数を 1 回ぶん使う（上限に届いていれば使わずに断る）",
+      "org_purge_organization": "猶予を過ぎた解約済みの組織の行を 1 段ずつ物理削除する（夜間）。最初の組織・猶予前の組織は保存先が断る。呼ぶのは src/lib/organization-lifecycle.ts だけ"
+    },
+    "keyed": {
+      "current_page_kinds": {
+        "why": "ページの目印（組織の中で引き当て済み）で引く",
+        "stage": null
+      },
+      "commit_deck_revision": {
+        "why": "ページの目印（組織の中で引き当て済み）で積む。版の組織はページから写す",
+        "stage": null
+      },
+      "commit_deck_revision_group": {
+        "why": "同上",
+        "stage": null
+      },
+      "finish_deck_requests": {
+        "why": "ページの目印と係の合言葉で引く",
+        "stage": null
+      },
+      "submit_deck_request": {
+        "why": "ページの目印で引く",
+        "stage": null
+      },
+      "poll_deck_request": {
+        "why": "ページの目印と操作の目印で引く",
+        "stage": null
+      },
+      "poll_deck_request_metadata": {
+        "why": "同上",
+        "stage": null
+      },
+      "extend_deck_processor": {
+        "why": "ページの目印と係の合言葉で引く",
+        "stage": null
+      },
+      "release_deck_processor": {
+        "why": "同上",
+        "stage": null
+      },
+      "expire_deck_submissions": {
+        "why": "期限の切れた順番待ちを片付けるだけ（中身を返さない）",
+        "stage": null
+      },
+      "read_deck_update": {
+        "why": "ページの目印で引く",
+        "stage": null
+      },
+      "read_deck_edit_history": {
+        "why": "ページの目印で引く",
+        "stage": null
+      },
+      "claim_deck_media_job": {
+        "why": "処理の目印で引く",
+        "stage": null
+      },
+      "record_deck_image": {
+        "why": "ページの目印を持つ行を積む。組織はページから写す",
+        "stage": null
+      },
+      "pin_deck_my_theme": {
+        "why": "持ち主とテーマの目印で引く。D 段で組織を引数に取る",
+        "stage": "D 段（自分のテーマを組織ごとに）"
+      },
+      "save_deck_my_theme": {
+        "why": "同上",
+        "stage": "D 段（自分のテーマを組織ごとに）"
+      },
+      "apply_repository_tree": {
+        "why": "GitHub の写し（全体で 1 つ）を書く",
+        "stage": null
+      },
+      "claim_repository_render": {
+        "why": "GitHub の写し（全体で 1 つ）を書く",
+        "stage": null
+      },
+      "claim_repository_renders": {
+        "why": "同上",
+        "stage": null
+      },
+      "repository_head_state": {
+        "why": "GitHub の写し（全体で 1 つ）を読む",
+        "stage": null
+      },
+      "confirm_repository_head": {
+        "why": "同上",
+        "stage": null
+      },
+      "note_repository_push": {
+        "why": "同上",
+        "stage": null
+      },
+      "remember_repository_access": {
+        "why": "本人の GitHub の答え（全体で 1 つ）を書く",
+        "stage": null
+      },
+      "receive_repository_webhook": {
+        "why": "GitHub からの知らせ（全体で 1 つ）を受ける",
+        "stage": null
+      }
+    }
+  }
+}

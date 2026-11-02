@@ -1,0 +1,11 @@
+{
+ "always": {
+  "check-clipboard.mjs": "git に一覧や履歴を聞く",
+  "check-distribution-clean.mjs": "git に一覧や履歴を聞く",
+  "check-log-rules.mjs": "git に一覧や履歴を聞く",
+  "check-red-test-first.mjs": "git に一覧や履歴を聞く",
+  "check-secret-scan.mjs": "リポジトリ全体を歩く",
+  "check-tenant-scope.mjs": "リポジトリ全体を歩く"
+ },
+ "extra": {}
+}

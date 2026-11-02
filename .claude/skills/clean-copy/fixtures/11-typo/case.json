@@ -1,0 +1,8 @@
+{
+  "note": "誤字・表記ゆれ・数字の食い違いを、機械は 1 つも直さない。そのまま出て、人が報告で伝える",
+  "apply_defaults": false,
+  "convert": true,
+  "expect_verify_ok": true,
+  "expect_body_contains": ["こんんちは", "ユーザの問い合わせ", "ユーザーの声", "1200 万円", "1300 万円"],
+  "expect_body_missing": ["こんにちは。"]
+}

@@ -1,0 +1,13 @@
+{
+  "minWidth": 1120,
+  "railWidth": 256,
+  "gap": 48,
+  "bodyWidth": 768,
+  "edge": 24,
+  "minSectionRows": 3,
+  "readingLineFraction": 0.2,
+  "readingLineMax": 160,
+  "chapterGap": 96,
+  "chapterGapNarrow": 64,
+  "narrowWidth": 640
+}

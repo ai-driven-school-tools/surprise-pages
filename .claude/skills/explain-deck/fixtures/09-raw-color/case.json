@@ -1,0 +1,8 @@
+{
+  "note": "生の色",
+  "expect_ok": false,
+  "expect_codes": [
+    "RAW_COLOR"
+  ],
+  "embed": "ok"
+}

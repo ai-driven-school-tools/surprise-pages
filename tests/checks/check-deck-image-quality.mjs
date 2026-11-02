@@ -1,0 +1,17 @@
+import assert from 'node:assert/strict';
+import {build} from 'esbuild';
+import {readFile} from 'node:fs/promises';
+const compiled=await build({entryPoints:['src/lib/html/image-display-size.ts'],bundle:true,write:false,format:'esm',platform:'node'});
+const {imageDisplaySize}=await import('data:text/javascript;base64,'+Buffer.from(compiled.outputFiles[0].text).toString('base64'));
+assert.deepEqual(imageDisplaySize(300,400,800,400,'cover'),{width:800,height:400});
+console.log('OK  縦長の切り抜きでは、枠の外にある横幅も画素数に含める');
+assert.deepEqual(imageDisplaySize(400,400,1600,800,'contain'),{width:400,height:200});
+console.log('OK  全体表示の余白は画像の大きさに数えない');
+assert.deepEqual(imageDisplaySize(600,300,200,100,'fill'),{width:600,height:300});
+console.log('OK  引き伸ばす画像は縦横それぞれの描画寸法を使う');
+assert.deepEqual(imageDisplaySize(600,300,200,100,'scale-down'),{width:200,height:100});
+console.log('OK  拡大しない表示は元の画素と比べる');
+for(const file of ['bin/page-agent-render.mjs','src/widget/reading/page-agent-review.ts'])assert.match(await readFile(file,'utf8'),/issue\.kind === "asset" \|\|/);
+console.log('OK  人とエージェントの変更案で既存の画素不足も除外しない');
+assert.match(await readFile('.github/workflows/quality.yml','utf8'),/node --test tests\/checks\/browser\/deck-image-quality.mjs/);
+console.log('OK  実ブラウザの回帰検査をブラウザのあるCIで必ず走らせる');

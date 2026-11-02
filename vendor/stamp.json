@@ -1,0 +1,22 @@
+{
+  "tailwind.js": {
+    "stamp": "176e894661aa",
+    "version": "3.4.17",
+    "bytes": 407279
+  },
+  "lucide.js": {
+    "stamp": "f96167bbf0e7",
+    "version": "1.31.0",
+    "bytes": 417272
+  },
+  "mermaid.js": {
+    "stamp": "581ed7d74bd9",
+    "version": "11.17.2",
+    "bytes": 3572661
+  },
+  "echarts.js": {
+    "stamp": "b66b25aeb4df",
+    "version": "6.1.0",
+    "bytes": 1121883
+  }
+}

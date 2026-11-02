@@ -1,0 +1,12 @@
+{
+  "name": "surprise-pages-distribution",
+  "owner": { "name": "Pages" },
+  "description": "この配布物のスキルを、別のフォルダの Claude Code からも呼べるようにする置き場",
+  "plugins": [
+    {
+      "name": "pages",
+      "source": "./",
+      "description": "清書・図解・スライド・ページを読むの 4 つのスキル"
+    }
+  ]
+}

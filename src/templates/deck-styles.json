@@ -1,0 +1,233 @@
+{
+  "version": 1,
+  "styles": [
+    {
+      "id": "paper",
+      "name": "白",
+      "description": "色を添えない、澄んだ紙面",
+      "appearance": {
+        "background": "#ffffff",
+        "accent": "#2859dd",
+        "secondary": "#91b8ff",
+        "decoration": "none",
+        "intensity": 40,
+        "x": 85,
+        "y": 20,
+        "scale": 100,
+        "angle": 135,
+        "motion": false,
+        "typography": "modern",
+        "ornament": "rule"
+      }
+    },
+    {
+      "id": "ink",
+      "name": "墨",
+      "description": "墨色に、青白い光を添える",
+      "appearance": {
+        "background": "#151719",
+        "accent": "#c7d4dd",
+        "secondary": "#7e919d",
+        "decoration": "glow",
+        "intensity": 60,
+        "x": 100,
+        "y": 0,
+        "scale": 90,
+        "angle": 135,
+        "motion": false,
+        "typography": "modern",
+        "ornament": "rule"
+      }
+    },
+    {
+      "id": "indigo",
+      "name": "藍",
+      "description": "青と薄紫が、なだらかに重なる",
+      "appearance": {
+        "background": "#f6f7fc",
+        "accent": "#4054cc",
+        "secondary": "#b59bd8",
+        "decoration": "gradient",
+        "intensity": 74,
+        "x": 96,
+        "y": 18,
+        "scale": 95,
+        "angle": 135,
+        "motion": false,
+        "typography": "modern",
+        "ornament": "rule"
+      }
+    },
+    {
+      "id": "forest",
+      "name": "森",
+      "description": "深緑から、穏やかな黄緑へ",
+      "appearance": {
+        "background": "#f5f8f2",
+        "accent": "#24735d",
+        "secondary": "#a8bc76",
+        "decoration": "glow",
+        "intensity": 68,
+        "x": 94,
+        "y": 12,
+        "scale": 105,
+        "angle": 135,
+        "motion": false,
+        "typography": "soft",
+        "ornament": "none"
+      }
+    },
+    {
+      "id": "sunset",
+      "name": "夕映え",
+      "description": "杏色とローズの、温かな余韻",
+      "appearance": {
+        "background": "#fff8f2",
+        "accent": "#c75c3a",
+        "secondary": "#df9bab",
+        "decoration": "gradient",
+        "intensity": 68,
+        "x": 95,
+        "y": 80,
+        "scale": 88,
+        "angle": 35,
+        "motion": false,
+        "typography": "modern",
+        "ornament": "rule"
+      }
+    },
+    {
+      "id": "aurora",
+      "name": "オーロラ",
+      "description": "夜の青に、緑と紫の光が漂う",
+      "appearance": {
+        "background": "#151b2d",
+        "accent": "#87d5c1",
+        "secondary": "#aa92eb",
+        "decoration": "glow",
+        "intensity": 85,
+        "x": 80,
+        "y": 10,
+        "scale": 105,
+        "angle": 135,
+        "motion": true,
+        "typography": "modern",
+        "ornament": "none"
+      }
+    },
+    {
+      "id": "pearl",
+      "name": "パール",
+      "description": "生成りに、砂色と青灰をにじませる",
+      "appearance": {
+        "background": "#fbf9f5",
+        "accent": "#a18464",
+        "secondary": "#9eb6c5",
+        "decoration": "gradient",
+        "intensity": 62,
+        "x": 100,
+        "y": 24,
+        "scale": 105,
+        "angle": 150,
+        "motion": false,
+        "typography": "editorial",
+        "ornament": "corner"
+      }
+    },
+    {
+      "id": "lilac",
+      "name": "ライラック",
+      "description": "薄紫とピンクの、柔らかな光",
+      "appearance": {
+        "background": "#faf6fc",
+        "accent": "#8663bb",
+        "secondary": "#e8aebe",
+        "decoration": "glow",
+        "intensity": 78,
+        "x": 100,
+        "y": 5,
+        "scale": 100,
+        "angle": 135,
+        "motion": false,
+        "typography": "soft",
+        "ornament": "none"
+      }
+    },
+    {
+      "id": "glacier",
+      "name": "氷青",
+      "description": "澄んだ青から、淡いミントへ",
+      "appearance": {
+        "background": "#f3fafc",
+        "accent": "#508eb3",
+        "secondary": "#89cbbd",
+        "decoration": "gradient",
+        "intensity": 72,
+        "x": 100,
+        "y": 10,
+        "scale": 95,
+        "angle": 145,
+        "motion": false,
+        "typography": "modern",
+        "ornament": "rule"
+      }
+    },
+    {
+      "id": "twilight",
+      "name": "薄明",
+      "description": "紺に、ラベンダーとローズの光",
+      "appearance": {
+        "background": "#202033",
+        "accent": "#9ba8e0",
+        "secondary": "#d39bab",
+        "decoration": "glow",
+        "intensity": 80,
+        "x": 100,
+        "y": 0,
+        "scale": 90,
+        "angle": 135,
+        "motion": false,
+        "typography": "editorial",
+        "ornament": "corner"
+      }
+    },
+    {
+      "id": "haze",
+      "name": "霞",
+      "description": "生成りに、藤色とセージが溶け合う",
+      "appearance": {
+        "background": "#fcf6ee",
+        "accent": "#929bd0",
+        "secondary": "#82b29c",
+        "decoration": "glow",
+        "intensity": 76,
+        "x": 90,
+        "y": 8,
+        "scale": 92,
+        "angle": 135,
+        "motion": false,
+        "typography": "soft",
+        "ornament": "none"
+      }
+    },
+    {
+      "id": "shore",
+      "name": "海辺",
+      "description": "砂色と水色、ミントの淡い重なり",
+      "appearance": {
+        "background": "#fff5e9",
+        "accent": "#72a9cb",
+        "secondary": "#9acfb4",
+        "decoration": "gradient",
+        "intensity": 72,
+        "x": 96,
+        "y": 4,
+        "scale": 85,
+        "angle": 130,
+        "motion": false,
+        "typography": "modern",
+        "ornament": "rule"
+      }
+    }
+  ]
+}

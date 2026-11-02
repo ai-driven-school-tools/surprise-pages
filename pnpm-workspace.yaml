@@ -1,0 +1,17 @@
+allowBuilds:
+  '@embedded-postgres/darwin-arm64': set this to true or false
+  '@swc/core': set this to true or false
+  cbor-extract: set this to true or false
+  esbuild: set this to true or false
+  unrs-resolver: set this to true or false
+ignoredBuiltDependencies:
+  - sharp
+  - unrs-resolver
+onlyBuiltDependencies:
+  - '@embedded-postgres/darwin-arm64'
+  - '@embedded-postgres/darwin-x64'
+  - '@embedded-postgres/linux-x64'
+  - '@embedded-postgres/linux-arm64'
+
+overrides:
+  "gaxios>uuid": 11.1.1

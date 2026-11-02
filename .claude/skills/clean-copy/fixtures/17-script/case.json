@@ -1,0 +1,14 @@
+{
+  "note": "台本（--layout script）。見出しに密着した段落は添え書き、※ は注記、読む行は濃く、原本の改行をそのまま出す",
+  "layout": "script",
+  "apply_defaults": false,
+  "convert": true,
+  "expect_verify_ok": true,
+  "expect_body_contains": [
+    "data-clean-copy-attached=\"\"",
+    "状態  🟢 撮影可\n見出し 42文字／目安未設定",
+    "data-clean-copy-note=\"\"",
+    "<p class=\"text-ads-text whitespace-pre-line mb-3\">朝いちばんの一杯を</p>",
+    "<p class=\"text-ads-text whitespace-pre-line mb-3\">見出しの下に空行があれば、ふつうの読む行。</p>"
+  ]
+}

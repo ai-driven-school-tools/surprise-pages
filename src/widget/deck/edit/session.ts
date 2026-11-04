@@ -13,7 +13,8 @@ import type {TextState} from "../../../lib/deck/edit/text-sync";
 import { deckDraftOwner, availableDeckDrafts, claimDeckDraft, rememberDeckDraft } from "./draft-owner";
 import {MediaFailure,MEDIA_FAILURE_CODES} from "../../../lib/deck/media/failure";
 import { createDeckMediaQueue,MediaTargetError } from "./media-queue";
-import { isMediaFile, mediaFileType, youtubeId, formatMediaBytes } from "../../../lib/deck/media/media";
+import { isMediaFile, uploadFileType, isVideoUploadType, youtubeId, formatMediaBytes } from "../../../lib/deck/media/media";
+import { videoPosterFile } from "./video-poster";
 import { navigationRuntime } from "../../../lib/deck/preview.generated";
 import { openAgentReview } from "../../reading/page-agent-review";
 import { completeDeckCreation } from "../../../lib/deck/create-draft";
@@ -210,6 +211,8 @@ export async function openDeckEditSession(hooks: EditorHooks): Promise<void> {
   const alert = el("p", "edit-alert"); alert.hidden = true; alert.setAttribute("role", "alert");
   let frame = el("iframe", "edit-frame"); frame.title = t("deckEditor.session.frameTitle");
   const fileInput = el("input"); fileInput.type = "file"; fileInput.accept = "image/png,image/jpeg,image/webp,image/gif,image/avif"; fileInput.multiple = true; fileInput.hidden = true;
+  // 動画（MP4・WebM）は画像の窓とは別に選ぶ。サーバーで変換せず、そのまま非公開で置く（静止画はブラウザで作る）
+  const videoInput = el("input"); videoInput.type = "file"; videoInput.accept = "video/mp4,video/webm"; videoInput.hidden = true;
   function button(label: string, action: () => void): HTMLButtonElement {
     const result = el("button", "edit-button"); result.type = "button"; result.textContent = label; result.addEventListener("click", action); return result;
   }
@@ -736,10 +739,19 @@ export async function openDeckEditSession(hooks: EditorHooks): Promise<void> {
           const body:unknown=await response.json();if(!response.ok){const reason=z.object({error:z.string(),code:z.enum(MEDIA_FAILURE_CODES).optional()}).safeParse(body);throw new MediaFailure(reason.success&&reason.data.code?reason.data.code:response.status===401?"auth":response.status===403||response.status===404?"permission":"remote",reason.success?reason.data.error:t("deckEditor.session.linkUnavailable"));}
           asset=z.object({src:z.string(),poster:z.string().optional(),intrinsicWidth:z.number().optional(),intrinsicHeight:z.number().optional(),bytes:z.number(),originalBytes:z.number(),kind:z.string()}).parse(body);
         }else if(isMediaFile(input)){
-          const type=mediaFileType(input);if(!type)throw new MediaFailure("format",t("deckEditor.session.formatsImage"));
-          const limit=10;if(!input.size)throw new MediaFailure("empty",t("deckEditor.session.emptyFile"));if(input.size>limit*1024*1024)throw new MediaFailure("size",t("deckEditor.session.tooLarge",{size:formatMediaBytes(input.size),limit}));
-          const result=await uploadMediaFile({file:input,page:hooks.pageSlug,signal,progress:(done,total)=>progress(done===total?t("deckEditor.session.imageOptimizing"):t("deckEditor.session.sendingPercent",{percent:Math.floor(done/total*100)}))});
-          asset=result;
+          const type=uploadFileType(input);if(!type)throw new MediaFailure("format",t("deckEditor.session.formatsMedia"));
+          const video=isVideoUploadType(type),limit=video?100:10;if(!input.size)throw new MediaFailure("empty",t("deckEditor.session.emptyFile"));if(input.size>limit*1024*1024)throw new MediaFailure("size",t("deckEditor.session.tooLarge",{size:formatMediaBytes(input.size),limit}));
+          if(video){
+            // 先に静止画を作る（読めない動画なら、大きなファイルを送る前に止める）
+            progress(t("deckEditor.session.videoPoster"));
+            const still=await videoPosterFile(input,signal);
+            const poster=await uploadMediaFile({file:still.file,page:hooks.pageSlug,signal,progress:()=>{}});
+            const result=await uploadMediaFile({file:input,page:hooks.pageSlug,signal,progress:(done,total)=>progress(t("deckEditor.session.sendingPercent",{percent:Math.floor(done/total*100)}))});
+            asset={...result,poster:poster.src,intrinsicWidth:still.width,intrinsicHeight:still.height,kind:"video"};
+          }else{
+            const result=await uploadMediaFile({file:input,page:hooks.pageSlug,signal,progress:(done,total)=>progress(done===total?t("deckEditor.session.imageOptimizing"):t("deckEditor.session.sendingPercent",{percent:Math.floor(done/total*100)}))});
+            asset=result;
+          }
         }else if(input.kind==="current"){
           asset={src:input.src,intrinsicWidth:input.width,intrinsicHeight:input.height,bytes:0,originalBytes:0,kind:"image"};
         }else{
@@ -758,11 +770,13 @@ export async function openDeckEditSession(hooks: EditorHooks): Promise<void> {
       const placed=point??{x:(1280-width)/2,y:(720-height)/2};
       const style={position:"absolute",left:`${Math.max(0,Math.min(1280-width,placed.x))}px`,top:`${Math.max(0,Math.min(720-height,placed.y))}px`,width:`${width}px`,height:`${height}px`,"object-fit":"contain"};
       const existing=now.querySelector(`[data-deck-node="${CSS.escape(replacing?.id??targetNode)}"]`);
-      if(!existing||replacing)insert([{kind:"insert",target:targetSlide,node:{id:targetNode,tag:"img",src:asset.src,alt:typeof input==="string"?"追加した画像"/* i18n-keep: 原稿に入る代替テキスト */:isMediaFile(input)?input.name:input.title,style}}],replacing);
+      if((!existing||replacing)&&asset.kind==="video"&&asset.poster)insert([{kind:"insert",target:targetSlide,node:{id:targetNode,tag:"video",src:asset.src,poster:asset.poster,label:isMediaFile(input)?input.name:name,style}}],replacing);
+      else if(!existing||replacing)insert([{kind:"insert",target:targetSlide,node:{id:targetNode,tag:"img",src:asset.src,alt:typeof input==="string"?"追加した画像"/* i18n-keep: 原稿に入る代替テキスト */:isMediaFile(input)?input.name:input.title,style}}],replacing);
       const id=replacing?.id??targetNode;
       if(new DOMParser().parseFromString(source(),"text/html").querySelector(`[data-deck-node="${CSS.escape(id)}"]`)?.getAttribute("src")!==asset.src)throw new MediaTargetError(t("deckEditor.session.placementFailedNew"));
       progress(t("deckEditor.session.placementSaving"),"save");await waitForMediaSave(signal);
       const uploaded=asset;
+      if(asset.kind==="video")return {message:t("deckEditor.session.videoSaved",{size:formatMediaBytes(asset.bytes)})};
       return {message:t("deckEditor.session.savedBytes",{from:formatMediaBytes(asset.originalBytes),to:formatMediaBytes(asset.bytes)}),...(asset.optimized&&asset.originalSrc&&asset.originalSrc!==asset.src?{original:async()=>{if(!commit([{kind:"image",target:id,before:uploaded.src,after:uploaded.originalSrc!}]))throw new LocalizedError("deckEditor.session.originalUnsaved");await waitForMediaSave(lifetime.signal);}}:{})};
       }finally{clearPlaceholder();}
     }});
@@ -774,9 +788,12 @@ export async function openDeckEditSession(hooks: EditorHooks): Promise<void> {
     insert([{ kind: "insert", target, node: { id, tag: "p", text: "テキスト"/* i18n-keep: 原稿に入る新しい文字の初期値 */, style: { position: "absolute", left: "160px", top: "160px", width: "400px", "font-size": "32px" } } }]);
   }
   fileInput.addEventListener("cancel",()=>imagePalette?.resetMode());
+  function addVideo():void{chooseMedia(videoInput);}
+  videoInput.addEventListener("cancel",()=>workspace?.clearReplaceTarget());
+  videoInput.addEventListener("change",()=>{const target=currentSlide();if(target&&videoInput.files?.length)void upload(Array.from(videoInput.files),target,null);videoInput.value="";});
   function chooseMedia(input:HTMLInputElement):void{if(!frameReady||draftPending||queue.status==="conflict")return;input.click();}
   fileInput.addEventListener("change", () => { const target = currentSlide(); if (target && fileInput.files) void upload(Array.from(fileInput.files), target, null); fileInput.value = ""; });
-  screen.append(styles,bar,notice,alert,fileInput);
+  screen.append(styles,bar,notice,alert,fileInput,videoInput);
   function currentPaletteImages(){
     const base=frame.contentDocument?.baseURI??location.href,seen=new Set<string>();
     return inspectDeckEdit(source()).nodes.flatMap(node=>{
@@ -794,7 +811,7 @@ export async function openDeckEditSession(hooks: EditorHooks): Promise<void> {
     while(queue.pending||pendingUploads>0){if(disposed||Date.now()>deadline||queue.status==="conflict"||queue.status==="paused")throw new Error(t("deckEditor.session.saveUnconfirmed"));await new Promise(resolve=>setTimeout(resolve,100));}
     return {html:source(),versionId:snapshot.versionId};
   }
-  workspace=createDeckWorkspace({pageSlug:hooks.pageSlug,screen,bar,get frame(){return frame;},source,inspectNode:id=>snapshot.collaboration?inspectDeckNode(source(),id):localEdits.inspect(source(),id),savedSource,preview,canvas:()=>canvas,commit,fail:showError,busyChanged:()=>{if(!disposed)render();},addText,addImage:()=>imagePalette?.setOpen(true,false),openImages:replace=>imagePalette?.setOpen(true,replace),addLink,exportDraft,present,openTools:panel=>{const open=()=>close(()=>{const url=new URL(window.location.href);url.searchParams.set("deck-panel",panel);window.location.assign(url.href);});if(queue.pending||pendingUploads){afterSaved=open;showError(t("deckEditor.session.opensAfterSave"));}else open();}});
+  workspace=createDeckWorkspace({pageSlug:hooks.pageSlug,screen,bar,get frame(){return frame;},source,inspectNode:id=>snapshot.collaboration?inspectDeckNode(source(),id):localEdits.inspect(source(),id),savedSource,preview,canvas:()=>canvas,commit,fail:showError,busyChanged:()=>{if(!disposed)render();},addText,addVideo,addImage:()=>imagePalette?.setOpen(true,false),openImages:replace=>imagePalette?.setOpen(true,replace),addLink,exportDraft,present,openTools:panel=>{const open=()=>close(()=>{const url=new URL(window.location.href);url.searchParams.set("deck-panel",panel);window.location.assign(url.href);});if(queue.pending||pendingUploads){afterSaved=open;showError(t("deckEditor.session.opensAfterSave"));}else open();}});
   imagePalette=createDeckImagePalette({page:hooks.pageSlug,current:currentPaletteImages,chooseFile:()=>chooseMedia(fileInput),addLink,choose:choosePalette,open:open=>workspace?.setImagesOpen(open)??false,resetTarget:()=>workspace?.clearReplaceTarget()});
   workspace.mountImages(imagePalette.root,()=>imagePalette?.setOpen(false));
   mediaQueue=createDeckMediaQueue({page:hooks.pageSlug,open:open=>workspace?.setMediaOpen(open)??false,recoverSave:()=>{if(queue.status==="conflict")recoverButton.click();else retryButton.click();},chooseFile:receive=>{

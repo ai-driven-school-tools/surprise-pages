@@ -570,6 +570,7 @@ export function createDeckWorkspace(input: Input) {
   function replaceMedia(type: "image" | "video") {
     replaceTarget = { id: selection[0], type };
     if(type === "image")input.openImages(true);
+    else input.addVideo();
   }
   /** The slide the canvas shows: the current one, else the linked target, else the first. */
   function settleCurrent(): string {

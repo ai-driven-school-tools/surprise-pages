@@ -275,7 +275,7 @@ export function createDeckWorkspaceInspector(connections: Host) {
     if (mediaSlot) {
       connections.inspector.append(el("p", "ds-note", node.hasAttribute("data-deck-sample-image") ? t("deckEditor.inspector.sampleImage") : t("deckEditor.inspector.slotHint")));
       if (mediaSlot === "video")
-        connections.inspector.append(el("p", "ds-note", t("deckEditor.inspector.videoClosed")));
+        connections.inspector.append(button(t("deckEditor.inspector.addVideo"), () => replaceMedia(mediaSlot)));
       else if (mediaSlot === "image")
         connections.inspector.append(button(node.hasAttribute("data-deck-sample-image") ? t("deckEditor.inspector.replaceImage") : t("deckEditor.inspector.addImage"), () => replaceMedia(mediaSlot)));
       else connections.inspector.append(el("p", "ds-note", t("deckEditor.inspector.audioFromSource")));

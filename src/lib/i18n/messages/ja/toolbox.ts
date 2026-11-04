@@ -42,6 +42,8 @@ export const toolbox = {
   },
   bar: {
     comments: "コメント",
+    duplicateDeck: "この資料を複製",
+    duplicateFailed: "複製できませんでした",
     commentsCount: { one: "コメント {count}", other: "コメント {count}" },
     history: "履歴",
     edit: "このページを直す",

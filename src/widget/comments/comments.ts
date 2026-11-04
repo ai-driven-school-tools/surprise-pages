@@ -51,6 +51,7 @@ import { createCommentSelection } from './selection';
 import { createCommentSharing } from './sharing';
 import type { PanelView, SendRow, State, TextAreaKeys } from './types';
 import { mountDeckStyles } from "../deck/deck";
+import { duplicateDeck } from "../deck/duplicate";
 import { mountDeckPresenterLauncher, openPresenterView } from "../deck/present/launch";
 import { readDeckTools, watchDeckTools } from "../deck/edit/tools";
 import {
@@ -105,6 +106,7 @@ import {
   ICON_PRESENTATION,
   ICON_THUMBS,
   ICON_USERS,
+  ICON_COPY,
   PANEL_DEFAULT_WIDTH,
   PRIORITY_LOOK,
   PRIORITY_ORDER,
@@ -1375,6 +1377,12 @@ function moreMenuSections(): MoreSection[] {
   // 誰に見せるかの設定。持ち主と管理者にしか出さない（押せない行を見せない）
   if (sharingFeature.canManageAccess()) {
     page.push({ label: t("toolbox.bar.access"), icon: ICON_USERS, run: () => void sharingFeature.openAccess() });
+  }
+
+  // この資料を複製。スライドのいまの版を、直せる人（持ち主と管理者）が開いているときだけ（過去の版は写さない）
+  const versionToCopy = state.currentVersion;
+  if (sharingFeature.canManageAccess() && document.body.hasAttribute("data-deck") && historyFeature.loadedVersion === null && versionToCopy !== null) {
+    page.push({ label: t("toolbox.bar.duplicateDeck"), icon: ICON_COPY, run: () => void duplicateDeck(state.slug, versionToCopy, showError) });
   }
 
   /*

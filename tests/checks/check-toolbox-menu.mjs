@@ -140,7 +140,8 @@ console.log("\n   ⋯ の中身（段と行）");
 const menuRows = [...sections.matchAll(/label: (?:readAloud\.active \? t\("toolbox\.bar\.stopReading"\) : )?(?:document\.body\.hasAttribute\("data-deck"\) \? t\("toolbox\.bar\.deckOrigin"\) : )?t\("toolbox\.bar\.([a-zA-Z]+)"\)/g)].map((m) => m[1]).filter((name) => !name.startsWith("menu"));
 console.log(`      行: ${menuRows.join(" / ")}`);
 // Slack で共有・読み上げ・プロンプターは配布版に無い。読み方の段に残るのはスライドの行（発表者画面・一覧・ノート）だけ
-ok("このページ: 履歴 → 取り込み → 共有範囲", menuRows.join(","), "history,origin,access");
+// 配布版で足した「この資料を複製」（スライドのいまの版を直せる人だけ）は、共有範囲の次に置く
+ok("このページ: 履歴 → 取り込み → 共有範囲 → 複製", menuRows.join(","), "history,origin,access,duplicateDeck");
 ok("段は 2 つ（このページの道具 / 読み方）", /sections\.push\(\{ id: "page", rows: page \}\)/.test(sections) && /sections\.push\(\{ id: "reading", rows: reading \}\)/.test(sections), true);
 ok("段に見出しは置かない（余白で分ける。行が 3〜5 本なので見出しのほうが強く見える）", /label: t\("toolbox\.bar\.menu/.test(sections) || /list-menu-label/.test(fn("moreMenuNodes")), false);
 ok("行が 0 の段は出さない", /if \(page\.length > 0\) sections\.push/.test(sections) && /if \(reading\.length > 0\) sections\.push/.test(sections), true);

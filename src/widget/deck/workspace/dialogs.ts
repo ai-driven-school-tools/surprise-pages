@@ -418,6 +418,7 @@ export function createDeckWorkspaceDialogs(connections: Host) {
     for (const [label, fn, glyph] of [
       [t("deckEditor.dialogs.text"), connections.input.addText, "text"],
       [t("deckEditor.dialogs.image"), connections.input.addImage, "image"],
+      [t("deckEditor.dialogs.video"), connections.input.addVideo, "video"],
       [t("deckEditor.dialogs.fromLink"), connections.input.addLink, "link"],
       [
         t("deckEditor.dialogs.square"),

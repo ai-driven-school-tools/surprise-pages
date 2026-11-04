@@ -1,5 +1,5 @@
 import {MediaFailure,MEDIA_FAILURE_CODES} from "../../../lib/deck/media/failure";
-import {mediaFileType} from "../../../lib/deck/media/media";
+import {uploadFileType} from "../../../lib/deck/media/media";
 import {z} from "zod";
 import {DECK_VIDEO_CHUNK_BYTES} from "../../../lib/deck/media/video-upload";
 import { t } from "../../shared/i18n";
@@ -22,7 +22,7 @@ async function send(url:string,options:RequestInit,signal:AbortSignal):Promise<u
 }
 /** Two small requests at most are in flight. A failed part is retried independently. */
 export async function uploadMediaFile(input:{file:File;page:string;signal:AbortSignal;progress:(done:number,total:number)=>void}){
-  const {file,page,signal:outerSignal}=input,type=mediaFileType(file),base=`/api/pages/deck-edit/media/upload?page=${encodeURIComponent(page)}`;
+  const {file,page,signal:outerSignal}=input,type=uploadFileType(file),base=`/api/pages/deck-edit/media/upload?page=${encodeURIComponent(page)}`;
   if(!type)throw new MediaFailure("format",t("deckEditor.videoUpload.chooseMedia"));
   const start=z.object({upload:z.string(),chunkBytes:z.literal(DECK_VIDEO_CHUNK_BYTES)}).parse(await send(base,{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({size:file.size,type})},outerSignal));
   const transfer=new AbortController(),abort=()=>transfer.abort();outerSignal.addEventListener("abort",abort,{once:true});if(outerSignal.aborted)abort();const signal=transfer.signal;

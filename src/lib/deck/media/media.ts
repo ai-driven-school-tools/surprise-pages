@@ -13,7 +13,7 @@ export function isMediaFile(value: unknown): value is File {
     "slice" in value && typeof value.slice === "function";
 }
 export const MEDIA_IMAGE_TYPES = ["image/png","image/jpeg","image/webp","image/gif","image/avif"] as const;
-/** 受け取れる素材の形式（この版は画像だけ。動画のファイルは受け取らない）。 */
+/** 画像として受け取れる形式。動画も送れる口は下の `uploadTypeSchema` を使う。 */
 export const mediaTypeSchema=z.enum(MEDIA_IMAGE_TYPES);
 export type MediaType=z.infer<typeof mediaTypeSchema>;
 export const MEDIA_EXTENSIONS:Record<MediaType,string>={"image/png":"png","image/jpeg":"jpg","image/webp":"webp","image/gif":"gif","image/avif":"avif"};
@@ -23,6 +23,24 @@ export function mediaFileType(file:Pick<File,"type"|"name">):MediaType|null{
   if(file.type)return null;
   const extension=file.name.split(".").at(-1)?.toLowerCase();
   return Object.entries(MEDIA_EXTENSIONS).find(([,ext])=>ext===extension||ext==="jpg"&&extension==="jpeg")?.[0] ? mediaTypeSchema.parse(Object.entries(MEDIA_EXTENSIONS).find(([,ext])=>ext===extension||ext==="jpg"&&extension==="jpeg")?.[0]) : null;
+}
+/**
+ * 編集画面から送れる動画（MP4・WebM）。サーバーでの変換（軽量化）はせず、送られたファイルをそのまま非公開で置く。
+ * 画像だけを扱う口（リンクからの取り込み・画像の軽量化）は `mediaTypeSchema` のまま、動画を受けない。
+ */
+export const MEDIA_VIDEO_TYPES = ["video/mp4","video/webm"] as const;
+export const uploadTypeSchema=z.enum([...MEDIA_IMAGE_TYPES,...MEDIA_VIDEO_TYPES]);
+export type UploadType=z.infer<typeof uploadTypeSchema>;
+export const UPLOAD_EXTENSIONS:Record<UploadType,string>={...MEDIA_EXTENSIONS,"video/mp4":"mp4","video/webm":"webm"};
+export function isVideoUploadType(type:string):type is (typeof MEDIA_VIDEO_TYPES)[number]{return MEDIA_VIDEO_TYPES.some(one=>one===type);}
+/** 送るファイルの形式（画像か動画）。ブラウザが形式を名乗らないときは拡張子で読む。 */
+export function uploadFileType(file:Pick<File,"type"|"name">):UploadType|null{
+  const image=mediaFileType(file);if(image)return image;
+  const type=uploadTypeSchema.safeParse(file.type);
+  if(type.success)return type.data;
+  if(file.type)return null;
+  const extension=file.name.split(".").at(-1)?.toLowerCase();
+  return extension==="mp4"||extension==="m4v"?"video/mp4":extension==="webm"?"video/webm":null;
 }
 export function youtubeId(value:string):string|null{
   try{

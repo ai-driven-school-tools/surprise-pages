@@ -40,6 +40,8 @@ export const toolbox = {
   },
   bar: {
     comments: "Comments",
+    duplicateDeck: "Duplicate this deck",
+    duplicateFailed: "Couldn't duplicate",
     commentsCount: { one: "Comments {count}", other: "Comments {count}" },
     history: "History",
     edit: "Edit this page",

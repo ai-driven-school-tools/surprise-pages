@@ -23,6 +23,8 @@ export type Input = {
   busyChanged: () => void;
   addText: () => void;
   addImage: () => void;
+  /** 動画（MP4・WebM）のファイルを選ばせて置く。差し替え先があればそこへ入れる。 */
+  addVideo: () => void;
   openImages: (replace: boolean) => void;
   addLink: () => void;
   exportDraft: () => void;

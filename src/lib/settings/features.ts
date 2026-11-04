@@ -62,6 +62,7 @@ export const FEATURES = {
       "src/app/api/pages/deck-edit",
       "src/app/api/pages/deck-edit/assets",
       "src/app/api/pages/deck-edit/create",
+      "src/app/api/pages/deck-edit/duplicate",
       "src/app/api/pages/deck-edit/image-library",
       "src/app/api/pages/deck-edit/image-library/preview",
       "src/app/api/pages/deck-edit/media/import",

@@ -1,6 +1,6 @@
 // スライドの編集画面から画像を足す、小分けの送信（src/lib/deck/media/video-upload.ts・src/lib/deck/media/video-storage.ts・src/lib/deck/media/video-lease.ts）の検査。
-// この版は動画を受け取らない。小分けの送信の仕組みは画像の追加（/api/pages/deck-edit/media/upload）がそのまま使うので、
-// 動画の口で見ていた守り（編集権限・送信の印・期限・通信量・非公開・再送・掃除）を画像の口で見る。
+// 小分けの送信の仕組みは画像と動画の追加（/api/pages/deck-edit/media/upload）が使う。守り（編集権限・送信の印・期限・通信量・非公開・再送・掃除）を
+// 画像で見て、最後に動画（MP4・100MB まで・サーバーで変換せずそのまま置く）を見る。
 import assert from 'node:assert/strict';
 import {createHash, randomBytes} from 'node:crypto';
 import {createRequire} from 'node:module';
@@ -19,7 +19,8 @@ try{
  ok('検査の画像が小分けを 3 つ以上に分ける大きさ',file.length>4*1024*1024&&file.length<=10*1024*1024);
  const denied=await call(h.api.mediaStart,request('POST',{size:file.length,type:'image/png'}),null);ok('ログイン前は送信を始めない',denied.status===401&&globalThis.__deckAssets.size===0);
  const tooLarge=await call(h.api.mediaStart,request('POST',{size:10*1024*1024+1,type:'image/png'}));ok('10MBを超える画像を受け付けない',tooLarge.status===400);
- const video=await call(h.api.mediaStart,request('POST',{size:1024,type:'video/mp4'}));ok('動画の形式は受け付けない',video.status===400);
+ const videoTooLarge=await call(h.api.mediaStart,request('POST',{size:100*1024*1024+1,type:'video/mp4'}));ok('100MBを超える動画を受け付けない',videoTooLarge.status===400);
+ const otherVideo=await call(h.api.mediaStart,request('POST',{size:1024,type:'video/quicktime'}));ok('MP4・WebM 以外の動画は受け付けない',otherVideo.status===400);
  const begun=await call(h.api.mediaStart,request('POST',{size:file.length,type:'image/png'}));const {upload,chunkBytes}=await begun.json();ok('小分けの送信を編集権限の内側で始める',begun.status===201&&chunkBytes===2*1024*1024);
  const signatureAt=upload.indexOf('.')+1,tampered=upload.slice(0,signatureAt)+(upload[signatureAt]==='A'?'B':'A')+upload.slice(signatureAt+1);
  const wrong=await call(h.api.mediaChunk,request('PUT',file.subarray(0,chunkBytes),tampered,'&chunk=0&hash='+'0'.repeat(64)));ok('書き換えた送信の印では受け付けない',wrong.status===403);
@@ -64,4 +65,15 @@ try{
  const removed=await h.api.sweepVideoUploads(h.organization);ok('古い一時データだけを自動清掃する',removed===1&&!globalThis.__deckAssets.has(old)&&globalThis.__deckAssets.has(young)&&globalThis.__deckAssets.has('internal/example/design/'+body.src));
  ok('最初の組織の掃除は、別の組織の置き場の一時データに触れない',globalThis.__deckAssets.has(otherOld));
  const otherRemoved=await h.api.sweepVideoUploads(otherOrganization);ok('組織の置き場の頭が付いた古い一時データも、その組織の掃除で片付く',otherRemoved===1&&!globalThis.__deckAssets.has(otherOld)&&globalThis.__deckAssets.has(young));
+ // 動画（MP4）。画像の上限（10MB）を超えても受け、サーバーで変換せず、送ったバイト列のまま非公開で置く
+ const mp4=Buffer.alloc(11*1024*1024,3);mp4.write('\u0000\u0000\u0000\u0018ftypisom',0,'latin1');
+ const videoStart=await call(h.api.mediaStart,request('POST',{size:mp4.length,type:'video/mp4'}));const videoLease=await videoStart.json();ok('10MBを超える動画の送信を始める',videoStart.status===201);
+ const videoHashes=[];
+ for(let at=0,index=0;at<mp4.length;at+=videoLease.chunkBytes,index++){const bytes=mp4.subarray(at,at+videoLease.chunkBytes),hash=createHash('sha256').update(bytes).digest('hex');videoHashes.push(hash);const response=await call(h.api.mediaChunk,request('PUT',bytes,videoLease.upload,`&chunk=${index}&hash=${hash}`));if(response.status!==200)throw new Error(`動画の部分${index+1}を受け取れません: ${response.status}`);}
+ const videoDone=await call(h.api.mediaFinish,request('PATCH',{hashes:videoHashes},videoLease.upload));const videoBody=await videoDone.json();
+ const storedVideo=globalThis.__deckAssets.get('internal/example/design/'+videoBody.src);
+ ok('動画は変換せず、送ったバイト列のまま非公開で置く',videoDone.status===201&&videoBody.kind==='video'&&videoBody.src.startsWith('_deck/media-')&&videoBody.src.endsWith('.mp4')&&storedVideo?.bytes.equals(mp4)&&storedVideo.options.access==='private');
+ const fakeVideo=Buffer.alloc(1024,9),fakeVideoHash=createHash('sha256').update(fakeVideo).digest('hex');
+ const fakeStart=await call(h.api.mediaStart,request('POST',{size:fakeVideo.length,type:'video/mp4'}));const fakeLease=await fakeStart.json();
+ const notVideo=await call(h.api.mediaChunk,request('PUT',fakeVideo,fakeLease.upload,`&chunk=0&hash=${fakeVideoHash}`));ok('先頭が MP4 の形でない送信は受け取らない',notVideo.status===400);
 }finally{await h.close();}

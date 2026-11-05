@@ -4,8 +4,15 @@ import { activeReadingEntry, readOutline, readingHref, READING_TAG, revealReadin
 import { t } from "../shared/i18n";
 import { readingPageRules, READING_STYLES } from "./nav-styles";
 import { ICON_SIZE, READING_LAYOUT } from "../shared/tokens";
+import { placeInHistory, rememberPlaceInHistory, reopenedHere, scrollToPlace } from "./position";
 import { topInset } from "./top-inset";
 import { el, icon, ICON_CHEVRON_DOWN } from "../shared/util";
+
+/** 目次で飛んだときに積む履歴の印。「戻る」で来たのが目次で飛んだ先かを見分ける。 */
+const READING_JUMP = "surpriseReadingJump";
+function isReadingJump(state: unknown): boolean {
+  return typeof state === "object" && state !== null && READING_JUMP in state;
+}
 
 /** top は控えた時点の画面上の位置。scrollY はそのときのスクロール量（あとから指で動いたぶんを差し引くため）。 */
 interface Position { range: Range; top: number; scrollY: number }
@@ -131,9 +138,10 @@ export class ReadingNavigation {
     this.layout();
     this.sync();
     this.remember();
-    // ほかの帯（現在地の行・版の見比べ）の高さが変わったら、読んでいる場所を保ったまま置き直す。
-    // 知らせが届くのは余白が動いたあとなので、戻す先は動く前に控えてあった場所
-    this.stopWatchingTop = topInset.watch(() => { if (!this.applying) this.preserve(() => this.layout(), this.lastPosition); });
+    // ほかの帯（現在地の行・版の見比べ・新しい版の知らせ）の高さが変わったら、置き直す。余白が変わったぶんは帯の持ち主
+    // （top-inset.ts）が読んでいる段落を動かさずに打ち消してあるので、いまの位置を測ってから置き直す
+    // （動く前の控えと比べると、打ち消したスクロールを読む人の操作と取り違えて、もう 1 度ずらす）
+    this.stopWatchingTop = topInset.watch(() => { if (!this.applying) this.preserve(() => this.layout()); });
     window.addEventListener("scroll", this.onScroll, { passive: true });
     window.addEventListener("resize", this.onResize);
     window.addEventListener("hashchange", this.onHash);
@@ -159,8 +167,9 @@ export class ReadingNavigation {
     }
     outline.main.addEventListener("toggle", this.onResize, true);
     document.fonts?.ready.then(() => this.onResize());
-    // ブラウザの初期アンカー移動後に、固定欄の余白を反映する。
-    if (window.location.hash) requestAnimationFrame(this.onHash);
+    // ブラウザの初期アンカー移動後に、固定欄の余白を反映する。読み込み直した・戻る進むで来たときは、
+    // ブラウザが前に読んでいた位置へ戻すので、URL の見出しへ連れて行き直さない
+    if (window.location.hash && !reopenedHere()) requestAnimationFrame(this.onHash);
   }
 
   private entryLink(entry: ReadingEntry, number?: string): HTMLAnchorElement {
@@ -195,7 +204,8 @@ export class ReadingNavigation {
       event.preventDefault();
       this.close(false);
       const url = new URL(window.location.href); url.hash = "";
-      history.pushState(null, "", url.href);
+      rememberPlaceInHistory();
+      history.pushState({ [READING_JUMP]: "top" }, "", url.href);
       window.scrollTo({ top: 0, behavior: "instant" });
       this.queue();
     });
@@ -259,11 +269,14 @@ export class ReadingNavigation {
 
   private preserve(change: () => void, position = capturePosition(this.outline.main, this.readingLine)): void {
     const atTop = window.scrollY <= READING_LAYOUT.edge;
+    // 控えたあとに指で進めたぶんは、変える前のスクロールで測る。変える処理の中で動いたスクロール（帯の余白の打ち消し）は
+    // 本文を動かさないためのものなので、読む人の操作に数えない
+    const scrolled = window.scrollY;
     change();
     if (position && position.range.startContainer.isConnected) {
       // 控えたあとに指で進めたぶんは読む人の操作なので戻さない。直すのは折り返しや余白で本文が動いたぶんだけ。
       // スマホのアドレスバーの出入り（高さだけの resize）では本文は動かないので、何もしない（戻すと「カクッ」と見え、慣性も止まる）。
-      const expected = position.top - (window.scrollY - position.scrollY);
+      const expected = position.top - (scrolled - position.scrollY);
       const shift = position.range.getBoundingClientRect().top - expected;
       if (Math.abs(shift) > 1) {
         const difference = shift + expected - Math.max(expected, this.top + READING_LAYOUT.edge);
@@ -435,7 +448,9 @@ export class ReadingNavigation {
     this.close(false);
     revealReadingTarget(entry.target);
     this.layout();
-    history.pushState(null, "", readingHref(window.location.href, entry.target.id));
+    // 飛ぶ前に読んでいた所を、いまの履歴に書き添える（「戻る」でここへ戻す）
+    rememberPlaceInHistory();
+    history.pushState({ [READING_JUMP]: entry.target.id }, "", readingHref(window.location.href, entry.target.id));
     entry.target.scrollIntoView({ block: "start", behavior: "instant" });
     const previous = entry.target.getAttribute("tabindex");
     entry.target.tabIndex = -1;
@@ -466,6 +481,15 @@ export class ReadingNavigation {
   };
   private onHash = (): void => {
     this.close(false);
+    // 「戻る・進む」で、目次で飛ぶ前の履歴へ来た。そこで読んでいた所へ戻す。ブラウザも位置を戻すが、
+    // 戻すのは飛んだ直後の位置のことがある（読み進めたぶんを覚えていない）ので、ブラウザが戻し終えてから合わせ直す
+    const place = placeInHistory(history.state);
+    if (place !== null || isReadingJump(history.state)) {
+      this.layout();
+      if (place !== null) requestAnimationFrame(() => { if (!this.destroyed) scrollToPlace(place); this.queue(); });
+      this.queue();
+      return;
+    }
     let id: string;
     try { id = decodeURIComponent(window.location.hash.slice(1)); } catch { return; }
     const target = document.getElementById(id);

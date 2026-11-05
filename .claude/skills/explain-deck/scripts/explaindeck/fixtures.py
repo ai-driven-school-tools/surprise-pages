@@ -284,6 +284,120 @@ def run_publish_cases():
     return results
 
 
+def run_runtime_cases():
+    """Published decks keep the runtime they were written with; the list decides, not this file."""
+    results = []
+    holder = tempfile.mkdtemp(prefix="explain-deck-runtime-")
+    try:
+        style = "<style>:root{--deck-k:1}[data-deck-frame]{position:fixed;font-size:12px;color:#fff}</style>"
+        old_nav = "<script>var WIDTH = 1280;/*old*/data-deck-ready</script>"
+        new_nav = "<script>var WIDTH = 1280;/*new*/data-deck-ready</script>"
+        old_design = '<style data-deck-design-style="3">.x{font-size:12px;position:fixed;color:#000}</style><script data-deck-design-runtime="3">"<style>a{font-size:1px}</style>";/*old*/</script>'
+        new_design = '<style data-deck-design-style="3">.x{color:#111}</style><script data-deck-design-runtime="3">/*new*/</script>'
+        old_v3 = old_design[old_design.index("<script"):]
+        slides = '<body data-deck>\n<main data-deck-slides><section data-deck-slide></section></main>\n'
+        deck = "<!doctype html><html><head><title>t</title>%s</head>" + slides + "%s%s</body></html>\n"
+        templates = os.path.join(holder, "src", "templates")
+        os.makedirs(templates)
+        os.makedirs(os.path.join(holder, "bin"))
+        with open(os.path.join(holder, "bin", "deck-design-check.mjs"), "w", encoding="utf-8") as handle:
+            handle.write('console.log(JSON.stringify({ ok: true }));\n')
+        for name, text in (("deck.html", "<!-- x -->" + style + new_nav), ("deck-design.html", "<!-- x -->" + new_design)):
+            with open(os.path.join(templates, name), "w", encoding="utf-8") as handle:
+                handle.write(text)
+        compat = {
+            "navigation": [check_mod._sha256(old_nav), check_mod._sha256(new_nav)],
+            "design": [check_mod._sha256(old_v3), check_mod._sha256(new_design[new_design.index("<script"):])],
+        }
+        with open(os.path.join(templates, check_mod.COMPAT_NAME), "w", encoding="utf-8") as handle:
+            json.dump(compat, handle)
+        template = os.path.join(templates, "deck.html")
+
+        def checked(name, text):
+            path = os.path.join(holder, name + ".html")
+            with open(path, "w", encoding="utf-8") as handle:
+                handle.write(text)
+            return path, check_mod.check_file(path, template_path=template)
+
+        result = Result("runtime-listed-passes")
+        source, report_ = checked("listed", deck % (old_design, style, old_nav))
+        result.check("通る", report_["ok"], str(report_["findings"]))
+        results.append(result)
+
+        result = Result("runtime-unknown-reports-once")
+        _, report_ = checked("unknown", deck % ("", style, old_nav.replace("old", "other")))
+        found = [item["code"] for item in report_["findings"]]
+        result.check("1件だけ", found == ["TEMPLATE_MISMATCH"], str(found))
+        results.append(result)
+
+        result = Result("design-unknown-reports-once")
+        _, report_ = checked("unknown-design", deck % (old_design.replace("old", "other"), style, old_nav))
+        found = [item["code"] for item in report_["findings"]]
+        result.check("1件だけ", found == ["TEMPLATE_MISMATCH"], str(found))
+        results.append(result)
+
+        result = Result("runtime-before-main-passes")
+        _, report_ = checked("before-main", deck % (old_design + style + old_nav, "", ""))
+        result.check("通る", report_["ok"], str(report_["findings"]))
+        results.append(result)
+
+        result = Result("unknown-before-main-is-mismatch")
+        _, report_ = checked("unknown-before-main", deck % (style + old_nav.replace("old", "other"), "", ""))
+        found = [item["code"] for item in report_["findings"]]
+        result.check("違うと報告", found == ["TEMPLATE_MISMATCH"], str(found))
+        results.append(result)
+
+        result = Result("author-style-still-checked")
+        _, report_ = checked("author", deck % ("<style>.a{font-size:12px}</style>" + old_design, style, old_nav))
+        found = [item["code"] for item in report_["findings"]]
+        result.check("本文の字は見る", found == ["FONT_TOO_SMALL"], str(found))
+        results.append(result)
+
+        result = Result("list-missing-recognises-nothing")
+        os.remove(os.path.join(templates, check_mod.COMPAT_NAME))
+        _, report_ = checked("no-list", deck % ("", style, old_nav))
+        found = [item["code"] for item in report_["findings"]]
+        result.check("通さない", found == ["TEMPLATE_MISMATCH"], str(found))
+        with open(os.path.join(templates, check_mod.COMPAT_NAME), "w", encoding="utf-8") as handle:
+            json.dump(compat, handle)
+        results.append(result)
+
+        config = os.path.join(holder, "config")
+        os.makedirs(config)
+        with open(os.path.join(config, "token"), "w", encoding="utf-8") as handle:
+            handle.write("x")
+        cli, _received = _fake_cli(holder)
+        saved = os.environ.get("SURPRISE_PAGES_CONFIG")
+        os.environ["SURPRISE_PAGES_CONFIG"] = config
+        try:
+            before = open(source, "rb").read()
+            with patch.object(pipeline_mod.update_mod, "read_current", return_value={"versionId": "v1"}):
+                code, payload = pipeline_mod.run(source, slug="decks/old", cli=cli, template_path_override=template, base_version="v1", keep=True, no_git=True)
+            posted = open(payload["copy"], encoding="utf-8").read() if payload.get("copy") else ""
+            result = Result("republish-upgrades-runtime")
+            result.check("exit 0", code == 0, str(payload.get("error")))
+            result.check("結果に出る", "navigation・design" in (payload.get("runtime_updated") or ""), str(payload.get("runtime_updated")))
+            result.check("現行の実行部", new_nav in posted and new_design in posted)
+            result.check("古い実行部が残らない", old_nav not in posted and old_design not in posted)
+            result.check("原本が同じ", open(source, "rb").read() == before)
+            results.append(result)
+
+            code, payload = pipeline_mod.run(source, slug="decks/new", cli=cli, template_path_override=template, keep=True, no_git=True)
+            posted = open(payload["copy"], encoding="utf-8").read() if payload.get("copy") else ""
+            result = Result("new-publish-keeps-runtime")
+            result.check("exit 0", code == 0, str(payload.get("error")))
+            result.check("差し替えない", old_nav in posted and "runtime_updated" not in payload)
+            results.append(result)
+        finally:
+            if saved is None:
+                os.environ.pop("SURPRISE_PAGES_CONFIG", None)
+            else:
+                os.environ["SURPRISE_PAGES_CONFIG"] = saved
+    finally:
+        shutil.rmtree(holder, ignore_errors=True)
+    return results
+
+
 def run_all():
     results = []
     prov = provenance_mod.self_test()
@@ -296,6 +410,7 @@ def run_all():
     # Publishing contract fixtures use a fake CLI. Real image checks have their own tests.
     with patch.object(pipeline_mod.quality_mod, "check_file", return_value={"ok": True, "slides": 1, "density": 2, "issues": []}):
         results.extend(run_publish_cases())
+        results.extend(run_runtime_cases())
     return results
 
 

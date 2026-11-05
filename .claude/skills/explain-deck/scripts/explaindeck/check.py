@@ -15,20 +15,11 @@ from .note import has_source_note
 MIN_FONT_PX = 20
 PLACEHOLDER = "<!--DECK_EMBED-->"
 
-# Previously shipped runtimes remain valid only as exact blocks. Republishing an
-# authored file must not require replacing its runtime or rewriting its source.
-KNOWN_LEGACY_RUNTIME_SHA256 = {
-    # Font geometry remeasurement, before native video key handling.
-    "feaf9a6f34b0f3b32eab1fdb0a5a11cf8a2611325ae8957da13d3357374f613e",
-    # Named slide links, before font-driven geometry remeasurement.
-    "aa80cec2a19f6dbb340a9b52128f73549519c29d2061b8db417d901eec86953f",
-    # Step controls and stable paper spacing, before named slide links.
-    "8bea229e5e14799418cc2f3c2350f5e03aa451ac485b2077e41baf8dd86999bb",
-    # Before guided focus.
-    "2038e00f3ae44ce5afd6a4aa859b1a85201f3b0d41310553623265917b6652b5",
-    # Guided focus before the overview/step controls and flow redesign.
-    "99ae27bdf76c441a305913e79b3991b00cf1ebb203b2b2ef5681748d0e5250e8",
-}
+# Previously shipped runtimes remain valid only as exact scripts. Their digests live in one
+# place: src/templates/deck-preview-compat.json next to the template (scripts/build/deck-design.mjs keeps it).
+# Republishing an authored file must not require replacing its runtime or rewriting its source.
+COMPAT_NAME = "deck-preview-compat.json"
+COMPANION_NAMES = ("deck-design.html", "mermaid.html")
 
 FONT_SIZE = re.compile(r"font-size:\s*(\d+(?:\.\d+)?)px", re.I)
 VIEWPORT = re.compile(r"\d(?:vw|vh|dvh|svh|lvh)\b", re.I)
@@ -39,6 +30,10 @@ BASE_TAG = re.compile(r"<base\s", re.I)
 STYLE_BLOCK = re.compile(r"<style\b[^>]*>(.*?)</style\s*>", re.I | re.S)
 CSS_COMMENT = re.compile(r"/\*.*?\*/", re.S)
 MAIN_BLOCK = re.compile(r"<main\b[^>]*>.*?</main\s*>", re.I | re.S)
+SCRIPT_BLOCK = re.compile(r"<script\b[^>]*>.*?</script\s*>", re.I | re.S)
+SCRIPT_OR_COMMENT = re.compile(r"<!--.*?-->|<script\b[^>]*>.*?</script>", re.S)
+DESIGN_STYLE_BLOCK = re.compile(r"<style\b[^>]*\bdata-deck-design-style=[^>]*>.*?</style\s*>", re.I | re.S)
+DESIGN_RUNTIME_BLOCK = re.compile(r"<script\b[^>]*\bdata-deck-design-runtime=[^>]*>.*?</script>", re.S)
 # 絵文字。標準ライブラリの re に \p{Extended_Pictographic} は無いので範囲で見る
 EMOJI = re.compile(
     "["
@@ -71,26 +66,90 @@ def embed_block(template_html):
     return template_html[start : end + len("</script>")]
 
 
-def embedded_runtime_block(html):
-    """Cut only the deck runtime around its unique function name, ignoring author styles."""
-    signature = "(function deck()"
-    signature_at = html.find(signature)
-    if signature_at < 0:
-        return ""
-    script_at = html.rfind("<script", 0, signature_at)
-    style_at = html.rfind("<style", 0, script_at)
-    end = html.find("</script>", signature_at)
-    if script_at < 0 or style_at < 0 or end < signature_at:
-        return ""
-    return html[style_at : end + len("</script>")]
+def _sha256(text):
+    return hashlib.sha256(text.encode("utf-8")).hexdigest()
 
 
-def has_known_legacy_runtime(html):
-    runtime = embedded_runtime_block(html)
-    if not runtime:
+def load_compat(template_path):
+    """The compatibility list beside the template. A missing or broken list recognises nothing."""
+    path = os.path.join(os.path.dirname(template_path or ""), COMPAT_NAME)
+    try:
+        value = json.loads(read_text(path))
+        return {"navigation": set(value["navigation"]), "design": set(value["design"])}
+    except (OSError, ValueError, KeyError, TypeError):
+        return {"navigation": set(), "design": set()}
+
+
+def navigation_span(html):
+    """(start, end) of the stock navigation script, found the way src/widget/deck/preview.ts finds it."""
+    for matched in SCRIPT_OR_COMMENT.finditer(html):
+        text = matched.group(0)
+        if text.startswith("<script>") and "var WIDTH = 1280;" in text and "data-deck-ready" in text:
+            at = text.rfind("<script>")
+            return matched.start() + at, matched.end()
+    return None
+
+
+def navigation_style_span(html, script_start):
+    """The stock style directly before the script. The template always pastes the two together."""
+    close = html.rfind("</style>", 0, script_start)
+    if close < 0 or html[close + len("</style>") : script_start].strip():
+        return None
+    start = html.rfind("<style>", 0, close)
+    if start < 0:
+        return None
+    block = html[start : close + len("</style>")]
+    if "--deck-k" not in block or "data-deck-frame" not in block or "<style" in block[1:]:
+        return None
+    return start, close + len("</style>")
+
+
+def has_known_runtime(html, compat):
+    """A stock navigation runtime, and the design runtime if the deck has one, are both listed."""
+    script = navigation_span(html)
+    if script is None or navigation_style_span(html, script[0]) is None:
         return False
-    digest = hashlib.sha256(runtime.encode("utf-8")).hexdigest()
-    return digest in KNOWN_LEGACY_RUNTIME_SHA256
+    if _sha256(html[script[0] : script[1]]) not in compat["navigation"]:
+        return False
+    design = DESIGN_RUNTIME_BLOCK.search(html)
+    return design is None or _sha256(design.group(0)) in compat["design"]
+
+
+def upgrade_runtime(html, template_html, design_html, compat):
+    """Swap listed stock runtimes for the current ones in a copy. Returns (html, replaced names).
+
+    Only design version 3 moves, as in src/widget/deck/preview.ts: older settings are not guaranteed
+    to mean the same to the current design runtime, so those decks keep what they were written with.
+    """
+    edits = []
+    replaced = []
+    embed = embed_block(template_html)
+    script = navigation_span(html)
+    if embed and script is not None and _sha256(html[script[0] : script[1]]) in compat["navigation"]:
+        style = navigation_style_span(html, script[0])
+        if style is not None and html[style[0] : script[1]] != embed:
+            edits.append((style[0], script[1], embed))
+            replaced.append("navigation")
+    runtime = DESIGN_RUNTIME_BLOCK.search(html)
+    style = DESIGN_STYLE_BLOCK.search(html)
+    next_runtime = DESIGN_RUNTIME_BLOCK.search(design_html or "")
+    next_style = DESIGN_STYLE_BLOCK.search(design_html or "")
+    if (
+        runtime is not None
+        and style is not None
+        and next_runtime is not None
+        and next_style is not None
+        and 'data-deck-design-runtime="3"' in runtime.group(0).split(">", 1)[0]
+        and 'data-deck-design-style="3"' in style.group(0).split(">", 1)[0]
+        and _sha256(runtime.group(0)) in compat["design"]
+    ):
+        if runtime.group(0) != next_runtime.group(0) or style.group(0) != next_style.group(0):
+            edits.append((runtime.start(), runtime.end(), next_runtime.group(0)))
+            edits.append((style.start(), style.end(), next_style.group(0)))
+            replaced.append("design")
+    for start, end, value in sorted(edits, reverse=True):
+        html = html[:start] + value + html[end:]
+    return html, replaced
 
 
 def html_after_comment(html):
@@ -246,12 +305,24 @@ def shared_embed_block(template_html):
 
 
 def _author_css(html, embed, shared_blocks=()):
+    """Styles the author wrote. Runtimes are not slide content, known or not.
+
+    Everything after </main> is the runtime, and the stock style is recognised before it too:
+    a deck may paste the runtime ahead of its slides. The design style is marked wherever it sits.
+    Scripts go first: a runtime may spell "<style" inside its strings.
+    """
     rest = html.replace(embed, "", 1) if embed else html
-    if has_known_legacy_runtime(rest):
-        rest = rest.replace(embedded_runtime_block(rest), "", 1)
     for shared in shared_blocks:
         if shared:
             rest = rest.replace(shared, "", 1)
+    script = navigation_span(rest)
+    style = navigation_style_span(rest, script[0]) if script else None
+    if style:
+        rest = rest[: style[0]] + rest[style[1] :]
+    after_main = rest.lower().find("</main>")
+    if after_main >= 0:
+        rest = rest[:after_main]
+    rest = DESIGN_STYLE_BLOCK.sub("", SCRIPT_BLOCK.sub("", rest))
     blocks = STYLE_BLOCK.findall(rest)
     return "\n".join(CSS_COMMENT.sub("", block) for block in blocks)
 
@@ -263,8 +334,16 @@ def _line_of(html, needle):
     return html.count("\n", 0, at) + 1
 
 
-def check_html(html, template_html, shared_blocks=()):
+def _unlisted_design(html, compat, shared_blocks):
+    design = DESIGN_RUNTIME_BLOCK.search(html)
+    if design is None or _sha256(design.group(0)) in compat["design"]:
+        return False
+    return not any(shared and design.group(0) in shared for shared in shared_blocks)
+
+
+def check_html(html, template_html, shared_blocks=(), compat=None):
     """(findings, title) を返す。"""
+    compat = compat or {"navigation": set(), "design": set()}
     findings = []
 
     if has_source_note(html):
@@ -281,9 +360,11 @@ def check_html(html, template_html, shared_blocks=()):
                 "実行部の雛形が読めません。投稿コマンド一式を先に用意してください",
             )
         )
-    elif embed not in html and not has_known_legacy_runtime(html):
+    elif (embed not in html or _unlisted_design(html, compat, shared_blocks)) and not has_known_runtime(html, compat):
         after_main = html.lower().find("</main>")
-        has_runtime = after_main >= 0 and ("<style" in html[after_main:].lower() or "<script" in html[after_main:].lower())
+        has_runtime = navigation_span(html) is not None or DESIGN_RUNTIME_BLOCK.search(html) is not None or (
+            after_main >= 0 and ("<style" in html[after_main:].lower() or "<script" in html[after_main:].lower())
+        )
         code = "TEMPLATE_MISMATCH" if has_runtime else "TEMPLATE_MISSING"
         findings.append(_finding(code, codes.describe(code)))
 
@@ -375,15 +456,16 @@ def check_file(path, template_path=None, commit=None):
     html = apply_embed_placeholder(html, embed)
     companion_blocks = []
     template_dir = os.path.dirname(template_path)
-    for name in ("deck-design.html", "mermaid.html"):
+    for name in COMPANION_NAMES:
         companion_path = os.path.join(template_dir, name)
         if os.path.isfile(companion_path):
             companion_blocks.append(shared_embed_block(read_text(companion_path)))
-    findings, title = check_html(html, template_html, companion_blocks)
+    findings, title = check_html(html, template_html, companion_blocks, load_compat(template_path))
 
     # 新形式の設定は Pages 側の共通の検査を呼ぶ。型・範囲・目印を Python に書き写さない。
     if "data-deck-design" in html:
-        checker = os.path.join(os.path.dirname(template_path), "..", "bin", "deck-design-check.mjs")
+        # 雛形は <リポジトリ>/src/templates/ にあり、検査はリポジトリ直下の bin/ にある
+        checker = os.path.join(os.path.dirname(template_path), "..", "..", "bin", "deck-design-check.mjs")
         try:
             checked = subprocess.run(["node", checker, os.path.abspath(path)], capture_output=True, text=True, timeout=30, check=False)
             result = json.loads(checked.stdout)

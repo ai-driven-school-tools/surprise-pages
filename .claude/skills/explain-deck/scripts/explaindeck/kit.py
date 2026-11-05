@@ -4,7 +4,7 @@ from pathlib import Path
 from . import distribution_environment as _distribution
 FILES = (
     "src/templates/deck.html", "src/templates/deck-design.html", "docs/guides/deck-design.md",
-    "docs/guides/deck-formats.md", "src/templates/deck-styles.json",
+    "docs/guides/deck-formats.md", "src/templates/deck-styles.json", "src/templates/deck-preview-compat.json",
     "bin/deck-design-check.mjs", "bin/deck-image-check.mjs", "src/lib/html/image-display-size.ts",
     "tests/checks/fixtures/internal/example/deck-format-catalog.html",
     "tests/checks/fixtures/internal/example/deck-design-presentation.html",

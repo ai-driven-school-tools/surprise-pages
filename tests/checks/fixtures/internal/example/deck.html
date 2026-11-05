@@ -853,7 +853,29 @@ flowchart LR
         frames.forEach(function (frame) {
           Array.prototype.forEach.call(frame.querySelectorAll("img"), function (img) { restoreImage(img, false, true); });
         });
+        restoreAllPosters();
       }
+      /* 配信が 3 枚目以降の動画の静止画を退避している（src/lib/deck/delivery.ts）。近くなった枚から戻す */
+      function restorePoster(video) {
+        var poster = video.getAttribute("data-deck-poster");
+        if (poster !== null) video.setAttribute("poster", poster);
+        video.removeAttribute("data-deck-poster");
+      }
+      function restorePosters(frame) {
+        Array.prototype.forEach.call(frame.querySelectorAll("video[data-deck-poster]"), restorePoster);
+      }
+      function restoreAllPosters() {
+        Array.prototype.forEach.call(document.querySelectorAll("video[data-deck-poster]"), restorePoster);
+      }
+      /* 印刷の直前に戻しても取り寄せが間に合わないので、読む人を待たせない間に少しずつ全部戻しておく */
+      function drainPosters() {
+        var video = document.querySelector("video[data-deck-poster]");
+        if (video === null) return;
+        restorePoster(video);
+        window.setTimeout(drainPosters, 200);
+      }
+      window.addEventListener("beforeprint", restoreAllPosters);
+      window.setTimeout(drainPosters, 8000);
       function wantedSlides() {
         var want = [];
         var overview = document.documentElement.hasAttribute(OVERVIEW);
@@ -898,6 +920,7 @@ flowchart LR
         var primary = primarySlide(want);
         frames.forEach(function (frame, at) {
           var keep = want.indexOf(at + 1) >= 0;
+          if (keep) restorePosters(frame);
           Array.prototype.forEach.call(frame.querySelectorAll("img"), function (img) {
             // Keep the source stable: clearing it discards a decoded image and
             // can cancel an in-flight fetch just before the reader reaches it.

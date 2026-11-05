@@ -1,5 +1,5 @@
 /* 生成物。直接編集しない。元のコードは src/widget/*.ts、作り直しは `pnpm build:widget`。 */
-import{j as a,k as d}from"./comments-widget-chunk-O3V7CSW5.js";async function s(t){let e=typeof navigator>"u"?void 0:navigator.clipboard;if(e!==void 0)try{return await e.writeText(t),!0}catch{}return o(t)}function o(t){if(typeof document>"u"||typeof document.execCommand!="function")return!1;let e=!1,r=i=>{i.clipboardData!==null&&(i.clipboardData.setData("text/plain",t),i.preventDefault(),i.stopImmediatePropagation(),e=!0)};document.addEventListener("copy",r,!0);try{document.execCommand("copy")}catch{e=!1}finally{document.removeEventListener("copy",r,!0)}return e}var l=`
+import{j as a,k as d}from"./comments-widget-chunk-25DSFE4M.js";async function s(t){let e=typeof navigator>"u"?void 0:navigator.clipboard;if(e!==void 0)try{return await e.writeText(t),!0}catch{}return o(t)}function o(t){if(typeof document>"u"||typeof document.execCommand!="function")return!1;let e=!1,r=i=>{i.clipboardData!==null&&(i.clipboardData.setData("text/plain",t),i.preventDefault(),i.stopImmediatePropagation(),e=!0)};document.addEventListener("copy",r,!0);try{document.execCommand("copy")}catch{e=!1}finally{document.removeEventListener("copy",r,!0)}return e}var l=`
 .deck-studio {
   --studio-header:52px; --studio-left:200px; --studio-right:264px; --studio-footer:36px;
   --studio-control:32px; --studio-gap:8px; --studio-inset:16px;
@@ -114,6 +114,9 @@ import{j as a,k as d}from"./comments-widget-chunk-O3V7CSW5.js";async function s(
 .ds-section { margin:0 0 24px; padding:0; flex:none; }
 .ds-row { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
 .ds-row>.ds-field { flex:1; min-width:72px; }
+.ds-align-row { flex-wrap:nowrap; gap:0; }
+.ds-align-row>.ds-property-label { flex:0 0 40px; }
+.ds-align-row>.ds-button { flex:1; padding:0 4px; }
 .ds-field { display:flex; flex-direction:column; gap:6px; margin-bottom:12px; font-size:12px; color:var(--muted); }
 .ds-field input,.ds-field select,.ds-field textarea {
   width:100%; height:32px; min-height:32px; border:1px solid var(--border); border-radius:6px;

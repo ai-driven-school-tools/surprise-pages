@@ -541,7 +541,7 @@
     ]
   },
   {
-    "id": "deck/canvas.ts:861a701701bcc16612b6:1",
+    "id": "deck/canvas.ts:8c920c2e057459dee1e3:1",
     "owner": "createDeckCanvas",
     "control": "listen(\"keydown\")",
     "covers": [
@@ -653,20 +653,12 @@
     ]
   },
   {
-    "id": "deck/canvas.ts:module:1e2029e310261ff88cc1",
+    "id": "deck/canvas.ts:module:ba1d99ed915fe9a481c2",
     "owner": "module",
     "control": "module definitions, including data-driven actions",
     "covers": [
-      "select",
-      "multi-select",
-      "type",
-      "composition",
-      "paste",
-      "move",
-      "resize",
-      "image-crop",
-      "video-playback",
-      "select-slide"
+      "open",
+      "close"
     ]
   },
   {
@@ -1206,11 +1198,12 @@
     ]
   },
   {
-    "id": "deck/edit/layer-panel.ts:module:a372e6ce445389ef27fa",
+    "id": "deck/edit/layer-panel.ts:module:54fdd1017a6cb0dcfb7f",
     "owner": "module",
     "control": "module definitions, including data-driven actions",
     "covers": [
-      "layers"
+      "open",
+      "close"
     ]
   },
   {
@@ -1620,13 +1613,12 @@
     ]
   },
   {
-    "id": "deck/edit/outline-drag.ts:module:116fb927de838165aba4",
+    "id": "deck/edit/outline-drag.ts:module:221844683c206a5c1151",
     "owner": "module",
     "control": "module definitions, including data-driven actions",
     "covers": [
-      "reorder",
-      "outline",
-      "outline-drag"
+      "open",
+      "close"
     ]
   },
   {
@@ -1875,6 +1867,14 @@
       "remote",
       "offline",
       "draft"
+    ]
+  },
+  {
+    "id": "deck/edit/session.ts:c71d8bb47111efd51e58:1",
+    "owner": "openDeckEditSession",
+    "control": "audioInput.addEventListener(\"change\")",
+    "covers": [
+      "video-upload"
     ]
   },
   {
@@ -2156,25 +2156,12 @@
     ]
   },
   {
-    "id": "deck/edit/session.ts:module:82fa4d24d3bffec35ae3",
+    "id": "deck/edit/session.ts:module:66c7d1b67e837f9c3931",
     "owner": "module",
     "control": "module definitions, including data-driven actions",
     "covers": [
       "open",
-      "close",
-      "type",
-      "save",
-      "undo",
-      "redo",
-      "remote",
-      "offline",
-      "draft",
-      "present",
-      "appearance",
-      "document-appearance",
-      "chart",
-      "font",
-      "presenter"
+      "close"
     ]
   },
   {
@@ -2446,6 +2433,31 @@
     ]
   },
   {
+    "id": "deck/present/clock.ts:8e0daff48de32ef6ae3b:1",
+    "owner": "presenterClock",
+    "control": "button(t(\"decks.presenter.pauseTimer\"))",
+    "covers": [
+      "presenter"
+    ]
+  },
+  {
+    "id": "deck/present/clock.ts:6fe8eee5e933319d36c8:1",
+    "owner": "presenterClock",
+    "control": "button(t(\"deckStudio.presenter.resetTimer\"))",
+    "covers": [
+      "presenter"
+    ]
+  },
+  {
+    "id": "deck/present/clock.ts:module:2dddbef2663ba657f617",
+    "owner": "module",
+    "control": "module definitions, including data-driven actions",
+    "covers": [
+      "open",
+      "close"
+    ]
+  },
+  {
     "id": "deck/present/launch.ts:3ccbce50ef6b71ea1033:1",
     "owner": "addLauncher",
     "control": "launcher.addEventListener(\"click\")",
@@ -2475,6 +2487,14 @@
     "id": "deck/present/presenter.ts:d04b87c3ddf7ad4bce1a:1",
     "owner": "openDeckPresenter",
     "control": "b.onclick",
+    "covers": [
+      "presenter"
+    ]
+  },
+  {
+    "id": "deck/present/presenter.ts:34bca525ef67f27bff43:1",
+    "owner": "openDeckPresenter",
+    "control": "button(label)",
     "covers": [
       "presenter"
     ]
@@ -2647,9 +2667,49 @@
     ]
   },
   {
-    "id": "deck/present/presenter.ts:8e0daff48de32ef6ae3b:1",
+    "id": "deck/present/presenter.ts:77923139c1ac89db610d:1",
     "owner": "openDeckPresenter",
-    "control": "button(t(\"decks.presenter.pauseTimer\"))",
+    "control": "button(t(\"deckStudio.presenter.browse\"))",
+    "covers": [
+      "presenter"
+    ]
+  },
+  {
+    "id": "deck/present/presenter.ts:82b7cf22f09cae445f95:1",
+    "owner": "openDeckPresenter",
+    "control": "button(t(\"deckStudio.presenter.showHere\"))",
+    "covers": [
+      "presenter"
+    ]
+  },
+  {
+    "id": "deck/present/presenter.ts:8a6aeef5cf810009ccf3:1",
+    "owner": "openDeckPresenter",
+    "control": "button(t(\"deckStudio.presenter.keys\"))",
+    "covers": [
+      "presenter"
+    ]
+  },
+  {
+    "id": "deck/present/presenter.ts:93ad5d49c6997275e33d:1",
+    "owner": "openKeys",
+    "control": "button(t(\"decks.presenter.close\"))",
+    "covers": [
+      "presenter"
+    ]
+  },
+  {
+    "id": "deck/present/presenter.ts:90fc99775007c5321e1a:1",
+    "owner": "openKeys",
+    "control": "backdrop.addEventListener(\"keydown\")",
+    "covers": [
+      "presenter"
+    ]
+  },
+  {
+    "id": "deck/present/presenter.ts:4faf993ea733d69835e1:1",
+    "owner": "openKeys",
+    "control": "backdrop.addEventListener(\"click\")",
     "covers": [
       "presenter"
     ]
@@ -2738,16 +2798,12 @@
     ]
   },
   {
-    "id": "deck/present/presenter.ts:module:f3bf5e0bec36d756cc05",
+    "id": "deck/present/presenter.ts:module:6d0e9d6246d4d6a18260",
     "owner": "module",
     "control": "module definitions, including data-driven actions",
     "covers": [
-      "presenter",
-      "notes",
-      "composition",
-      "remote",
-      "offline",
-      "save"
+      "open",
+      "close"
     ]
   },
   {
@@ -3129,16 +3185,12 @@
     ]
   },
   {
-    "id": "deck/workspace/dialogs.ts:module:c8edcadc4657ea31c362",
+    "id": "deck/workspace/dialogs.ts:module:589559aa52a346c51cbe",
     "owner": "module",
     "control": "module definitions, including data-driven actions",
     "covers": [
-      "insert",
-      "duplicate",
-      "delete",
-      "skip",
-      "template-library",
-      "insert-slide"
+      "open",
+      "close"
     ]
   },
   {
@@ -3488,15 +3540,93 @@
     ]
   },
   {
-    "id": "deck/workspace/inspector.ts:module:8ab77f72c5876d6977c7",
+    "id": "deck/workspace/inspector.ts:module:d45f0afd6494f857cdc7",
     "owner": "module",
     "control": "module definitions, including data-driven actions",
     "covers": [
-      "select",
-      "align",
-      "group",
-      "image-crop",
-      "resize"
+      "open",
+      "close"
+    ]
+  },
+  {
+    "id": "deck/workspace/list-grid.ts:7c5905e63acfc2d57bde:1",
+    "owner": "createDeckListGrid",
+    "control": "wide?.addEventListener(\"change\")",
+    "covers": [
+      "select-slide",
+      "scroll"
+    ]
+  },
+  {
+    "id": "deck/workspace/list-grid.ts:cc40725c450cda794b45:1",
+    "owner": "createDeckListGrid",
+    "control": "handle.addEventListener(\"pointerdown\")",
+    "covers": [
+      "select-slide",
+      "scroll"
+    ]
+  },
+  {
+    "id": "deck/workspace/list-grid.ts:7ad51b800062a9f7ee7e:1",
+    "owner": "createDeckListGrid",
+    "control": "handle.addEventListener(\"pointermove\")",
+    "covers": [
+      "select-slide",
+      "scroll"
+    ]
+  },
+  {
+    "id": "deck/workspace/list-grid.ts:a7d8a7b7307ea04d724e:1",
+    "owner": "createDeckListGrid",
+    "control": "handle.addEventListener(\"pointerup\")",
+    "covers": [
+      "select-slide",
+      "scroll"
+    ]
+  },
+  {
+    "id": "deck/workspace/list-grid.ts:39f57c2f295ee317eec6:1",
+    "owner": "createDeckListGrid",
+    "control": "handle.addEventListener(\"pointercancel\")",
+    "covers": [
+      "select-slide",
+      "scroll"
+    ]
+  },
+  {
+    "id": "deck/workspace/list-grid.ts:3faad39034dda1093a37:1",
+    "owner": "createDeckListGrid",
+    "control": "handle.addEventListener(\"dblclick\")",
+    "covers": [
+      "select-slide",
+      "scroll"
+    ]
+  },
+  {
+    "id": "deck/workspace/list-grid.ts:b856f13cff49cd551b1f:1",
+    "owner": "createDeckListGrid",
+    "control": "handle.addEventListener(\"keydown\")",
+    "covers": [
+      "select-slide",
+      "scroll"
+    ]
+  },
+  {
+    "id": "deck/workspace/list-grid.ts:66e3a0e1e42829867de1:1",
+    "owner": "deckListFooter",
+    "control": "item.addEventListener(\"keydown\")",
+    "covers": [
+      "select-slide",
+      "scroll"
+    ]
+  },
+  {
+    "id": "deck/workspace/list-grid.ts:module:3d302fd8d7a567d7c287",
+    "owner": "module",
+    "control": "module definitions, including data-driven actions",
+    "covers": [
+      "open",
+      "close"
     ]
   },
   {
@@ -3570,6 +3700,15 @@
     ]
   },
   {
+    "id": "deck/workspace/navigation.ts:7f8efbde8996dbbbcce7:1",
+    "owner": "renderFooter",
+    "control": "button(label)",
+    "covers": [
+      "select-slide",
+      "scroll"
+    ]
+  },
+  {
     "id": "deck/workspace/navigation.ts:d1e9f45758572cf6e786:1",
     "owner": "renderFooter",
     "control": "button(connections.notes.hidden ? t(\"deckEditor.navigation.openNotes\") : t(\"deckEditor.navigation.closeNotes\"))",
@@ -3584,7 +3723,7 @@
     ]
   },
   {
-    "id": "deck/workspace/navigation.ts:f2849d4ef3601ecf5180:1",
+    "id": "deck/workspace/navigation.ts:f12a78c6b453a73c2b44:1",
     "owner": "renderFooter",
     "control": "button(t(\"deckEditor.navigation.guide\"))",
     "covers": [
@@ -3802,6 +3941,14 @@
     ]
   },
   {
+    "id": "deck/workspace/navigation.ts:e2cd14285bb31d424a63:1",
+    "owner": "renderNav",
+    "control": "b.ondblclick",
+    "covers": [
+      "select-slide"
+    ]
+  },
+  {
     "id": "deck/workspace/navigation.ts:00f448c13c0a65bd708f:1",
     "owner": "renderNav",
     "control": "seam.onclick",
@@ -3834,7 +3981,7 @@
     ]
   },
   {
-    "id": "deck/workspace/navigation.ts:0356cc9d4369476412b5:1",
+    "id": "deck/workspace/navigation.ts:b250f9598fe4bca1c839:1",
     "owner": "renderNav",
     "control": "b.onkeydown",
     "covers": [
@@ -3848,20 +3995,12 @@
     ]
   },
   {
-    "id": "deck/workspace/navigation.ts:module:941171a8cd96bc54582c",
+    "id": "deck/workspace/navigation.ts:module:850b3679052ec6d69c53",
     "owner": "module",
     "control": "module definitions, including data-driven actions",
     "covers": [
-      "select-slide",
-      "scroll",
-      "zoom",
-      "present",
-      "notes",
-      "outline",
-      "reorder",
-      "duplicate",
-      "delete",
-      "skip"
+      "open",
+      "close"
     ]
   },
   {
@@ -3956,6 +4095,14 @@
     ]
   },
   {
+    "id": "deck/workspace/workspace.ts:25f12655191e41e2b461:1",
+    "owner": "attach",
+    "control": "doc.addEventListener(\"wheel\")",
+    "covers": [
+      "zoom"
+    ]
+  },
+  {
     "id": "deck/workspace/workspace.ts:ec0a71a18bfee4944e80:1",
     "owner": "createDeckWorkspace",
     "control": "scheme?.addEventListener(\"change\")",
@@ -4008,16 +4155,12 @@
     ]
   },
   {
-    "id": "deck/workspace/workspace.ts:module:b5720ec7e34b3a33b7b7",
+    "id": "deck/workspace/workspace.ts:module:40ab76403ff7ac57eaff",
     "owner": "module",
     "control": "module definitions, including data-driven actions",
     "covers": [
-      "group",
-      "align",
-      "duplicate",
-      "delete",
-      "remote",
-      "draft"
+      "open",
+      "close"
     ]
   },
   {

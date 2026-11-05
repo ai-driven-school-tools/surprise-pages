@@ -2,6 +2,8 @@
 
 この一覧は `src/lib/deck/design/format-catalog.ts` から生成する。用途ごとの独立した雛形ではなく、共通の配置・表・画像・グラフ・図の部品を組み替える。
 
+スクリプトはこのリポジトリが用意した部品（tailwind.js・lucide.js・mermaid.js・echarts.js と雛形の再生部品）だけが動く。独自の `<script>` と `onclick` などのイベント属性は、投稿時に断られる（`src/lib/html/document-security.ts`）。
+
 ## 資料内の役割
 
 | 形式 | 目的 | 必要な材料 | 構図 | 強調できる対象 | 読む表示 |

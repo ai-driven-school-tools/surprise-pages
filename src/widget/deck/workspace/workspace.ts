@@ -27,6 +27,7 @@ import { createDeckWorkspaceDialogs } from './dialogs';
 import { createDeckWorkspaceInspector } from './inspector';
 import { createDeckWorkspaceNavigation } from './navigation';
 import { createDeckLayerPanel } from "../edit/layer-panel";
+import { ELEMENT_MENU_CSS, elementMenu, runElementMenuAction } from "../edit/element-menu";
 import { DECK_WORKSPACE_STYLES } from "./styles";
 import type { Input } from './types';
 import { el } from "../../shared/util";
@@ -105,7 +106,7 @@ export function createDeckWorkspace(input: Input) {
   let frame = input.frame;
   screen.classList.add("deck-studio");
   const style = el("style");
-  style.textContent = DECK_WORKSPACE_STYLES;
+  style.textContent = DECK_WORKSPACE_STYLES + ELEMENT_MENU_CSS;
   screen.append(style);
   const root = el("div", "ds-workspace"),
     nav = el("nav", "ds-nav"),
@@ -328,7 +329,7 @@ export function createDeckWorkspace(input: Input) {
     hover: (id) => input.canvas()?.hover(id),
     commit,
     sourceNode: (id) => find(sourceDoc(), id),
-    menu: () => {},
+    menu: (x, y) => openElementMenu({ x, y }),
     command: (command) => {
       if (command === "cut") { elementCommand("copy"); elementCommand("delete"); }
       else elementCommand(command);
@@ -418,6 +419,33 @@ export function createDeckWorkspace(input: Input) {
       dialogsFeature.closeMenu();
   }, { signal: lifetime.signal });
   let disposeLibrary: (() => void) | null = null;
+  /** 要素の操作のメニュー（../edit/element-menu.ts）。キャンバスとレイヤーの一覧の右クリックから。at は画面の座標 */
+  function openElementMenu(at: { x: number; y: number }) {
+    dialogsFeature.closeMenu();
+    tip.hidden = true;
+    const chosen = sourceSelected();
+    elementMenu({
+      screen, at, button,
+      state: { count: selection.length, locked: chosen.some((node) => node.closest("[data-deck-locked]")), grouped: chosen.length === 1 && chosen[0].hasAttribute("data-deck-group"), canPaste: clipboard.length > 0 },
+      close: (restore) => { const menu = openMenu; openMenu = null; menu?.remove(); if (restore) frame.contentWindow?.focus(); },
+      opened: (menu) => { openMenu = menu; menuTrigger = null; },
+      run: (action) => runElementMenuAction(action, {
+        command: (command) => {
+          if (command === "cut") { elementCommand("copy"); elementCommand("delete"); }
+          else if (command === "group") groupSelection();
+          else if (command === "ungroup") ungroupSelection();
+          else elementCommand(command);
+        },
+        align: (mode) => input.canvas()?.align(mode),
+        distribute,
+        reorder: (direction) => inspectorFeature.reorderLayers(direction),
+        lock: (locked) => {
+          commit(sourceSelected().map((node): DeckEditOperation => ({ kind: "attribute", target: node.getAttribute(DECK_NODE_MARK) ?? "", name: "data-deck-locked", before: node.getAttribute("data-deck-locked"), after: locked ? "true" : null })));
+        },
+        selectAll: () => input.canvas()?.selectAll(),
+      }),
+    });
+  }
   function distribute(vertical: boolean) {
     if (!attached || selection.length < 3) return;
     const targets = selection
@@ -757,6 +785,11 @@ export function createDeckWorkspace(input: Input) {
       if (node) run(() => dataFeature.dataEditor(node));
     },
     elementCommand,
+    /** キャンバスの右クリック。point は枠の中の座標なので、画面の座標へ直して出す */
+    elementMenuAt(point: { x: number; y: number }) {
+      const box = frame.getBoundingClientRect();
+      openElementMenu({ x: box.left + point.x, y: box.top + point.y });
+    },
     rememberSelection(ids: string[]) {
       selection = ids; pendingSelection = true;
     },

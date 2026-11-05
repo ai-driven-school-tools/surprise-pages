@@ -30,6 +30,8 @@ export type DeckCanvasOptions = {
   onEditComplex?: (id: string) => void;
   onCommand?: (command: string) => void;
   onCrop?: (id: string) => void;
+  /** 右クリック（要素の操作のメニュー）。座標はこの文書の画面の px。字を直している間は呼ばない */
+  onContextMenu?: (point: CanvasPoint) => void;
 };
 export type DeckCanvas = ReturnType<typeof createDeckCanvas>;
 type Align = "left" | "center" | "right" | "top" | "middle" | "bottom";
@@ -928,6 +930,19 @@ export function createDeckCanvas(options: DeckCanvasOptions) {
     else if (node.tagName === "IMG") { if(options.onCrop)options.onCrop(selected[0]);else crop(); }
     else beginText(node);
   }
+  // 右クリック: 押した要素を選んで（選んでいる物の上ならそのまま）要素の操作のメニューを出す。何も無い所なら選択を外す
+  listen("contextmenu", (event) => {
+    if (!options.onContextMenu || readOnly || event.composedPath().includes(host)) return;
+    if (editing?.contains(event.target instanceof view!.Node ? event.target : null)) return; // 字を直している間はブラウザのメニュー
+    if (!drawnAt(event)) return;
+    const node = target(event), id = node?.getAttribute(DECK_NODE_MARK) ?? null;
+    if (!endText()) return;
+    event.preventDefault();
+    if (drag) finishDrag(true);
+    if (id && !selected.includes(id)) select([id]);
+    else if (!id) select([]);
+    options.onContextMenu({ x: event.clientX, y: event.clientY });
+  });
   listen("dblclick", (event) => { if (!drawnAt(event)) { event.preventDefault(); return; } const node = target(event); if (node) { event.preventDefault(); select([node.getAttribute(DECK_NODE_MARK)!]); editSelected(); } });
   listen("compositionstart", () => {
     if (!editing) return;

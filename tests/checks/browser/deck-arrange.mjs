@@ -186,6 +186,44 @@ try {
   report("図形: 大きさの変更が読み込み直しても残る");
   await page.screenshot({ path: `${output}/arrange.png` });
 
+  // 右クリック: 押した要素を選んでメニューを出す。複製・固定・固定の解除・レイヤーの一覧からも同じメニュー
+  const menu = () => page.getByRole("menu", { name: "要素の操作", exact: true });
+  const menuItem = (name) => menu().getByRole("menuitem", { name: `${name} — 要素`, exact: true });
+  await clear();
+  const count = await slide().locator("h2.dd-title").count();
+  await title().click({ button: "right" });
+  await menu().waitFor();
+  await page.screenshot({ path: `${output}/menu.png` });
+  assert.ok(await menuItem("グループを解除").count() === 0, "できない操作は出さない");
+  await menuItem("複製").click();
+  await saved();
+  await until(() => slide().locator("h2.dd-title").count(), count + 1, "複製で 1 つ増える");
+  assert.equal(await menu().count(), 0, "選んだらメニューを閉じる");
+  report("右クリック: 要素の複製");
+  await undo();
+  await saved();
+  await until(() => slide().locator("h2.dd-title").count(), count, "取り消しで複製が消える");
+  await title().click({ button: "right" });
+  await menuItem("位置を固定").click();
+  await saved();
+  assert.equal(await title().getAttribute("data-deck-locked"), "true");
+  await title().click({ button: "right" });
+  assert.deepEqual(await menu().getByRole("menuitem").allTextContents(), ["コピー⌘C", "固定を解除"], "固定した要素は写す・解除だけ");
+  await menuItem("固定を解除").click();
+  await saved();
+  assert.equal(await title().getAttribute("data-deck-locked"), null);
+  report("右クリック: 固定と解除");
+  await page.locator(".ds-layer-pick").first().click({ button: "right" });
+  await menu().waitFor();
+  await page.keyboard.press("Escape");
+  assert.equal(await menu().count(), 0, "Esc で閉じる");
+  report("右クリック: レイヤーの一覧からも同じメニュー、Esc で閉じる");
+  await clear();
+  await slide().click({ position: { x: 6, y: 6 }, button: "right" });
+  await menuItem("すべて選択").click();
+  await page.locator(".ds-inspector h2").filter({ hasText: "個を選択" }).waitFor();
+  report("右クリック: 何も無い所ではすべて選択");
+
   assert.deepEqual(errors, []);
   console.log(`${results.length} checks passed`);
 } finally {

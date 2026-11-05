@@ -65,7 +65,8 @@ for(const[name,engine]of[['chromium',chromium],['webkit',webkit]].filter(([name]
   await page.getByRole('button',{name:'このスライドを追加',exact:true}).click();await saved();
   const inserted=await outlineOf(7);assert.equal(inserted.length,7);assert.equal(inserted[1].id,seamAbove);assert.equal(inserted[2].parent,seamAbove,'2枚目の子が続くので、その子として差し込む');assert.equal(inserted[3].id,original[1].id);
   await page.getByRole('button',{name:'元に戻す',exact:true}).click();await saved();assert.equal((await outlineOf(6)).length,6);console.log('PASS',name,'継ぎ目の + でその位置に差し込み、取り消せる');
-  await page.reload();await page.locator('.ds-slide').first().waitFor();assert.equal((await outline())[2].parent,original[0].id);
+  // 試験のページも本物と同じく開いたら ?edit=1 を消すので、読み込み直しは編集を開く URL で行う
+  await page.goto(url+'/?edit=1');await page.locator('.ds-slide').first().waitFor();assert.equal((await outline())[2].parent,original[0].id);
   console.log('PASS',name,'親子・孫・折り畳み・まとめて移動・複製・取り消し・再読み込み');
   await page.locator('.ds-slide').nth(1).click();await page.getByRole('button',{name:'スライドの操作',exact:true}).click();await page.getByRole('menuitem',{name:'削除 — スライド',exact:true}).click();
   await page.getByRole('button',{name:'この枚だけ削除',exact:true}).click();await saved();const deleted=await outlineOf(5);assert.equal(deleted.length,5);assert.equal(deleted.find(row=>row.id===original[1].id).parent,null);assert.equal(deleted.find(row=>row.id===original[2].id).parent,original[1].id);

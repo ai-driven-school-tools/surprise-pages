@@ -60,6 +60,16 @@ const ready = async () => {
     return !!f?.contentDocument?.querySelector("[data-studio-active]");
   });
 };
+// 「保存済み」は前の保存のまま残っているので、枚の操作のあとは一覧がその枚数になるまで待ってから数える
+const slideCount = async (expected) => {
+  const end = Date.now() + 20000;
+  let count = await page.locator(".ds-slide").count();
+  while (count !== expected && Date.now() < end) {
+    await page.waitForTimeout(100);
+    count = await page.locator(".ds-slide").count();
+  }
+  return count;
+};
 const read = async () => {
   const r = await page.request.get(
     `${url}/api/pages/deck-edit?page=internal/example/design&sessionId=${crypto.randomUUID()}`,
@@ -121,15 +131,15 @@ try {
       await page
         .getByRole("button", { name: "スライドを追加", exact: true })
         .click();
-      await page.getByRole("button", { name: label, exact: true }).click();
+      // 見本の絵は見えてから描くので、押せるようになるのを待つ前に見える所へ動かす（src/widget/deck/edit/template-preview.ts）
+      const card = page.getByRole("button", { name: label, exact: true });
+      await card.scrollIntoViewIfNeeded();
+      await card.click();
       await page.getByRole("button", { name: "このスライドを追加", exact: true }).click();
       await ready();
       await saved();
     }
-    assert.equal(
-      page.locator(".ds-slide") ? await page.locator(".ds-slide").count() : 0,
-      3,
-    );
+    assert.equal(await slideCount(3), 3);
   });
   await test("グラフを空欄・ゼロを含むデータで編集し直せる", async () => {
     await frame()
@@ -174,18 +184,18 @@ try {
     await slideAction("複製 — スライド");
     await ready();
     await saved();
-    assert.equal(await page.locator(".ds-slide").count(), 4);
+    assert.equal(await slideCount(4), 4);
     await slideAction("前へ — スライド");
     await ready();
     await saved();
     await slideAction("削除 — スライド");
     await ready();
     await saved();
-    assert.equal(await page.locator(".ds-slide").count(), 3);
+    assert.equal(await slideCount(3), 3);
     await page.getByRole("button", { name: "元に戻す", exact: true }).click();
     await ready();
     await saved();
-    assert.equal(await page.locator(".ds-slide").count(), 4);
+    assert.equal(await slideCount(4), 4);
   });
   await test("私用ノートと読み手の補足が別々に保存される", async () => {
     await page
@@ -362,10 +372,12 @@ try {
   });
   await test("小さい画面では左右の欄を一つずつ開ける", async () => {
     await page.setViewportSize({ width: 640, height: 400 });
-    await page.getByRole("button", { name: "一覧", exact: true }).click();
+    // 後ろの読む画面にも「一覧」があるので、編集の窓の中のボタンに絞る
+    const editor = page.getByRole("dialog", { name: "スライドを編集" });
+    await editor.getByRole("button", { name: "一覧", exact: true }).click();
     assert.ok(await page.locator(".ds-nav").isVisible());
     assert.ok(!(await page.locator(".ds-inspector").isVisible()));
-    await page.getByRole("button", { name: "調整", exact: true }).click();
+    await editor.getByRole("button", { name: "調整", exact: true }).click();
     assert.ok(await page.locator(".ds-inspector").isVisible());
     assert.ok(!(await page.locator(".ds-nav").isVisible()));
     await page.screenshot({ path: out + "/05-compact.png" });

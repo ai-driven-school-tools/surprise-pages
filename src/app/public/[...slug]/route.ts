@@ -1,4 +1,5 @@
 import { withCleanCopyLook } from "@/lib/settings/clean-copy-look";
+import { withDeferredPosters } from "@/lib/deck/delivery";
 import { currentOrganization } from "@/lib/organization/scope";
 import { withFastFirstPaint } from "@/lib/first-paint/delivery";
 import { firstPaintLocale, withFirstPaintChrome } from "@/lib/first-paint/chrome";
@@ -202,7 +203,7 @@ export async function GET(
     // 公開に切り替えたページ（呼び名は internal のまま）のカードだけが引けなくなる。
     // 版の目印を添えて、直したあとに古い絵が配信網と Slack に残らないようにする（src/lib/deck/card/card.ts）
     const cardUrl = deckCardImageUrl(sharedOrigin, gate.page.pageSlug, gate.page.currentVersionId, null);
-    const html = withCleanCopyLook(withoutDeckNotes(stored));
+    const html = withCleanCopyLook(withDeferredPosters(withoutDeckNotes(stored)));
     // 目次の写しも先に描く（src/lib/first-paint/chrome.ts）。公開の紙は誰にでも同じ 1 通りを配網に控えさせるので、
     // 写しの字は既定の言語で書く（ほかの言語の人には、道具箱が届いた時点で目次の見出しの字だけが替わる）。
     // 現在地の行は社外の人には出さないので、場所は空けない

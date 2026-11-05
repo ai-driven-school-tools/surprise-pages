@@ -13,6 +13,7 @@ import { admin } from "./en/admin";
 import { auth } from "./en/auth";
 import { decks } from "./en/decks";
 import { deckEditor } from "./en/deckEditor";
+import { deckStudio } from "./en/deckStudio";
 import { toolbox } from "./en/toolbox";
 import { server } from "./en/server";
 import { organization } from "./en/organization";
@@ -37,6 +38,7 @@ export const en = {
   auth,
   decks,
   deckEditor,
+  deckStudio,
   toolbox,
   server,
   organization,

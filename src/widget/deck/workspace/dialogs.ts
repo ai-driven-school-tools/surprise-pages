@@ -40,7 +40,7 @@ type Host = {
   openMenu: HTMLElement | null;
   menuTrigger: HTMLButtonElement | null;
   tip: HTMLDivElement;
-  slideCommands: (action: "duplicate" | "delete" | "up" | "down" | "skip" | "unskip" | "indent" | "outdent" | "delete-only" | "delete-tree") => void;
+  slideCommands: (action: "copy" | "cut" | "paste" | "duplicate" | "delete" | "up" | "down" | "skip" | "unskip" | "indent" | "outdent" | "delete-only" | "delete-tree") => void;
   button: (label: string, fn: () => void, cls?: string) => HTMLButtonElement;
   chosenSlides: string[];
   screen: HTMLElement;
@@ -106,6 +106,8 @@ export function createDeckWorkspaceDialogs(connections: Host) {
       ["down", t("deckEditor.dialogs.moveDown"), "down", "⌥↓"],
       ["indent", t("deckEditor.dialogs.indent"), "right", "⌥→"],
       ["outdent", t("deckEditor.dialogs.outdent"), "left", "⌥←"],
+      ["copy", t("deckStudio.clipboard.copy"), "copy", "⌘C"],
+      ["paste", t("deckStudio.clipboard.paste"), "plus", "⌘V"],
       ["duplicate", t("deckEditor.dialogs.duplicate"), "copy", "⌘D"],
       [allSkipped ? "unskip" : "skip", allSkipped ? t("deckEditor.dialogs.unskip") : t("deckEditor.dialogs.skip"), allSkipped ? "play" : "skip", ""],
       ["delete", t("deckEditor.dialogs.delete"), "trash", "⌫"],

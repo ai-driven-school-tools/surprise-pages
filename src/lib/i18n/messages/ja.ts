@@ -12,6 +12,7 @@ import { admin } from "./ja/admin";
 import { auth } from "./ja/auth";
 import { decks } from "./ja/decks";
 import { deckEditor } from "./ja/deckEditor";
+import { deckStudio } from "./ja/deckStudio";
 import { toolbox } from "./ja/toolbox";
 import { server } from "./ja/server";
 import { organization } from "./ja/organization";
@@ -43,6 +44,7 @@ export const ja = {
   auth,
   decks,
   deckEditor,
+  deckStudio,
   toolbox,
   server,
   organization,

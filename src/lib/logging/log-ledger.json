@@ -40,6 +40,7 @@
     "src/app/api/pages/access/route.ts": "routeLog",
     "src/app/api/pages/agent/route.ts": "routeLog",
     "src/app/api/pages/deck-edit/assets/route.ts": "routeLog",
+    "src/app/api/pages/deck-edit/clipboard/route.ts": "routeLog",
     "src/app/api/pages/deck-edit/create/route.ts": "routeLog",
     "src/app/api/pages/deck-edit/duplicate/route.ts": "routeLog",
     "src/app/api/pages/deck-edit/image-library/preview/route.ts": "routeLog",

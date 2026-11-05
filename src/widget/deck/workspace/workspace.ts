@@ -21,6 +21,7 @@ import {
 } from "../../../lib/deck/edit/source";
 import { isCollaborativeProperty } from "../../../lib/deck/edit/collaboration";
 import { styleDeckButton, type DeckIcon } from "../ui";
+import { createDeckWorkspaceClipboard } from './clipboard';
 import { createDeckWorkspaceData } from './data';
 import { createDeckWorkspaceDesign } from './design';
 import { createDeckWorkspaceDialogs } from './dialogs';
@@ -35,6 +36,7 @@ import { markDeferredWork } from "../deferred-work";
 import { t } from "../../shared/i18n";
 import { LocalizedError } from "../../../lib/i18n/errors";
 import { deckErrorMessage } from "../../../lib/deck/edit/message";
+import { deckElementClips, deckElementPasteOperations } from "../../../lib/deck/edit/clipboard";
 const uid = () => `n-${crypto.randomUUID()}`;
 const button = (label: string, fn: () => void, cls = "ds-button") => {
   const b = el("button", cls);
@@ -148,7 +150,6 @@ export function createDeckWorkspace(input: Input) {
   let resizeFrame: number | undefined;
   let fingerprint = "",
     renderTimer: number | undefined;
-  let clipboard: { html: string; id: string }[] = [];
   let parsedSource: { html: string; doc: Document } | null = null;
   const sourceDoc = () => { const html = input.source(); if (parsedSource?.html !== html) parsedSource = { html, doc: parsedSource ? updateDeckSourceDocument(parsedSource.html,html,parsedSource.doc,parse) : parse(html) }; return parsedSource.doc; };
   let indexedSource: Document | null = null;
@@ -250,7 +251,8 @@ export function createDeckWorkspace(input: Input) {
     get layouts() { return dialogsFeature.layouts; },
     get slideMenu() { return dialogsFeature.slideMenu; },
     get labelOf() { return labelOf; },
-    get titleOf() { return titleOf; }
+    get titleOf() { return titleOf; },
+    slideClipboard: (command: "copy" | "cut" | "paste") => clipboardFeature.slides(command),
   });
 
   const inspectorFeature = createDeckWorkspaceInspector({
@@ -332,10 +334,27 @@ export function createDeckWorkspace(input: Input) {
     sourceNode: (id) => find(sourceDoc(), id),
     menu: (x, y) => openElementMenu({ x, y }),
     command: (command) => {
-      if (command === "cut") { elementCommand("copy"); elementCommand("delete"); }
-      else elementCommand(command);
+      elementCommand(command);
     },
     message: (text) => input.fail(text),
+  });
+
+  const clipboardFeature = createDeckWorkspaceClipboard({
+    get input() { return input; },
+    get run() { return run; },
+    get commit() { return commit; },
+    get uid() { return uid; },
+    get current() { return current; },
+    set current(value) { current = value; },
+    get chosenSlides() { return chosenSlides; },
+    set chosenSlides(value) { chosenSlides = value; },
+    get selection() { return selection; },
+    set selection(value) { selection = value; },
+    deleteSlides: () => navigationFeature.slideCommands("delete"),
+    deleteElements: () => elementCommand("delete"),
+    get modal() { return dialogsFeature.modal; },
+    get actions() { return dialogsFeature.actions; },
+    get closeDialog() { return dialogsFeature.closeDialog; },
   });
 
   function commit(ops: DeckEditOperation[]): boolean {
@@ -427,12 +446,12 @@ export function createDeckWorkspace(input: Input) {
     const chosen = sourceSelected();
     elementMenu({
       screen, at, button,
-      state: { count: selection.length, locked: chosen.some((node) => node.closest("[data-deck-locked]")), grouped: chosen.length === 1 && chosen[0].hasAttribute("data-deck-group"), canPaste: clipboard.length > 0 },
+      state: { count: selection.length, locked: chosen.some((node) => node.closest("[data-deck-locked]")), grouped: chosen.length === 1 && chosen[0].hasAttribute("data-deck-group"), canPaste: clipboardFeature.canPaste() },
       close: (restore) => { const menu = openMenu; openMenu = null; menu?.remove(); if (restore) frame.contentWindow?.focus(); },
       opened: (menu) => { openMenu = menu; menuTrigger = null; },
       run: (action) => runElementMenuAction(action, {
         command: (command) => {
-          if (command === "cut") { elementCommand("copy"); elementCommand("delete"); }
+          if (command === "cut") elementCommand("cut");
           else if (command === "group") groupSelection();
           else if (command === "ungroup") ungroupSelection();
           else elementCommand(command);
@@ -588,32 +607,23 @@ export function createDeckWorkspace(input: Input) {
   }
   function elementCommand(command: string) {
     run(() => {
-      if (command === "copy") {
-        clipboard = selection.flatMap((id) => {
-          const part = deckSourceFragment(input.source(), id);
-          return part ? [{ id, html: part.html }] : [];
-        });
+      // コピー・カットは別のタブ・窓の資料でも貼れる写しに置く（src/widget/deck/workspace/clipboard.ts）
+      if (command === "copy" || command === "cut") {
+        clipboardFeature.elements(command, selection);
         return;
       }
-      if (command === "paste" || command === "duplicate") {
-        if (command === "duplicate") elementCommand("copy");
-        const ops: DeckEditOperation[] = [],
-          selected: string[] = [];
-        for (const item of clipboard) {
-          const cloned = cloneDeckFragment(item.html, uid()),
-            id = cloned.ids[item.id];
-          ops.push({
-            kind: "fragment",
-            target: id,
-            parentId: current,
-            beforeId: null,
-            before: null,
-            after: cloned.html,
-          });
-          selected.push(id);
-        }
-        selection = selected;
-        commit(ops);
+      if (command === "paste") {
+        // 写しが無いときは何もしない（ブラウザの貼り付けを邪魔しない）
+        clipboardFeature.paste();
+        return;
+      }
+      // 複製はコピーした中身を置き換えない
+      if (command === "duplicate") {
+        if (!current) return;
+        const pasted = deckElementPasteOperations(deckElementClips(input.source(), selection), current, uid);
+        if (!pasted.ids.length) return;
+        selection = pasted.ids;
+        commit(pasted.operations);
         return;
       }
       if (command === "delete") {

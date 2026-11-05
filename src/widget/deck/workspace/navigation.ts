@@ -32,6 +32,9 @@ import { t } from "../../shared/i18n";
 import { LocalizedError } from "../../../lib/i18n/errors";
 import { deckErrorMessage } from "../../../lib/deck/edit/message";
 
+/** 一覧の枚の ⌘C・⌘X・⌘V。 */
+const SLIDE_CLIPBOARD_KEYS = new Map<string, "copy" | "cut" | "paste">([["c", "copy"], ["x", "cut"], ["v", "paste"]]);
+
 /** Owns navigation behavior; receives only its required page/editor connections. */
 type Host = {
   run: (fn: () => void) => void;
@@ -68,6 +71,8 @@ type Host = {
   slideMenu: (trigger: HTMLButtonElement) => void;
   labelOf: (node: Element) => string;
   titleOf: (slide: Element) => string;
+  /** 一覧で選んだ枚のコピー・カット・貼り付け（src/widget/deck/workspace/clipboard.ts）。 */
+  slideClipboard: (command: "copy" | "cut" | "paste") => void;
 };
 
 export function createDeckWorkspaceNavigation(connections: Host) {
@@ -110,7 +115,7 @@ export function createDeckWorkspaceNavigation(connections: Host) {
     return accepted;
   }
   const outlineDrag=createDeckOutlineDrag({screen:connections.screen,list:()=>connections.nav.querySelector(".ds-slide-list"),source:()=>deckSourceOutline(connections.input.source()),selected:()=>connections.chosenSlides,current:()=>connections.current,select:id=>selectSlide(id),restore:(ids,id)=>{connections.chosenSlides=ids;connections.current=id;showCurrent();syncNavSelection();},move:moveSlides,folded:id=>folded.has(id),unfold:id=>{if(folded.delete(id))renderNav();}});
-  type SlideCommand = "duplicate" | "delete" | "delete-only" | "delete-tree" | "up" | "down" | "skip" | "unskip" | "indent" | "outdent";
+  type SlideCommand = "copy" | "cut" | "paste" | "duplicate" | "delete" | "delete-only" | "delete-tree" | "up" | "down" | "skip" | "unskip" | "indent" | "outdent";
   // 300 枚の資料では、今の原稿全体の読み取りと、変更後の原稿の読み取りが、遅い端末でそれぞれ 100ms を超える。
   // 1 つの処理単位に積むと、その間の入力がまとめて止まる。大きな資料の枚の操作は「今の原稿の読み取り →
   // 変更の組み立て → 変更後の原稿の読み取り → 検証・設定と一覧の整合・反映」を別々の処理単位で行う。
@@ -139,11 +144,12 @@ export function createDeckWorkspaceNavigation(connections: Host) {
     return async () => { const value = html(); if (!deckSourceIndexed(value)) await readDeckSourceInSlices(value, yieldToInput); };
   }
   function slideCommands(action: SlideCommand) {
+    if (action === "copy" || action === "cut" || action === "paste") { connections.slideClipboard(action); return; }
     if (!slideStepsScheduled && deckSourceIndexed(connections.input.source())) { runSlideCommand(action); return; }
     if (!slideStepsScheduled) queueSlideStep(readSourceStep(() => connections.input.source()));
     queueSlideStep(() => runSlideCommand(action));
   }
-  function runSlideCommand(action: SlideCommand) {
+  function runSlideCommand(action: Exclude<SlideCommand, "copy" | "cut" | "paste">) {
     run(() => {
       const entries=deckSourceOutline(connections.input.source());
       const ids=entries.map(entry=>entry.id);
@@ -747,6 +753,9 @@ export function createDeckWorkspaceNavigation(connections: Host) {
           event.preventDefault();
           slideCommands("duplicate");
         }
+        // 枚のコピー・カット・貼り付け（別のタブ・窓の資料にも貼れる）
+        const clip = (event.metaKey || event.ctrlKey) && !event.altKey && !event.shiftKey ? SLIDE_CLIPBOARD_KEYS.get(event.key.toLowerCase()) : undefined;
+        if (clip) { event.preventDefault(); slideCommands(clip); }
         if (
           event.altKey &&
           (event.key === "ArrowUp" || event.key === "ArrowDown")

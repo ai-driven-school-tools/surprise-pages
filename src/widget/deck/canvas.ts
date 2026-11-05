@@ -999,7 +999,7 @@ export function createDeckCanvas(options: DeckCanvasOptions) {
     if (event.key === "Escape") { event.preventDefault(); event.stopPropagation(); if (drag) finishDrag(true); else if (editing) { endText(); draw(); } else if(cropping){cropping=false;draw();} else { select([]); options.onExitToToolbar?.(); } return; }
     if (editing) { event.stopPropagation(); return; }
     if (options.onCommand && !elements().some(node => node.closest("[data-deck-locked]"))) {
-      const command = event.key === "Delete" || event.key === "Backspace" ? "delete" : (event.metaKey || event.ctrlKey) ? ({c:"copy",v:"paste",d:"duplicate"}[event.key.toLowerCase()]) : undefined;
+      const command = event.key === "Delete" || event.key === "Backspace" ? "delete" : (event.metaKey || event.ctrlKey) ? ({c:"copy",x:"cut",v:"paste",d:"duplicate"}[event.key.toLowerCase()]) : undefined;
       if(command){event.preventDefault();event.stopPropagation();options.onCommand(command);return;}
     }
     const delta = keyDelta(event);

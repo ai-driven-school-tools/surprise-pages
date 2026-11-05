@@ -197,7 +197,8 @@ export function openDeckPresenter(hooks: Hooks) {
   let selected = hooks.current(), step = 0, noteId: string | null = null, noteBase = "", dirty = false, composing = false;
   let noteTimer: ReturnType<typeof setTimeout> | undefined;
   let running = false, desired = false, wantedForce = false;
-  const queuedMoves: (-1 | 1)[] = [];
+  /** 描いている途中に押された移動と飛ぶ先。捨てずに押した順に回す。 */
+  const queuedMoves: (-1 | 1 | { to: Parameters<ReturnType<typeof presenterJumps>["target"]>[2] })[] = [];
   let lastSource = "", entries: ReturnType<typeof presenterSlides> = [];
   // 番号を打って飛ぶ・Z でさかのぼる（src/widget/deck/present/keys.ts）・動画と音声（media.ts）
   let typed = "";
@@ -457,7 +458,7 @@ export function openDeckPresenter(hooks: Hooks) {
       // 押した瞬間に観客用の窓まで開いてきた場合は、準備ができたらそのまま始める（押し直させない）。
       if (autoStart && appliedHtml && !blocked && !disposed) { autoStart = false; begin(); }
       const queued = queuedMoves.shift();
-      if (queued && !disposed && !blocked) move(queued);
+      if (queued !== undefined && !disposed && !blocked) { if (typeof queued === "number") move(queued); else jump(queued.to); }
       if (desired && !running && !disposed && !blocked) void update();
       else if (!running && appliedHtml) warmSoon();
     }
@@ -486,7 +487,8 @@ export function openDeckPresenter(hooks: Hooks) {
   }
   /** 枚へ飛ぶ（Home・End・番号・Z・前の枚・次の枚）。 */
   function jump(to: Parameters<ReturnType<typeof presenterJumps>["target"]>[2]) {
-    if (blocked || running || !flush()) return;
+    if (blocked || !flush()) return;
+    if (running) { queuedMoves.push({ to }); return; }
     const list = presenterSlides(hooks.saved().html);
     const found = jumps.target(list.map(item => item.id), selected, to);
     if (!found) return;

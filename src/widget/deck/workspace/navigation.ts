@@ -660,7 +660,7 @@ export function createDeckWorkspaceNavigation(connections: Host) {
         const id = node.getAttribute(DECK_NODE_MARK)!;
         if (
           !node.matches(
-            "img,video,table,figure,[data-deck-media-slot],[data-deck-shape],[data-deck-group]",
+            "img,video,audio,table,figure,[data-deck-media-slot],[data-deck-shape],[data-deck-group]",
           ) &&
           !editable.get(id)?.textRuns.some((run) => run.text.trim())
         )

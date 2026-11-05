@@ -2,7 +2,7 @@ import {mediaError} from "@/lib/deck/media/api";
 import {z} from "zod";
 import {get} from "@vercel/blob";
 import {assetKey} from "@/lib/pages/assets";
-import {uploadTypeSchema,isVideoUploadType} from "@/lib/deck/media/media";
+import {uploadTypeSchema,isTimedMediaUploadType,isAudioUploadType} from "@/lib/deck/media/media";
 import {saveOptimizedImage,DeckImageInputError} from "@/lib/deck/media/image-optimize";
 import {jsonError,jsonResponse,serverError} from "@/lib/api";
 import {currentIdentity,isMember} from "@/lib/identity/identity";
@@ -28,8 +28,8 @@ async function run(request:Request):Promise<Response>{
   try{
     const gate=await loadEditablePage(organization,viewer,ref.pageSlug);if(!gate.ok)return gate.response;
     if(request.method==="POST"){
-      // 画像は 10MB まで（このあと軽量化する）、動画は 100MB まで（変換せずにそのまま置く）
-      const parsed=z.object({size:z.number().int().positive().max(DECK_VIDEO_MAX_BYTES),type:uploadTypeSchema}).strict().refine(value=>isVideoUploadType(value.type)||value.size<=DECK_IMAGE_UPLOAD_MAX_BYTES).safeParse(JSON.parse(new TextDecoder().decode(await readUploadBytes(request,4096))));
+      // 画像は 10MB まで（このあと軽量化する）、動画と音声は 100MB まで（変換せずにそのまま置く）
+      const parsed=z.object({size:z.number().int().positive().max(DECK_VIDEO_MAX_BYTES),type:uploadTypeSchema}).strict().refine(value=>isTimedMediaUploadType(value.type)||value.size<=DECK_IMAGE_UPLOAD_MAX_BYTES).safeParse(JSON.parse(new TextDecoder().decode(await readUploadBytes(request,4096))));
       if(!parsed.success)return jsonError(rt("deckEditor.api.mediaLimits"),400);
       // 組織の素材の容量の上限。受け取りを始める前に、申告の大きさで確かめる
       const created=Date.now(),lease={version:1,id:crypto.randomUUID(),page:ref.pageSlug,owner:viewer.email,size:parsed.data.size,type:parsed.data.type,created,expires:created+DECK_VIDEO_LEASE_MS};
@@ -48,9 +48,9 @@ async function run(request:Request):Promise<Response>{
     const parsed=videoUploadFinishSchema.safeParse(JSON.parse(new TextDecoder().decode(await readUploadBytes(request,16384))));
     if(!parsed.success||parsed.data.hashes.length!==videoChunkCount(lease))return jsonError(rt("deckEditor.api.partsMissing"),400);
     const src=await finishVideoUpload(gate.page.organization,lease,parsed.data.hashes,request.signal);
-    // 動画はサーバーで変換しない（変換の計算機は有料のため）。送られたファイルをそのまま置いて返す。
+    // 動画と音声はサーバーで変換しない（変換の計算機は有料のため）。送られたファイルをそのまま置いて返す。
     // 静止画（poster）はブラウザが最初のコマから作り、画像として別に送る
-    if(isVideoUploadType(lease.type))return jsonResponse({src,bytes:lease.size,originalBytes:lease.size,kind:"video"},201);
+    if(isTimedMediaUploadType(lease.type))return jsonResponse({src,bytes:lease.size,originalBytes:lease.size,kind:isAudioUploadType(lease.type)?"audio":"video"},201);
     {
       const stored=await get(assetKey(gate.page.organization,ref.slugPrefix,[...ref.slug,...src.split("/")]),{access:"private",useCache:false});
       if(!stored||stored.statusCode!==200)throw new Error("画像を読み直せませんでした。再試行してください"); // i18n-keep: 内部の失敗。窓口は固定の 500 の文だけを返す

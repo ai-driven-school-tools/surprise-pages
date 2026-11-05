@@ -90,6 +90,7 @@ const labelOf = (node: Element) =>
   node.hasAttribute("data-deck-sample-image") ? t("deckEditor.workspace.sampleImage") :
   node.getAttribute("data-deck-media-slot") === "image" ? t("deckEditor.workspace.image") :
   node.getAttribute("data-deck-media-slot") === "video" ? t("deckEditor.workspace.video") :
+  node.tagName === "AUDIO" ? t("deckStudio.audio.label") :
   node.tagName === "IMG"
     ? t("deckEditor.workspace.image")
     : node.tagName === "VIDEO"

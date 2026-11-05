@@ -1,3 +1,4 @@
+import { appendMediaSound } from "./media-sound";
 import {
   AUTHORING_LAYOUTS
 } from "../../../lib/deck/authoring";
@@ -425,6 +426,13 @@ export function createDeckWorkspaceInspector(connections: Host) {
         field(group, t("deckEditor.inspector.description"), node.getAttribute("aria-label") ?? "", (value) =>
           attribute("aria-label", value),
         );
+        appendMediaSound(group, node, selectField, attribute);
+      } else if (node.tagName === "AUDIO") {
+        const group = section(t("deckStudio.audio.section"));
+        field(group, t("deckEditor.inspector.description"), node.getAttribute("aria-label") ?? "", (value) =>
+          attribute("aria-label", value),
+        );
+        appendMediaSound(group, node, selectField, attribute);
       } else if (
         node.tagName === "TABLE" ||
         node.hasAttribute("data-dd-chart")

@@ -421,6 +421,7 @@ export function createDeckWorkspaceDialogs(connections: Host) {
       [t("deckEditor.dialogs.text"), connections.input.addText, "text"],
       [t("deckEditor.dialogs.image"), connections.input.addImage, "image"],
       [t("deckEditor.dialogs.video"), connections.input.addVideo, "video"],
+      [t("deckStudio.audio.insert"), connections.input.addAudio, "audio"],
       [t("deckEditor.dialogs.fromLink"), connections.input.addLink, "link"],
       [
         t("deckEditor.dialogs.square"),

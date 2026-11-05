@@ -33,6 +33,8 @@ import {
   type PageRefParts,
 } from "@/lib/pages/store";
 import { deckPublicationTarget, pageDeletionTarget } from "@/lib/access/page-edit-access";
+import { deckRepublishConflicts } from "@/lib/deck/edit/republish-source";
+import type { RepublishConflict } from "@/lib/deck/edit/republish-guard";
 import { ownerFromRequest, identityOf, TOKEN_REJECTED } from "@/lib/identity/publish-tokens";
 import { logEvent, routeLog } from "@/lib/logging/server-log";
 
@@ -52,6 +54,21 @@ export const dynamic = "force-dynamic";
 
 const MB = 1024 * 1024;
 const MAX_HTML_BYTES = documentLimitMb() * MB;
+
+/** 巻き戻しの断りに並べる例の数と、1 つの例の字数。全部並べると断りの文が読めなくなる */
+const REVERT_EXAMPLES = 3;
+const REVERT_EXAMPLE_LENGTH = 40;
+
+function revertMessage(reverts: readonly RepublishConflict[]): string {
+  const clip = (text: string) => (text.length > REVERT_EXAMPLE_LENGTH ? `${text.slice(0, REVERT_EXAMPLE_LENGTH)}…` : text);
+  const examples = reverts.slice(0, REVERT_EXAMPLES).map((revert) =>
+    revert.current === null
+      ? rt("server.publish.deckRevertRestored", { text: clip(revert.source ?? "") })
+      : revert.proposed === null
+        ? rt("server.publish.deckRevertDropped", { text: clip(revert.current) })
+        : rt("server.publish.deckRevertChanged", { current: clip(revert.current), proposed: clip(revert.proposed) }));
+  return rt("server.publish.deckRevertsEdits", { count: reverts.length, examples: examples.join(rt("server.publish.deckRevertSeparator")) });
+}
 
 type PublishResponse = {
   versionId: string;
@@ -284,6 +301,14 @@ export async function POST(request: Request): Promise<Response> {
         if(!target.ok)return target.response;
         const expectedHead=body["baseVersionId"];
         if(target.deck && target.versionId && expectedHead!==target.versionId)return jsonError(rt("server.publish.deckNeedsLatest"),409);
+        // 土台の版が最新でも、原稿が古いままなら丸ごと送るとその後の直しが消える。版の番号だけ最新にした送り直しをここで止める
+        if(target.existingDeck && isDeckHtml(html)){
+          const reverts=await deckRepublishConflicts(target.existingDeck.page,target.existingDeck.html,html);
+          if(reverts.length>0){
+            logEvent({ level: "info", event: "pages.deck-reverts-refused", fields: { count: reverts.length } });
+            return jsonError(revertMessage(reverts),409);
+          }
+        }
         result = await commitRevision({
           organization,
           pageSlug: page.pageSlug,

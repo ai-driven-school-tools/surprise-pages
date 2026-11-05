@@ -1,6 +1,7 @@
 import { MARK_FOLD_PATH, MARK_ROUND, MARK_SHEET_PATH, MARK_TILE_RADIUS, MARK_VIEW_BOX } from "../../lib/settings/brand";
 import { previousUrl, readHistorySteps, watchHistorySteps } from "../../lib/revisions/history-steps";
 import { TITLEBAR_HEIGHT, TITLEBAR_START_CSS } from "../../lib/workspace/window-titlebar";
+import { paintPageTone } from "./page-ground";
 import {
   FAVORITES_PLACE,
   HOME_PLACE,
@@ -84,36 +85,6 @@ export function originOf(view: Window): Origin {
     return { label: placeLabel(place, t), href: `${previous.url.pathname}${previous.url.search}`, viaBack: previous.reachable };
   }
   return { label: placeLabel(LIBRARY_PLACE, t), href: LIBRARY_PLACE.href, viaBack: false };
-}
-
-/** 色を数に直す。読めなければ null。CSS の色の書き方は多いので、ブラウザに描かせて読む。 */
-function rgbaOf(color: string): readonly [number, number, number, number] | null {
-  const canvas = document.createElement("canvas");
-  canvas.width = canvas.height = 1;
-  const context = canvas.getContext("2d", { willReadFrequently: true });
-  if (context === null) return null;
-  context.clearRect(0, 0, 1, 1);
-  context.fillStyle = color;
-  context.fillRect(0, 0, 1, 1);
-  const [red, green, blue, alpha] = context.getImageData(0, 0, 1, 1).data;
-  return [red, green, blue, alpha];
-}
-
-/**
- * ページの地の色。body に無ければ html、どちらにも無ければ null（ブラウザの既定の地）。
- * 行はこの色を借りるので、開いた瞬間は帯に見えない。
- */
-function pageGround(): { readonly color: string; readonly dark: boolean } | null {
-  for (const node of [document.body, document.documentElement]) {
-    if (node === null) continue;
-    const color = getComputedStyle(node).backgroundColor;
-    const rgba = rgbaOf(color);
-    if (rgba === null || rgba[3] === 0) continue;
-    // 人の目に近い明るさ（Rec. 709）。半分より暗い地には、明るい字を乗せる
-    const light = (0.2126 * rgba[0] + 0.7152 * rgba[1] + 0.0722 * rgba[2]) / 255;
-    return { color: `rgb(${rgba[0]} ${rgba[1]} ${rgba[2]})`, dark: light < 0.5 };
-  }
-  return null;
 }
 
 /** 顔から開くメニューの 1 行。行き先（a）か、その場の操作（button）。 */
@@ -471,13 +442,8 @@ export class LocationBar {
   }
 
   private paintGround(): void {
-    const ground = pageGround();
-    if (ground === null) this.host.style.removeProperty("--page-ground");
-    else this.host.style.setProperty("--page-ground", ground.color);
-    // 地を持たないページは、ブラウザの既定の地。暗くなるのは、ページが暗い側を名乗っていて OS も暗いときだけ
-    const dark = ground?.dark ?? (getComputedStyle(document.documentElement).colorScheme.includes("dark") && window.matchMedia("(prefers-color-scheme: dark)").matches);
-    if (dark) this.host.setAttribute("data-tone", "dark");
-    else this.host.removeAttribute("data-tone");
+    // 地と明暗は、新しい版の知らせ（latest-bar.ts）と同じ読み方（page-ground.ts）
+    paintPageTone(this.host);
   }
 
   private paintScrolled(): void {

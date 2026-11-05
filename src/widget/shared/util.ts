@@ -755,6 +755,16 @@ export function dayTime(iso: string): string {
   }).format(at);
 }
 
+/** 「15:20」。今日でなければ「8月9日 15:20」。上端の「新しい版があります」の、いつ更新したかに使う。 */
+export function clockTime(iso: string, now: Date = new Date()): string {
+  const at = new Date(iso);
+  if (Number.isNaN(at.getTime())) return "";
+  const dayOf = (date: Date): string =>
+    new Intl.DateTimeFormat("en-US", { timeZone: TIME_ZONE, year: "numeric", month: "numeric", day: "numeric" }).format(date);
+  if (dayOf(at) !== dayOf(now)) return dayTime(iso);
+  return new Intl.DateTimeFormat(intlLocale(widgetLocale()), { timeZone: TIME_ZONE, hour: "2-digit", minute: "2-digit" }).format(at);
+}
+
 export function fullTime(iso: string): string {
   const at = new Date(iso);
   if (Number.isNaN(at.getTime())) return "";

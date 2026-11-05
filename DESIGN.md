@@ -133,6 +133,9 @@ SECTION_HEADING  16 太 濃     節の見出し
   4.17 : 1 まで落ちて本文として読めなくなる（400 まで上げれば 7.8 : 1）。
 - **画面ファイルに `text-red-` / `text-blue-` / `text-green-` を直書きしない。**
   赤は `DANGER` / `ALERT` ごしにだけ使う。
+- **投稿ページの色の正本は額縁（`.claude/skills/_shared/references/base.html` の `--ads-*`）。** 図を貼る一式の落ち先の色と書体、
+  スライドの実行部と手本、印の色（`src/lib/settings/brand.ts`）は額縁の値を写すだけで、新しい色を作らない
+  （突き合わせは `tests/checks/check-design-frame.mjs`）。
 
 ---
 

@@ -1,3 +1,4 @@
+import { appendMediaSound } from "./media-sound";
 import {
   AUTHORING_LAYOUTS
 } from "../../../lib/deck/authoring";
@@ -7,13 +8,18 @@ import {
   type DeckEditStyleProperty,
 } from "../../../lib/deck/edit/model";
 import {
+  deckSourceFragment,
   inspectDeckNode
 } from "../../../lib/deck/edit/source";
+import { deckTexts, styleDeckTextRange } from "../edit/text-style";
 import { DECK_LIBRARY } from "../../../lib/deck/design/library";
 import { deckIcon, styleDeckButton } from "../ui";
 import type { Input } from './types';
 import { el } from "../../shared/util";
+import { layerOrderOperations } from "../edit/layer-order";
 import { t } from "../../shared/i18n";
+
+type Align = "left" | "center" | "right" | "top" | "middle" | "bottom";
 
 /** Owns inspector behavior; receives only its required page/editor connections. */
 type Host = {
@@ -41,6 +47,9 @@ type Host = {
   groupSelection: () => void;
   ungroupSelection: () => void;
   elementCommand: (command: string) => void;
+  /** 右の欄の下端のレイヤーの一覧を描き直す（選択・枚・中身が変わるたび。次の描画の前に 1 回だけ） */
+  refreshLayers: () => void;
+  uid: () => string;
 };
 
 export function createDeckWorkspaceInspector(connections: Host) {
@@ -64,21 +73,70 @@ export function createDeckWorkspaceInspector(connections: Host) {
   const inspectNode=(id:string)=>connections.input.inspectNode?connections.input.inspectNode(id):inspectDeckNode(connections.input.source(),id);
 
   function setStyle(property: DeckEditStyleProperty, value: string | null) {
+    setStyles([[property, value]]);
+  }
+
+  /** 複数の項目を 1 回の操作で変える（取り消しも 1 回で戻る） */
+  function setStyles(entries: readonly (readonly [DeckEditStyleProperty, string | null])[]) {
     const ops: DeckEditOperation[] = connections.selection.flatMap((id) => {
       const node = inspectNode(id);
-      return node
-        ? [
-          {
-            kind: "style",
-            target: id,
-            property,
-            before: node.style[property] ?? null,
-            after: value,
-          },
-        ]
-        : [];
+      return node ? entries.map(([property, value]): DeckEditOperation => ({ kind: "style", target: id, property, before: node.style[property] ?? null, after: value })) : [];
     });
     commit(ops);
+  }
+
+  /**
+   * 文字の見た目（大きさ・太字・斜体・色）。文字を直していて字を選んでいれば、選んだ字だけを span で囲んで付ける（../edit/text-style.ts）。
+   * 囲みは箱の HTML の置き換え 1 つで送るので、保存・取り消し・同期は今の操作のまま。囲んだ span を選び直すので、
+   * 続けて押す太字・色は同じ字に付く。画面と原稿で字が食い違えば、箱全体に付ける今の動きに戻す。
+   */
+  function setTextStyles(entries: readonly (readonly [DeckEditStyleProperty, string | null])[]) {
+    const canvas = connections.input.canvas(), range = canvas?.textSelection();
+    if (!canvas || !range) { setStyles(entries); return; }
+    // 打ちかけの字を先に送ってから原稿を読む（読んだあとで送ると、置き換える前の HTML が古くなる）
+    if (!canvas.finishEditing()) return;
+    const part = deckSourceFragment(connections.input.source(), range.id);
+    if (!part?.parentId) { setStyles(entries); return; }
+    const box = find(sourceDoc(), range.id)?.cloneNode(true);
+    if (!(box instanceof HTMLElement) || deckTexts(box).map((text) => text.data).join("") !== range.text) { setStyles(entries); return; }
+    const ids = styleDeckTextRange(box, range.start, range.end, entries, connections.uid);
+    if (!ids.length) return;
+    connections.selection = ids;
+    commit([{ kind: "fragment", target: range.id, parentId: part.parentId, beforeId: part.beforeId, before: part.html, after: box.outerHTML }]);
+  }
+
+  /**
+   * 揃えの 2 行（左右の 3 つ・上下の 3 つ）。複数なら選んだ範囲に、1 つ（グループ 1 つ）ならスライドに揃える。
+   * 行の中の真ん中は字を「中央」に縮め、読み上げの名前は左右中央・上下中央のまま（1 つのときは「スライドの〜に揃える」）。
+   */
+  function alignRows(parent: HTMLElement, count: number) {
+    const rows: [string, [Align, string, string][]][] = [
+      [t("deckEditor.align.horizontal"), [["left", t("deckEditor.inspector.left"), t("deckEditor.inspector.left")], ["center", t("deckEditor.align.centerShort"), t("deckEditor.inspector.center")], ["right", t("deckEditor.inspector.right"), t("deckEditor.inspector.right")]]],
+      [t("deckEditor.align.vertical"), [["top", t("deckEditor.inspector.top"), t("deckEditor.inspector.top")], ["middle", t("deckEditor.align.middleShort"), t("deckEditor.inspector.middle")], ["bottom", t("deckEditor.inspector.bottom"), t("deckEditor.inspector.bottom")]]],
+    ];
+    for (const [label, modes] of rows) {
+      const row = el("div", "ds-row ds-align-row");
+      row.setAttribute("role", "group");
+      row.setAttribute("aria-label", label);
+      row.append(el("span", "ds-property-label", label));
+      for (const [mode, short, name] of modes) {
+        const one = button(short, () => connections.input.canvas()?.align(mode));
+        one.setAttribute("aria-label", count === 1 ? t("deckEditor.align.toSlide", { action: name }) : name);
+        row.append(one);
+      }
+      parent.append(row);
+    }
+  }
+
+  /** 前面へ・背面へ。重なっている相手と同じ土俵の外側の箱で順番を変える（../edit/layer-order.ts）。1 回の操作で取り消せる */
+  function reorderLayers(direction: "front" | "back") {
+    const live = connections.attached ? find(connections.attached, connections.selection[0]) : null;
+    const slide = live?.closest("section[data-deck-slide]");
+    if (!slide) return;
+    commit(layerOrderOperations(slide, connections.selection, direction, (id, property) => {
+      const target = inspectNode(id);
+      return target ? target.style[property] ?? null : undefined;
+    }));
   }
 
   function attribute(
@@ -197,6 +255,7 @@ export function createDeckWorkspaceInspector(connections: Host) {
   }
 
   function refreshInspector() {
+    connections.refreshLayers();
     connections.input.bar
       .querySelector("[data-studio-design]")
       ?.setAttribute("aria-pressed", String(connections.design));
@@ -367,6 +426,13 @@ export function createDeckWorkspaceInspector(connections: Host) {
         field(group, t("deckEditor.inspector.description"), node.getAttribute("aria-label") ?? "", (value) =>
           attribute("aria-label", value),
         );
+        appendMediaSound(group, node, selectField, attribute);
+      } else if (node.tagName === "AUDIO") {
+        const group = section(t("deckStudio.audio.section"));
+        field(group, t("deckEditor.inspector.description"), node.getAttribute("aria-label") ?? "", (value) =>
+          attribute("aria-label", value),
+        );
+        appendMediaSound(group, node, selectField, attribute);
       } else if (
         node.tagName === "TABLE" ||
         node.hasAttribute("data-dd-chart")
@@ -440,7 +506,7 @@ export function createDeckWorkspaceInspector(connections: Host) {
           String(parseFloat(css?.fontSize ?? "32")),
           (v) => {
             if (Number(v) >= 8 && Number(v) <= 240)
-              setStyle("font-size", `${v}px`);
+              setTextStyles([["font-size", `${v}px`]]);
           },
           "number",
         );
@@ -463,17 +529,19 @@ export function createDeckWorkspaceInspector(connections: Host) {
         );
         line.step = "0.1";
         const format = el("div", "ds-row"),
+          // 字を選んでいれば、その字の見た目から切り替える（選んだ字だけに付ける）
+          chosenStyle = () => connections.input.canvas()?.textSelection()?.style ?? css,
           bold = button(t("deckEditor.inspector.bold"), () =>
-            setStyle(
+            setTextStyles([[
               "font-weight",
-              parseInt(css?.fontWeight ?? "400") >= 600 ? "400" : "700",
-            ),
+              parseInt(chosenStyle()?.fontWeight ?? "400") >= 600 ? "400" : "700",
+            ]]),
           ),
           italic = button(t("deckEditor.inspector.italic"), () =>
-            setStyle(
+            setTextStyles([[
               "font-style",
-              css?.fontStyle === "italic" ? "normal" : "italic",
-            ),
+              chosenStyle()?.fontStyle === "italic" ? "normal" : "italic",
+            ]]),
           );
         bold.setAttribute(
           "aria-pressed",
@@ -489,7 +557,7 @@ export function createDeckWorkspaceInspector(connections: Host) {
           group,
           t("deckEditor.inspector.textColor"),
           toHex(css?.color ?? ""),
-          (v) => setStyle("color", v),
+          (v) => setTextStyles([["color", v]]),
           "color",
         );
         selectField(
@@ -506,23 +574,9 @@ export function createDeckWorkspaceInspector(connections: Host) {
       }
     }
     const placement = section(t("deckEditor.inspector.arrange"));
+    alignRows(placement, chosen.length);
     if (chosen.length > 1) {
-      const row = el("div", "ds-row");
-      for (const [value, label] of [
-        ["left", t("deckEditor.inspector.left")],
-        ["center", t("deckEditor.inspector.center")],
-        ["right", t("deckEditor.inspector.right")],
-        ["top", t("deckEditor.inspector.top")],
-        ["middle", t("deckEditor.inspector.middle")],
-        ["bottom", t("deckEditor.inspector.bottom")],
-      ] satisfies [
-        "left" | "center" | "right" | "top" | "middle" | "bottom",
-        string,
-      ][]) {
-        row.append(button(label, () => connections.input.canvas()?.align(value)));
-      }
       placement.append(
-        row,
         button(t("deckEditor.inspector.distributeHorizontal"), () => distribute(false)),
         button(t("deckEditor.inspector.distributeVertical"), () => distribute(true)),
         button(t("deckEditor.inspector.group"), groupSelection),
@@ -552,23 +606,8 @@ export function createDeckWorkspaceInspector(connections: Host) {
         placement.append(button(t("deckEditor.inspector.ungroup"), ungroupSelection));
     }
     placement.append(
-      button(t("deckEditor.inspector.bringForward"), () =>
-        setStyle(
-          "z-index",
-          String(
-            Math.max(
-              ...sourceSelected().map((n) => parseInt(n.style.zIndex) || 0),
-              0,
-            ) + 1,
-          ),
-        ),
-      ),
-      button(t("deckEditor.inspector.sendBackward"), () =>
-        setStyle(
-          "z-index",
-          String(Math.max(0, (parseInt(node.style.zIndex) || 0) - 1)),
-        ),
-      ),
+      button(t("deckEditor.inspector.bringForward"), () => reorderLayers("front")),
+      button(t("deckEditor.inspector.sendBackward"), () => reorderLayers("back")),
       button(t("deckEditor.inspector.resetLayout"), () => {
         const props: DeckEditStyleProperty[] = [
           "translate",
@@ -616,6 +655,7 @@ export function createDeckWorkspaceInspector(connections: Host) {
   return {
     field,
     selectField,
+    reorderLayers,
     togglePanel,
     startCrop,
     refreshInspector

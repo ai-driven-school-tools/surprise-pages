@@ -25,6 +25,8 @@ const eslintConfig = defineConfig([
     "playwright-report/**",
     "test-results/**",
     ".test-runtime/**",
+    // 図の先描きのブラウザ検査が組み立てる置き場（tests/checks/browser/diagram-first-paint.mjs）
+    ".test-build/**",
     // ウィジェットのまとめた出力（元は src/widget/*.ts）
     "src/widget/dist/**",
     // スライドの配布用検査（元は scripts/build/deck-design-check.ts）

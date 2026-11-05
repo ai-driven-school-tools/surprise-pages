@@ -95,7 +95,7 @@ jobs:
             test-results/**/*.zip
           retention-days: 14
   browser-tools:
-    # 本物のブラウザで見る単体の確認（スライドの読み込み・画像・発表者画面・清書の送り・共有カードの絵）
+    # 本物のブラウザで見る単体の確認（スライドの読み込み・画像・発表者画面・清書の送り・共有カードの絵・図の下描き）
     name: Reader and standalone checks
     runs-on: ubuntu-24.04
     timeout-minutes: 15
@@ -112,6 +112,7 @@ jobs:
       - run: pnpm test:presenter
       - run: node tests/checks/browser/reading-scroll.mjs
       - run: node tests/checks/browser/deck-card-image.mjs
+      - run: node tests/checks/browser/diagram-first-paint.mjs
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
         if: failure()
         with:

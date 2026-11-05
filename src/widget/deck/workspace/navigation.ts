@@ -1,4 +1,6 @@
 import {createDeckOutlineDrag} from "../edit/outline-drag";
+import { createDeckListGrid, deckListFooter } from "./list-grid";
+import { rowStarts } from "./list-layout";
 import { outlineBranch, outlineRoots, moveOutline, DECK_PARENT } from "../../../lib/deck/outline";
 import { DECK_SKIP } from "../../../lib/deck/deck";
 import { navigationRuntime } from "../../../lib/deck/preview.generated";
@@ -31,6 +33,9 @@ import { el } from "../../shared/util";
 import { t } from "../../shared/i18n";
 import { LocalizedError } from "../../../lib/i18n/errors";
 import { deckErrorMessage } from "../../../lib/deck/edit/message";
+
+/** 一覧の枚の ⌘C・⌘X・⌘V。 */
+const SLIDE_CLIPBOARD_KEYS = new Map<string, "copy" | "cut" | "paste">([["c", "copy"], ["x", "cut"], ["v", "paste"]]);
 
 /** Owns navigation behavior; receives only its required page/editor connections. */
 type Host = {
@@ -68,6 +73,8 @@ type Host = {
   slideMenu: (trigger: HTMLButtonElement) => void;
   labelOf: (node: Element) => string;
   titleOf: (slide: Element) => string;
+  /** 一覧で選んだ枚のコピー・カット・貼り付け（src/widget/deck/workspace/clipboard.ts）。 */
+  slideClipboard: (command: "copy" | "cut" | "paste") => void;
 };
 
 export function createDeckWorkspaceNavigation(connections: Host) {
@@ -110,11 +117,22 @@ export function createDeckWorkspaceNavigation(connections: Host) {
     return accepted;
   }
   const outlineDrag=createDeckOutlineDrag({screen:connections.screen,list:()=>connections.nav.querySelector(".ds-slide-list"),source:()=>deckSourceOutline(connections.input.source()),selected:()=>connections.chosenSlides,current:()=>connections.current,select:id=>selectSlide(id),restore:(ids,id)=>{connections.chosenSlides=ids;connections.current=id;showCurrent();syncNavSelection();},move:moveSlides,folded:id=>folded.has(id),unfold:id=>{if(folded.delete(id))renderNav();}});
-  type SlideCommand = "duplicate" | "delete" | "delete-only" | "delete-tree" | "up" | "down" | "skip" | "unskip" | "indent" | "outdent";
+  type SlideCommand = "copy" | "cut" | "paste" | "duplicate" | "delete" | "delete-only" | "delete-tree" | "up" | "down" | "skip" | "unskip" | "indent" | "outdent";
   // 300 枚の資料では、今の原稿全体の読み取りと、変更後の原稿の読み取りが、遅い端末でそれぞれ 100ms を超える。
   // 1 つの処理単位に積むと、その間の入力がまとめて止まる。大きな資料の枚の操作は「今の原稿の読み取り →
   // 変更の組み立て → 変更後の原稿の読み取り → 検証・設定と一覧の整合・反映」を別々の処理単位で行う。
   // 途中の段が残っている間に来た枚の操作は、その後ろに並べる（順番は変えない）。
+  // 一覧の並べ方（縦一覧・2〜3 列・一覧で見る）。決まりは list-layout.ts、画面は list-grid.ts
+  const gridLifetime = new AbortController();
+  const visibleRows = () => [...(connections.nav.querySelector(".ds-slide-list")?.querySelectorAll<HTMLElement>(".ds-slide") ?? [])].filter(row => !row.hidden);
+  const grid = createDeckListGrid({
+    screen: connections.screen, nav: connections.nav, rows: visibleRows, current: () => connections.current,
+    select: id => selectSlide(id),
+    focusRow: id => { const row = slideRows.get(id); row?.focus({ preventScroll: true }); row?.scrollIntoView({ block: "nearest" }); },
+    focusCanvas: () => connections.frame.focus(),
+    changed: () => { fit(); renderFooter(); },
+    signal: gridLifetime.signal,
+  });
   const slideSteps: (() => void | Promise<void>)[] = [];
   let slideStepsScheduled = false;
   function queueSlideStep(step: () => void | Promise<void>, continuation = false): void {
@@ -139,11 +157,12 @@ export function createDeckWorkspaceNavigation(connections: Host) {
     return async () => { const value = html(); if (!deckSourceIndexed(value)) await readDeckSourceInSlices(value, yieldToInput); };
   }
   function slideCommands(action: SlideCommand) {
+    if (action === "copy" || action === "cut" || action === "paste") { connections.slideClipboard(action); return; }
     if (!slideStepsScheduled && deckSourceIndexed(connections.input.source())) { runSlideCommand(action); return; }
     if (!slideStepsScheduled) queueSlideStep(readSourceStep(() => connections.input.source()));
     queueSlideStep(() => runSlideCommand(action));
   }
-  function runSlideCommand(action: SlideCommand) {
+  function runSlideCommand(action: Exclude<SlideCommand, "copy" | "cut" | "paste">) {
     run(() => {
       const entries=deckSourceOutline(connections.input.source());
       const ids=entries.map(entry=>entry.id);
@@ -374,6 +393,7 @@ export function createDeckWorkspaceNavigation(connections: Host) {
     const position = t("deckEditor.navigation.position",{position:Math.max(0, ids.indexOf(connections.current) + 1),count:ids.length});
     if (footerPosition && footerPosition.textContent !== position) footerPosition.textContent = position;
     const signature = JSON.stringify([
+      grid.view, grid.choices(),
       ids.length,
       connections.notes.hidden,
       connections.zoom,
@@ -396,6 +416,7 @@ export function createDeckWorkspaceNavigation(connections: Host) {
     connections.footer.append(
       button(t("deckEditor.navigation.list"), () => togglePanel("slides"), "ds-button ds-mobile"),
       footerPosition,
+      ...deckListFooter(grid, connections.screen, (label, action) => button(label, action)),
       ...(ids.length ? [button(connections.notes.hidden ? t("deckEditor.navigation.openNotes") : t("deckEditor.navigation.closeNotes"), () => {
         connections.notes.hidden = !connections.notes.hidden;
         renderNotes();
@@ -412,6 +433,10 @@ export function createDeckWorkspaceNavigation(connections: Host) {
             [t("deckEditor.navigation.guideMulti"), t("deckEditor.navigation.guideMultiKeys")],
             [t("deckEditor.navigation.guideNudge"), t("deckEditor.navigation.guideNudgeKeys")],
             [t("deckEditor.navigation.guideUndo"), "⌘Z / Ctrl+Z"],
+            [t("deckStudio.guide.slide"), t("deckStudio.guide.slideKeys")],
+            [t("deckStudio.guide.copyAcross"), t("deckStudio.guide.copyAcrossKeys")],
+            [t("deckStudio.guide.list"), t("deckStudio.guide.listKeys")],
+            [t("deckStudio.zoom.guide"), /Mac|iPhone|iPad/.test(navigator.platform) ? t("deckStudio.zoom.guideKeysApple") : t("deckStudio.zoom.guideKeysOther")],
           ];
           for (const [label, keys] of rows) {
             const row = el("div", "ds-guide-row");
@@ -635,7 +660,7 @@ export function createDeckWorkspaceNavigation(connections: Host) {
         const id = node.getAttribute(DECK_NODE_MARK)!;
         if (
           !node.matches(
-            "img,video,table,figure,[data-deck-media-slot],[data-deck-shape],[data-deck-group]",
+            "img,video,audio,table,figure,[data-deck-media-slot],[data-deck-shape],[data-deck-group]",
           ) &&
           !editable.get(id)?.textRuns.some((run) => run.text.trim())
         )
@@ -714,6 +739,8 @@ export function createDeckWorkspaceNavigation(connections: Host) {
         t("deckEditor.navigation.slideLabel",{position,title:titleOf(slide)}),
       );
       b.onclick = (event) => selectSlide(id, event.shiftKey || event.metaKey);
+      // 一覧で見ている間は、ダブルクリックでその枚を開く（一覧を閉じて真ん中の 1 枚へ）
+      b.ondblclick = () => { if (grid.view.mode === "full") grid.open(id); };
       outlineDrag.bind(b,id);
       const holder = el("span", "ds-thumb");
       thumbnail(slide, holder);
@@ -734,6 +761,12 @@ export function createDeckWorkspaceNavigation(connections: Host) {
         slideMenu(more);
       };
       b.onkeydown = (event) => {
+        // 一覧の並べ方の近道（O・-・=）と、格子の矢印・Enter・一覧で見る間の Escape
+        if (!event.metaKey && !event.ctrlKey && !event.altKey && (event.key === "o" || event.key === "O" || event.key === "-" || event.key === "=")) {
+          event.preventDefault(); grid.shortcut(event.key === "-" ? "deck-list-fewer" : event.key === "=" ? "deck-list-more" : "deck-list-overview"); return;
+        }
+        if (event.key === "Escape" && grid.escape()) { event.preventDefault(); event.stopPropagation(); return; }
+        if (grid.view.mode !== "rail" && grid.key(event, id)) return;
         if(event.altKey&&(event.key==="ArrowLeft"||event.key==="ArrowRight")){event.preventDefault();slideCommands(event.key==="ArrowRight"?"indent":"outdent");return;}
         if(!event.altKey&&(event.key==="ArrowLeft"||event.key==="ArrowRight")){
           if(outlineBranch(deckSourceOutline(connections.input.source()),id).length>1){event.preventDefault();if(event.key==="ArrowLeft")folded.add(id);else folded.delete(id);renderNav();return;}
@@ -747,6 +780,9 @@ export function createDeckWorkspaceNavigation(connections: Host) {
           event.preventDefault();
           slideCommands("duplicate");
         }
+        // 枚のコピー・カット・貼り付け（別のタブ・窓の資料にも貼れる）
+        const clip = (event.metaKey || event.ctrlKey) && !event.altKey && !event.shiftKey ? SLIDE_CLIPBOARD_KEYS.get(event.key.toLowerCase()) : undefined;
+        if (clip) { event.preventDefault(); slideCommands(clip); }
         if (
           event.altKey &&
           (event.key === "ArrowUp" || event.key === "ArrowDown")
@@ -760,10 +796,14 @@ export function createDeckWorkspaceNavigation(connections: Host) {
     // 次に見える行が根なら隙間は 16px。継ぎ目の的もその高さまで広げる。
     const visible = [...list.querySelectorAll<HTMLElement>(".ds-slide")].filter(row => !row.hidden);
     visible.forEach((row, index) => row.toggleAttribute("data-seam-wide", !!visible[index + 1] && !visible[index + 1].hasAttribute("data-outline-child")));
+    // 格子では、章の頭と章の直後の枚で行を改める
+    const starts = rowStarts(outline, folded);
+    for (const [id, row] of slideRows) row.toggleAttribute("data-row-start", starts.has(id));
+    grid.paint();
     syncNavSelection();
   }
   return {
-    dispose() { outlineDrag.dispose(); thumbnails.dispose(); }, slideCommands,
+    dispose() { outlineDrag.dispose(); thumbnails.dispose(); gridLifetime.abort(); }, slideCommands,
     showCurrent,
     fit,
     renderFooter,

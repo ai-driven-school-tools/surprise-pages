@@ -396,6 +396,13 @@ def _walk(
     if tpl_path and os.path.isfile(tpl_path):
         embed = check_mod.embed_block(check_mod.read_text(tpl_path))
     html = check_mod.apply_embed_placeholder(html, embed)
+    if base_version and embed:
+        # 既にある資料の送り直しでは、互換の一覧にある前の実行部だけを、公開する写しの中でいまの実行部へ差し替える
+        design_path = os.path.join(os.path.dirname(tpl_path), "deck-design.html")
+        design_html = check_mod.read_text(design_path) if os.path.isfile(design_path) else ""
+        html, replaced = check_mod.upgrade_runtime(html, check_mod.read_text(tpl_path), design_html, check_mod.load_compat(tpl_path))
+        if replaced:
+            payload["runtime_updated"] = "公開物の実行部を現行に差し替えました（%s）。原本は変えていません" % "・".join(replaced)
 
     found = None if (public or no_git) else provenance_mod.inspect(source)
     display_name = (found or {}).get("path") or os.path.basename(source)

@@ -40,6 +40,23 @@ export const settings = {
       other: "見たページの記録。{count} 日で消えます",
     },
   },
+  // 読み上げ（端末の声だけ）。控えるのはこのブラウザの中だけ（src/lib/read-aloud/settings.ts）
+  readAloud: {
+    title: "読み上げ",
+    voice: {
+      title: "声",
+      detail: "この端末に入っている声から選びます。設定はこのブラウザに残ります",
+      label: "読み上げの声",
+      auto: "自動",
+      option: "{name}（{lang}）",
+      none: "この端末で使える声がありません",
+    },
+    rate: {
+      title: "速さ",
+      detail: "読み上げを始めるときの速さ。読んでいる途中に変えた速さも、ここに残ります",
+      group: "読み上げの速さ",
+    },
+  },
   beta: {
     title: "ベータ機能",
     group: "{feature}を使うか",

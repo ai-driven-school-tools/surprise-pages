@@ -56,14 +56,14 @@ export const RENDER_BUDGET_MS = 12_000;
 const OPEN_TIMEOUT_MS = 5_000;
 export const TOTAL_BUDGET_MS = 30_000;
 
-class RenderTimeout extends Error {
+export class RenderTimeout extends Error {
   constructor(label: string) {
     super(`deck card ${label} timed out`);
     this.name = "RenderTimeout";
   }
 }
 
-function withTimeout<T>(task: Promise<T>, ms: number, label: string): Promise<T> {
+export function withTimeout<T>(task: Promise<T>, ms: number, label: string): Promise<T> {
   let timer: ReturnType<typeof setTimeout> | undefined;
   const deadline = new Promise<never>((_resolve, reject) => {
     timer = setTimeout(() => reject(new RenderTimeout(label)), ms);
@@ -72,14 +72,17 @@ function withTimeout<T>(task: Promise<T>, ms: number, label: string): Promise<T>
 }
 
 /** いま起こしてあるブラウザを捨てる。次の要求が起こし直す。閉じるのを待ちすぎない。 */
-async function discardBrowser(): Promise<void> {
+export async function discardBrowser(): Promise<void> {
   const held = browserPromise;
   browserPromise = null;
   if (held === null) return;
   await withTimeout(held.then((browser) => browser.close()), OPEN_TIMEOUT_MS, "close").catch(() => {});
 }
 
-/** 同時に描く枚数の上限。1 つの関数に同時に来ても、ブラウザを溢れさせない。 */
+/**
+ * 同時に描く枚数の上限。1 つの関数に同時に来ても、ブラウザを溢れさせない。
+ * 図の下描き（src/lib/first-paint/diagram-render.ts）も同じブラウザ・同じ枠・同じ時間の区切りを使う（ここから書き出す）。
+ */
 const MAX_CONCURRENT = 2;
 
 /**
@@ -185,7 +188,7 @@ function browserInstance(): Promise<Browser> {
 let running = 0;
 const waiting: (() => void)[] = [];
 
-async function withSlot<T>(task: () => Promise<T>): Promise<T> {
+export async function withSlot<T>(task: () => Promise<T>): Promise<T> {
   if (running >= MAX_CONCURRENT) await new Promise<void>((resolve) => waiting.push(resolve));
   running += 1;
   try {
@@ -238,7 +241,7 @@ const SETTLE = `async ({ selector, index, budget }) => {
  * 道連れになる（次の要求で「Browser has been closed」・2026-10-08 のお試し公開）。切れたことを
  * 知らせる合図が届く前に次の要求が来るので、合図を待たずにここで確かめる。
  */
-async function openPage(options: BrowserContextOptions): Promise<{ context: BrowserContext; page: Page }> {
+export async function openPage(options: BrowserContextOptions): Promise<{ context: BrowserContext; page: Page }> {
   for (let attempt = 0; ; attempt += 1) {
     const browser = await browserInstance();
     try {

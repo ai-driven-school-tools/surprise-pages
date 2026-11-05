@@ -71,6 +71,10 @@
     "items": 45,
     "sections": 4
   },
+  "check-deck-arrange.mjs": {
+    "items": 31,
+    "sections": 0
+  },
   "check-deck-authoring.mjs": {
     "items": 31,
     "sections": 0
@@ -94,6 +98,10 @@
   "check-deck-customization.mjs": {
     "items": 63,
     "sections": 3
+  },
+  "check-deck-delivery.mjs": {
+    "items": 19,
+    "sections": 4
   },
   "check-deck-design-save.mjs": {
     "items": 23,
@@ -204,12 +212,16 @@
     "sections": 0
   },
   "check-deck-video-upload.mjs": {
-    "items": 32,
+    "items": 36,
     "sections": 0
   },
   "check-deck.mjs": {
     "items": 208,
     "sections": 7
+  },
+  "check-design-frame.mjs": {
+    "items": 21,
+    "sections": 5
   },
   "check-design.mjs": {
     "items": 121,
@@ -244,16 +256,20 @@
     "sections": 0
   },
   "check-feature-switches.mjs": {
-    "items": 50,
+    "items": 51,
     "sections": 6
   },
   "check-features.mjs": {
-    "items": 20,
+    "items": 22,
     "sections": 6
   },
   "check-first-paint-chrome.mjs": {
     "items": 26,
     "sections": 5
+  },
+  "check-first-paint-diagrams.mjs": {
+    "items": 75,
+    "sections": 6
   },
   "check-first-paint.mjs": {
     "items": 59,
@@ -392,7 +408,7 @@
     "sections": 5
   },
   "check-publish-update.mjs": {
-    "items": 6,
+    "items": 7,
     "sections": 0
   },
   "check-quickwrite.mjs": {
@@ -405,6 +421,10 @@
   },
   "check-reading-nav.mjs": {
     "items": 61,
+    "sections": 4
+  },
+  "check-reading-place.mjs": {
+    "items": 60,
     "sections": 4
   },
   "check-red-test-first.mjs": {
@@ -484,7 +504,7 @@
     "sections": 7
   },
   "check-toolbox-menu.mjs": {
-    "items": 187,
+    "items": 189,
     "sections": 9
   },
   "check-ui-motion.mjs": {

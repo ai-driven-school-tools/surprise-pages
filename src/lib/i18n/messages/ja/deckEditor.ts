@@ -817,4 +817,38 @@ export const deckEditor = {
     mediaLimits: "画像は10MB、動画はMP4・WebMで100MBまでです",
     uploadExpiredResend: "送信の有効期限が切れました。もう一度送信してください",
   },
+  /** 右の欄の下端の「レイヤー」の一覧（src/widget/deck/edit/layer-panel.ts）。上ほど前面 */
+  layers: {
+    title: "レイヤー",
+    resize: "レイヤーの高さを変更",
+    list: "このスライドのレイヤー（上ほど前面）",
+    empty: "このスライドには要素がありません",
+    expand: "{label}を開く",
+    collapse: "{label}を閉じる",
+    row: "レイヤー「{label}」",
+    locked: "レイヤー「{label}」（位置を固定中）",
+    box: "囲み",
+    cannotMove: "その位置には移動できません。別の行の上か下へドラッグしてください",
+    otherBox: "別の囲みの中へは移動できません。移動するときは、切り取って貼り付けてください",
+    unchanged: "並び順は変わりませんでした",
+  },
+  /** 揃え・まとめて大きさを変える持ち手・図形の持ち手（src/widget/deck/canvas-*.ts） */
+  align: {
+    horizontal: "左右",
+    vertical: "上下",
+    centerShort: "中央",
+    middleShort: "中央",
+    toSlide: "スライドの{action}に揃える",
+    resizeSelection: "選んだ要素をまとめて拡大・縮小",
+    resizeShape: "図形の大きさを変更（矢印キーでも調整できます）",
+  },
+  /** キャンバスとレイヤーの一覧の右クリックで出す要素の操作（src/widget/deck/edit/element-menu.ts） */
+  elementMenu: {
+    title: "要素の操作",
+    action: "{action} — 要素",
+    cut: "切り取り",
+    copy: "コピー",
+    paste: "貼り付け",
+    selectAll: "すべて選択",
+  },
 } as const;

@@ -1,4 +1,5 @@
 import { withCleanCopyLook } from "@/lib/settings/clean-copy-look";
+import { withDeferredPosters } from "@/lib/deck/delivery";
 import { currentOrganization } from "@/lib/organization/scope";
 import { withFastFirstPaint } from "@/lib/first-paint/delivery";
 import { firstPaintLocale, withFirstPaintChrome } from "@/lib/first-paint/chrome";
@@ -209,13 +210,13 @@ export async function GET(
     const page = withFirstPaintChrome(await withFastFirstPaint(
       withVendorScripts(
         withCommentsWidget(
-          withPageIcon(
+          withDeferredPosters(withPageIcon(
             withOgTags(
               withAssetBase(html, here),
               "public",
               lazyPublicMeta(html, `${sharedOrigin}${here}`, cardUrl),
             ),
-          ),
+          )),
           gate.page.pageSlug,
           look,
         ),

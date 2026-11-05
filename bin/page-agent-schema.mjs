@@ -85,7 +85,9 @@ var deckCreatedNodeSchema = z2.discriminatedUnion("tag", [
   z2.object({ id: deckNodeIdSchema, tag: z2.literal("youtube"), videoId: z2.string().refine(isYouTubeId), label: z2.string().min(1).max(500), style: styleSchema.optional() }).strict(),
   z2.object({ id: deckNodeIdSchema, tag: z2.literal("p"), text: z2.string().max(1e5), style: styleSchema.optional() }).strict(),
   z2.object({ id: deckNodeIdSchema, tag: z2.literal("img"), src: deckEditImagePathSchema, alt: z2.string().max(2e3), style: styleSchema.optional() }).strict(),
-  z2.object({ id: deckNodeIdSchema, tag: z2.literal("video"), src: deckEditImagePathSchema, poster: deckEditImagePathSchema, label: z2.string().min(1).max(2e3), style: styleSchema.optional() }).strict()
+  z2.object({ id: deckNodeIdSchema, tag: z2.literal("video"), src: deckEditImagePathSchema, poster: deckEditImagePathSchema, label: z2.string().min(1).max(2e3), style: styleSchema.optional() }).strict(),
+  // 音声（MP3・M4A）。始まり（スライドに着いたら・クリックで）と繰り返し・ミュートは属性（src/lib/deck/media/play.ts）
+  z2.object({ id: deckNodeIdSchema, tag: z2.literal("audio"), src: deckEditImagePathSchema, label: z2.string().min(1).max(2e3), play: z2.enum(["arrive", "click"]), loop: z2.boolean(), muted: z2.boolean().optional(), style: styleSchema.optional() }).strict()
 ]);
 var outlineEntrySchema = z2.object({ id: deckNodeIdSchema, parent: deckNodeIdSchema.nullable() }).strict();
 var mediaReferenceSchema = z2.object({ src: deckEditImagePathSchema, poster: deckEditImagePathSchema }).strict();
@@ -132,7 +134,7 @@ var deckEditOperationSchema = z2.discriminatedUnion("kind", [
   z2.object({
     kind: z2.literal("attribute"),
     target: deckNodeIdSchema,
-    name: z2.enum(["alt", "aria-label", "data-deck-locked", "data-deck-group", "data-dd-format", "data-deck-skip", "data-deck-parent"]),
+    name: z2.enum(["alt", "aria-label", "data-deck-locked", "data-deck-group", "data-dd-format", "data-deck-skip", "data-deck-parent", "data-deck-play", "loop", "muted"]),
     before: z2.string().max(2e3).nullable(),
     after: z2.string().max(2e3).nullable()
   }).extend(operationEnvelope).strict(),

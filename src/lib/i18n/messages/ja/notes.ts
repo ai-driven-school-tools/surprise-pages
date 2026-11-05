@@ -1,0 +1,85 @@
+/**
+ * メモ帳（清書のページを本文の上のまま直す・src/lib/notes/・src/widget/editor/note-*.ts）と、その窓口の断り文。
+ * 成功は字で言わない。言うのは失敗だけ。
+ */
+export const notes = {
+  untitled: "無題",
+  history: {
+    // 版に残る一言（積むときは日本語の正本の文のまま・履歴で出すときに訳す）
+    saved: "メモ帳で直した",
+  },
+  entry: {
+    /** 道具箱の入口（清書のページを直せる人だけ） */
+    open: "メモ帳",
+    /** 直している間だけ道具箱に出る、直し終えるボタン */
+    done: "終える",
+    unsupported: "このページにはメモ帳で直せない部分があります。「編集」から直してください",
+    loadFailed: "メモ帳を読み込めませんでした。ページを読み込み直してください",
+  },
+  editor: {
+    label: "メモの本文",
+    untitled: "無題",
+    /** 題の行の案内（題は任意。本文を書き始めたら、指を乗せたときと題の行に戻ったときだけ出す） */
+    titleHint: "タイトル",
+    blockHint: "/ でブロック",
+    caption: "添え書きを書く",
+    menu: "ブロック",
+    menuEmpty: "当てはまるブロックがありません",
+    add: "ブロックを足す",
+    handle: "つかんで動かす",
+    linkLabel: "リンク先",
+    offline: "オフライン。つながると保存されます",
+    unsaved: "保存できていません",
+    retry: "もう一度",
+    conflict: "ほかの場所で直されました",
+    reload: "読み込み直す",
+    draftFound: "保存されなかった直しがあります",
+    restore: "戻す",
+    discard: "捨てる",
+    uploading: "{name} をアップロードしています（{percent}%）",
+    uploadFailed: "アップロードに失敗しました",
+    uploadRetry: "やり直す",
+    unsupported: "{name} は置けない形式です",
+    tooLarge: "{name} は大きすぎます（画像は 10MB・動画は 100MB まで）",
+    toolbar: "書く道具",
+    embedLabel: "埋め込む動画のURL",
+    embedRefused: "このURLは埋め込めません（YouTubeだけ）。リンクとして入れました",
+    embedTitle: "YouTubeの動画",
+    /** 表の中で「/」を打ったときの操作 */
+    tableRowBelow: "下に行を足す",
+    tableColumnRight: "右に列を足す",
+    tableRowDelete: "この行を消す",
+    tableColumnDelete: "この列を消す",
+    tableDelete: "表を消す",
+  },
+  blocks: {
+    paragraph: "段落",
+    heading: "見出し",
+    subheading: "小見出し",
+    bullet: "箇条書き",
+    ordered: "番号付き",
+    task: "確認の箱",
+    quote: "引用",
+    code: "コード",
+    rule: "区切り線",
+    image: "画像",
+    video: "動画",
+    toggle: "トグル",
+    callout: "注記",
+    table: "表",
+    embed: "埋め込み",
+  },
+  server: {
+    loginRequired: "ログインしてください",
+    sendHere: "このページの画面から送ってください",
+    badRequest: "送り方が正しくありません",
+    badBody: "本文に、メモ帳で書けない形が含まれています",
+    tooLarge: "本文が大きすぎます（5MB まで）",
+    notFound: "ページが見つかりません",
+    conflict: "ほかの場所で直されました。読み込み直してください",
+    operationReused: "同じ送信IDで、違う内容が送られました",
+    unsupported: "置けない形式です",
+    unreadableImage: "画像を読み取れません",
+    uploadExpired: "受け取りの期限が切れました。もう一度置いてください",
+  },
+} as const;

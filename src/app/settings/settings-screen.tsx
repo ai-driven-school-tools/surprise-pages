@@ -15,6 +15,7 @@ import type { SiteUsage } from "@/lib/workspace/usage";
 import { formatMediaBytes } from "@/lib/deck/media/media";
 import { LOCALES, LOCALE_NAMES, type LocaleSetting } from "@/lib/i18n/locales";
 import { useT } from "../_components/i18n";
+import { ReadAloudSettings } from "./read-aloud-settings";
 /** 個人設定の保存の口（`/api/workspace`）へ送る 1 件。 */
 type SettingChange =
   | { action: "appearance"; value: WorkspaceAppearance }
@@ -112,7 +113,7 @@ export function SettingsScreen({
     save({ action: "beta", feature, enabled }, () => showBeta({ feature, enabled }));
   }
   /*
-   * 行は節（h2）で組む。アカウント（名乗り・端末・記録）→ 画面（外観・言語）→ スライド（マイテーマ）→
+   * 行は節（h2）で組む。アカウント（名乗り・端末・記録）→ 画面（外観・言語）→ 読み上げ（声・速さ）→ スライド（マイテーマ）→
    * 保存の使用量（配布版の本人だけ）→ ベータ機能。節の間は mb-12、行の間と行の中の余白は .ws-setting が持つ。
    * 行に線も絵も置かない（src/app/_components/setting-row.tsx）。
    */
@@ -167,6 +168,8 @@ export function SettingsScreen({
           </div>
         </SettingRow>
       </section>
+      {/* 読み上げの声と速さ。このブラウザにだけ控える（端末の声だけで読むので、サーバーへ送らない） */}
+      <ReadAloudSettings />
       <section className="mb-12" aria-labelledby="settings-decks">
         <h2 id="settings-decks" className={SECTION_HEADING}>{t("settings.decks")}</h2>
         <SettingRow title={t("settings.themes.title")} detail={t("settings.themes.detail")}>

@@ -115,6 +115,9 @@ export const DECK_WORKSPACE_STYLES = `
 .ds-section { margin:0 0 24px; padding:0; flex:none; }
 .ds-row { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
 .ds-row>.ds-field { flex:1; min-width:72px; }
+.ds-align-row { flex-wrap:nowrap; gap:0; }
+.ds-align-row>.ds-property-label { flex:0 0 40px; }
+.ds-align-row>.ds-button { flex:1; padding:0 4px; }
 .ds-field { display:flex; flex-direction:column; gap:6px; margin-bottom:12px; font-size:12px; color:var(--muted); }
 .ds-field input,.ds-field select,.ds-field textarea {
   width:100%; height:32px; min-height:32px; border:1px solid var(--border); border-radius:6px;

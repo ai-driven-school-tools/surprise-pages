@@ -43,6 +43,8 @@ export const deckCreatedNodeSchema = z.discriminatedUnion("tag", [
   z.object({ id: deckNodeIdSchema, tag: z.literal("p"), text: z.string().max(100_000), style: styleSchema.optional() }).strict(),
   z.object({ id: deckNodeIdSchema, tag: z.literal("img"), src: deckEditImagePathSchema, alt: z.string().max(2000), style: styleSchema.optional() }).strict(),
   z.object({ id: deckNodeIdSchema, tag: z.literal("video"), src: deckEditImagePathSchema, poster: deckEditImagePathSchema, label: z.string().min(1).max(2000), style: styleSchema.optional() }).strict(),
+  // 音声（MP3・M4A）。始まり（スライドに着いたら・クリックで）と繰り返し・ミュートは属性（src/lib/deck/media/play.ts）
+  z.object({ id: deckNodeIdSchema, tag: z.literal("audio"), src: deckEditImagePathSchema, label: z.string().min(1).max(2000), play: z.enum(["arrive", "click"]), loop: z.boolean(), muted: z.boolean().optional(), style: styleSchema.optional() }).strict(),
 ]);
 const outlineEntrySchema = z.object({id:deckNodeIdSchema,parent:deckNodeIdSchema.nullable()}).strict();
 const mediaReferenceSchema=z.object({src:deckEditImagePathSchema,poster:deckEditImagePathSchema}).strict();
@@ -65,7 +67,7 @@ export const deckEditOperationSchema = z.discriminatedUnion("kind", [
   z.object({ kind: z.literal("order"), target: deckNodeIdSchema,
     before: z.array(deckNodeIdSchema).max(1000), after: z.array(deckNodeIdSchema).max(1000) }).extend(operationEnvelope).strict(),
   z.object({ kind: z.literal("attribute"), target: deckNodeIdSchema,
-    name: z.enum(["alt", "aria-label", "data-deck-locked", "data-deck-group", "data-dd-format", "data-deck-skip", "data-deck-parent"]),
+    name: z.enum(["alt", "aria-label", "data-deck-locked", "data-deck-group", "data-dd-format", "data-deck-skip", "data-deck-parent", "data-deck-play", "loop", "muted"]),
     before: z.string().max(2000).nullable(), after: z.string().max(2000).nullable() }).extend(operationEnvelope).strict(),
   z.object({ kind: z.literal("setting"), target: z.literal("deck-document"),
     name: z.enum(["title", "appearance", "focus", "logo", "focus-source", "design-source", "logo-source", "diagram-library", "theme", "navigation", "design-runtime", "design-style"]), before: z.string().max(1_000_000).nullable(), after: z.string().max(1_000_000).nullable() }).extend(operationEnvelope).strict().refine(value => value.name === "design-runtime" || value.name === "design-style" || ((value.before?.length ?? 0) <= 200_000 && (value.after?.length ?? 0) <= 200_000), "設定の変更が大きすぎます"),

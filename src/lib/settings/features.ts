@@ -61,6 +61,7 @@ export const FEATURES = {
       "src/app/api/pages/access",
       "src/app/api/pages/deck-edit",
       "src/app/api/pages/deck-edit/assets",
+      "src/app/api/pages/deck-edit/clipboard",
       "src/app/api/pages/deck-edit/create",
       "src/app/api/pages/deck-edit/duplicate",
       "src/app/api/pages/deck-edit/image-library",
@@ -77,6 +78,16 @@ export const FEATURES = {
       "src/app/api/views",
       "src/app/api/workspace",
     ],
+  },
+  "diagram-prerender": {
+    purpose: "図（Mermaid）のページで、サーバーのブラウザで版ごとに 1 回描いておいた図を本文と一緒に配り、図の道具を描画のあとで読む（src/lib/first-paint/diagram-prerender.ts）。絵は非公開の画像の置き場に控える。機能のスイッチ PAGES_DIAGRAM_PRERENDER=on のときだけ動く",
+    personal: true,
+    routes: ["src/app/api/pages/diagrams"],
+  },
+  notes: {
+    purpose: "メモ帳。清書のページを、ブラウザで本文の上のまま直す（ProseMirror の編集の部品・「/」のブロックの一覧・手を止めるたびに 1 版）。直せるのは canEditPage の人だけ。サーバーは有料の資源を使わない",
+    personal: true,
+    routes: ["src/app/api/pages/notes", "src/app/api/pages/notes/assets"],
   },
   "page-agent": {
     purpose: "手元の AI（bin/pages-agent.mjs）から資料を直す口。サーバーは有料の資源を起動しない",

@@ -12,9 +12,11 @@ import { admin } from "./ja/admin";
 import { auth } from "./ja/auth";
 import { decks } from "./ja/decks";
 import { deckEditor } from "./ja/deckEditor";
+import { deckStudio } from "./ja/deckStudio";
 import { toolbox } from "./ja/toolbox";
 import { server } from "./ja/server";
 import { organization } from "./ja/organization";
+import { notes } from "./ja/notes";
 
 /**
  * 画面の文言の辞書（日本語）。**これが正本**。ほかの言語はこの形に合わせて訳す（`./en.ts`）。
@@ -42,7 +44,9 @@ export const ja = {
   auth,
   decks,
   deckEditor,
+  deckStudio,
   toolbox,
   server,
   organization,
+  notes,
 } as const;

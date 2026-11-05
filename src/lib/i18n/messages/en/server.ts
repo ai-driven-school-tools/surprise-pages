@@ -23,6 +23,12 @@ export const server = {
     missingGroups: "Viewer groups not found: \"{names}\". Create them in the admin screen, then publish again",
     groupNameSeparator: "\", \"",
     deckNeedsLatest: "Read the latest version of the slides and compare your changes before applying them",
+    deckRevertsEdits:
+      "Stopped because publishing this would erase {count} edits made in the browser or by AI ({examples}). Read the latest content and include those edits in your draft, or apply your change one element at a time",
+    deckRevertChanged: "\"{current}\" would go back to \"{proposed}\"",
+    deckRevertDropped: "\"{text}\" would disappear",
+    deckRevertRestored: "deleted \"{text}\" would come back",
+    deckRevertSeparator: "; ",
     grantFailed:
       "The page was created for selected people only, but granting access to the viewer groups failed. Publish the same content again to retry just the access",
   },

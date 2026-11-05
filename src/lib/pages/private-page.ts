@@ -1,4 +1,5 @@
 import { withCleanCopyLook } from "@/lib/settings/clean-copy-look";
+import { withDeferredPosters } from "@/lib/deck/delivery";
 import { currentOrganization, type OrganizationScope } from "@/lib/organization/scope";
 import { imageAssetResponse } from "@/lib/page-images/response";
 import { peekPageImage } from "@/lib/page-images/transform";
@@ -326,7 +327,7 @@ export async function servePrivatePage(
   const page = withFirstPaintChrome(await withFastFirstPaint(
     withVendorScripts(
       withCommentsWidget(
-        withPageIcon(withOgTags(withAssetBase(withCleanCopyLook(html), here), "internal", look.name)),
+        withDeferredPosters(withPageIcon(withOgTags(withAssetBase(withCleanCopyLook(html), here), "internal", look.name))),
         gate.page.pageSlug,
         look,
       ),

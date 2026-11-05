@@ -56,16 +56,19 @@ await first.locator('.ds-slide').last().click();const lastSlide=one.locator('sec
 await first.getByRole('button',{name:'＋ 挿入',exact:true}).click();await first.getByRole('button',{name:'テキスト',exact:true}).click();await first.waitForTimeout(1300);const lastText=one.locator('p[data-deck-created]').last();
 await report('最後の枚の余白を選んで同じ枚へ文字を追加',await lastText.evaluate(n=>n.closest('[data-deck-slide]').getAttribute('data-deck-node'))===lastId);
 let releaseUpload;const uploadGate=new Promise(resolve=>{releaseUpload=resolve;});
-await first.route('**/api/pages/deck-edit/assets?**',async route=>{await uploadGate;await route.continue();});
+await first.route('**/api/pages/deck-edit/media/upload?**',async route=>{await uploadGate;await route.continue();});
 await first.locator('input[type=file][accept^="image/"]').setInputFiles(`${output}/image.png`);await first.waitForTimeout(500);
-await report('画像の送信中が画面に出る',await first.locator('.deck-edit-status').filter({hasText:'画像を追加中…'}).isVisible());
+await report('画像の送信中が画面に出る',await first.locator('.deck-edit-status').filter({hasText:/送信を準備中…|送信中|画像を追加中…/}).isVisible());
 await report('画像の送信中は完了できない',await first.getByRole('button',{name:'完了',exact:true}).isDisabled());
-releaseUpload();await first.waitForTimeout(2300);await first.unroute('**/api/pages/deck-edit/assets?**');
+releaseUpload();await first.waitForTimeout(2300);await first.unroute('**/api/pages/deck-edit/media/upload?**');
 const lastImage=one.locator('img[data-deck-created]').last();await report('最後の枚へ画像も追加できる',await lastImage.evaluate(n=>n.closest('[data-deck-slide]').getAttribute('data-deck-node'))===lastId);
 await lastImage.click();await first.keyboard.press('Escape');await report('Escapeで編集の操作欄へ戻れる',await first.getByRole('button',{name:'完了',exact:true}).evaluate(n=>n.getRootNode().activeElement===n));
 await lastImage.click();await first.keyboard.press('Tab');await report('最後の要素からTabで操作欄へ戻れる',await first.getByRole('button',{name:'完了',exact:true}).evaluate(n=>n.getRootNode().activeElement===n));
 await first.locator('.ds-slide').first().click();const firstTarget=one.locator('section[data-deck-slide]').first().locator('p').first();await firstTarget.click();await first.keyboard.press('Shift+Tab');await report('最初の要素からShiftTabで操作欄へ戻れる',await first.getByRole('button',{name:'完了',exact:true}).evaluate(n=>n.getRootNode().activeElement===n));
 await first.screenshot({path:`${output}/05-keyboard-and-upload.png`});
+// 前の段で 1 枚目に置いて広げた画像が見出しに重なるので、見出しを直す前に片付ける
+await first.locator('.ds-slide').first().click();
+for(const cover of await one.locator('section[data-deck-slide]').first().locator('img[data-deck-created]').all()){await cover.click();await first.keyboard.press('Delete');await first.waitForTimeout(800);}
 await heading.scrollIntoViewIfNeeded();
 const surrounding=()=>heading.evaluate(n=>{const paragraph=n.parentElement.querySelector('p'),footer=n.closest('[data-deck-slide]').querySelector('footer');return {box:n.getBoundingClientRect().toJSON(),paragraph:paragraph.getBoundingClientRect().toJSON(),footer:footer.getBoundingClientRect().toJSON()};});
 const surroundingBefore=await surrounding();const previousText=await heading.textContent();

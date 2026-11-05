@@ -10,7 +10,7 @@ import { root } from './paths.mjs';
 const run = promisify(execFile);
 const directory = await mkdtemp(join(tmpdir(), 'publish-update-'));
 const first = 'a'.repeat(40), next = 'b'.repeat(40);
-let head = first, calls = [], sourceStatus = 200, race = false;
+let head = first, calls = [], sourceStatus = 200, race = false, reverts = false;
 const server = createServer(async (request, response) => {
   const chunks = [];
   for await (const chunk of request) chunks.push(chunk);
@@ -23,6 +23,7 @@ const server = createServer(async (request, response) => {
   if (url.pathname === '/api/pages/prepare') { if (race) head = next; return reply(200, {versionId: head, frozen: 0}); }
   if (url.pathname === '/api/pages') {
     const payload = JSON.parse(data);
+    if (reverts) return reply(409, {error: 'このまま送ると、ブラウザやAIが直した 1 か所が消えるため止めました'});
     return payload.baseVersionId === head ? reply(200, {versionNumber: 2}) : reply(409, {error: '競合しました'});
   }
   reply(404, {});
@@ -31,7 +32,7 @@ await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
 const origin = `http://127.0.0.1:${server.address().port}`;
 const env = {...process.env, PAGES_HOST: origin, PAGES_TOKEN_ORIGIN: origin, PAGES_TOKEN: 'local-test-only', PAGES_NO_UPDATE_CHECK: '1'};
 const cli = (...args) => run(process.execPath, [`${root}/bin/pages-publish.mjs`, ...args], {env, cwd: directory});
-const test = async (name, fn) => { calls = []; head = first; sourceStatus = 200; race = false; await fn(); console.log(`OK  ${name}`); };
+const test = async (name, fn) => { calls = []; head = first; sourceStatus = 200; race = false; reverts = false; await fn(); console.log(`OK  ${name}`); };
 try {
   await writeFile(join(directory, 'image.png'), Buffer.from([1, 2, 3]));
   await writeFile(join(directory, 'index.html'), '<body data-deck>更新した本文</body>');
@@ -66,6 +67,14 @@ try {
     assert.ok(calls.every(c => c.method === 'GET'));
     calls = []; race = true;
     await assert.rejects(cli('--file', 'index.html', '--slug', 'test', '--base-version', first));
+    assert.equal(calls.filter(c => c.path === '/api/pages').length, 1);
+  });
+  await test('古い原稿で直しを巻き戻す送り直しは、サーバーの断りに取り寄せ直しの手順を添えて止まる', async () => {
+    reverts = true;
+    const failed = await cli('--file', 'index.html', '--slug', 'test', '--base-version', first).then(() => null, error => error);
+    assert.ok(failed, '止まらなかった');
+    assert.match(failed.stderr, /直した 1 か所が消える/);
+    assert.match(failed.stderr, /pages-publish get --slug test --out/);
     assert.equal(calls.filter(c => c.path === '/api/pages').length, 1);
   });
 } finally {

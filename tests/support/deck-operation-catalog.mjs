@@ -2,7 +2,7 @@
  * never by a source-text match or by sending the save request directly. */
 export const deckOperations = [
   ['open','navigation',100],['close','navigation',125],['select-slide','navigation',125],['scroll','navigation',125],['zoom','navigation',125],['present','navigation',300],['presenter','navigation',300],
-  ['type','elements',125],['composition','elements',125],['paste','elements',125],['select','elements',125],['multi-select','elements',125],['move','elements',200],['resize','elements',200],['align','elements',250],['group','elements',250],
+  ['type','elements',125],['composition','elements',125],['paste','elements',125],['select','elements',125],['multi-select','elements',125],['move','elements',200],['resize','elements',200],['align','elements',250],['group','elements',250],['layers','elements',250],['element-menu','elements',250],['text-style','elements',250],
   ['insert','slides',250],['template-library','slides',250],['insert-slide','slides',250],['duplicate','slides',250],['delete','slides',250],['reorder','slides',250],['outline-drag','slides',300],['outline','slides',250],['skip','slides',250],
   ['appearance','design',250],['font','design',250],['document-appearance','design',250],['table','design',250],['chart','design',300],['notes','design',300],['focus','design',250],['logo','design',300],
   ['image-library','media',250],['image-upload','media',250],['image-replace','media',250],['image-crop','media',250],['video-upload','media',250],['video-playback','media',250],['video-convert','media',250],
@@ -17,7 +17,7 @@ export const deckOperations = [
  * （確かめる相手を作った操作と同じ側に置く）。操作を足すときは、どちらかの並びにも足す（足し忘れは検査が落とす）。
  */
 export const DECK_OPERATION_PARTS = Object.freeze({
-  '1/2': Object.freeze(['close','open','select-slide','scroll','zoom','select','type','save','undo','redo','composition','paste','appearance','document-appearance','notes','insert','image-library','image-upload','image-crop','resize','move','multi-select','align','group','presenter','present']),
+  '1/2': Object.freeze(['close','open','select-slide','scroll','zoom','select','type','save','undo','redo','composition','paste','appearance','document-appearance','notes','insert','image-library','image-upload','image-crop','resize','move','multi-select','align','group','layers','element-menu','text-style','presenter','present']),
   '2/2': Object.freeze(['duplicate','reorder','outline-drag','outline','skip','delete','table','chart','font','focus','logo','image-replace','video-upload','video-convert','video-playback','offline','draft','remote','template-library','insert-slide']),
 });
 /** その 1 本が測る操作。知らない指定は全部に倒さず断る。 */

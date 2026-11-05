@@ -27,6 +27,9 @@ export function hasVideoSignature(bytes: Uint8Array,type:VideoUploadLease["type"
   const text=String.fromCharCode(...bytes.slice(0,32));
   if(type==="video/webm")return bytes.length>=4&&bytes[0]===0x1a&&bytes[1]===0x45&&bytes[2]===0xdf&&bytes[3]===0xa3;
   if(type==="video/mp4")return bytes.length>=16&&text.slice(4,8)==="ftyp";
+  // MP3 は ID3 の札か、MPEG の音声の同期（11 ビットの 1）で始まる。M4A は MP4 と同じ入れ物（ftyp）
+  if(type==="audio/mpeg")return bytes.length>=3&&(text.startsWith("ID3")||bytes[0]===0xff&&(bytes[1]&0xe0)===0xe0);
+  if(type==="audio/mp4")return bytes.length>=16&&text.slice(4,8)==="ftyp";
   if(type==="image/png")return bytes[0]===137&&text.slice(1,4)==="PNG";
   if(type==="image/jpeg")return bytes[0]===255&&bytes[1]===216&&bytes[2]===255;
   if(type==="image/gif")return text.startsWith("GIF87a")||text.startsWith("GIF89a");

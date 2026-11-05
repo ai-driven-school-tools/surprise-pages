@@ -25,6 +25,8 @@ export type Input = {
   addImage: () => void;
   /** 動画（MP4・WebM）のファイルを選ばせて置く。差し替え先があればそこへ入れる。 */
   addVideo: () => void;
+  /** 音声（MP3・M4A）のファイルを選ばせて置く。 */
+  addAudio: () => void;
   openImages: (replace: boolean) => void;
   addLink: () => void;
   exportDraft: () => void;

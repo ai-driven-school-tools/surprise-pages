@@ -24,6 +24,13 @@ export async function exerciseElementOperations({page,ui,action,saved,frame,slid
   await action('align',async()=>{await button('左端').click();await expect.poll(async()=>Math.abs((await first().boundingBox()).x-(await second().boundingBox()).x)).toBeLessThan(1);});
   await saved();
   await action('group',async()=>{await button('グループ化').click();await expect(slide().locator('[data-deck-group]')).toHaveCount(1);await saved();await button('グループを解除').click();await expect(slide().locator('[data-deck-group]')).toHaveCount(0);});
+  await saved();
+  // 右下のレイヤーの一覧: 最後の行を先頭の上へ落とすと重なり順（z-index）だけが変わる
+  await action('layers',async()=>{const rows=ui.locator('.ds-layer-pick'),from=await rows.last().boundingBox(),to=await rows.first().boundingBox(),last=await ui.locator('.ds-layer').last().getAttribute('data-key');await page.mouse.move(from.x+40,from.y+from.height/2);await page.mouse.down();await page.mouse.move(from.x+40,to.y+3,{steps:12});await page.mouse.up();await expect(ui.locator('.ds-layer').first()).toHaveAttribute('data-key',last);});
+  await saved();
+  await action('element-menu',async()=>{await inFrame.click(first(),{button:'right'});await ui.getByRole('menuitem',{name:'位置を固定 — 要素',exact:true}).click();await expect(first()).toHaveAttribute('data-deck-locked','true');await saved();await inFrame.click(first(),{button:'right'});await ui.getByRole('menuitem',{name:'固定を解除 — 要素',exact:true}).click();await expect(first()).not.toHaveAttribute('data-deck-locked');});
+  await saved();
+  await action('text-style',async()=>{await inFrame.dblclick(first());await first().evaluate(node=>{const text=[...node.childNodes].find(child=>child.nodeType===3&&child.data.trim());const range=node.ownerDocument.createRange();range.setStart(text,0);range.setEnd(text,1);const selection=node.ownerDocument.getSelection();selection.removeAllRanges();selection.addRange(range);});await button('太字').click();await expect(first().locator('span[data-deck-node]')).toHaveCount(1);});
   await saved();await go(0);
   // The uploaded image must survive closing the editor with its size and position changed.
   return {imageId:await image().getAttribute('data-deck-node'),imageSrc:await image().getAttribute('src')};

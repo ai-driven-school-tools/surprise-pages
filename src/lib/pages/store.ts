@@ -19,6 +19,7 @@ import { dropPageDelivery, warmPageHtml } from "./cache";
 import { computeVersionId, isVersionId } from "../revisions/version-id";
 import type { PageVersion, SlugVisibility } from "../comments/types";
 import type { DeckEditReceipt } from "../deck/edit/service";
+import type { NoteReceipt } from "../notes/store";
 import { defaultTranslate } from "../i18n/default";
 import { LocalizedError } from "../i18n/errors";
 import type { MessageKey, MessageParams } from "../i18n/messages/types";
@@ -118,8 +119,8 @@ export type CommitInput = {
   expectedHead?: string | null;
   /** 投稿時だけ保存済みの着せ替えを引き継ぐ。本文編集・履歴の復元では指定しない。 */
   preserveDeckAppearance?: boolean;
-  /** Stored in the same append-only row as the edit, so a lost reply is safely retryable. */
-  editReceipt?: DeckEditReceipt;
+  /** Stored in the same append-only row as the edit, so a lost reply is safely retryable. メモ帳の保存も同じ列に受領記録を書く（src/lib/notes/store.ts）。 */
+  editReceipt?: DeckEditReceipt | NoteReceipt;
   collaboration?: DeckCollaboration;
   /** Trusted server-only operation receipts for one atomic collaborative save. */
   receiptGroup?:import("../deck/edit/receipts").DeckReceiptGroup;

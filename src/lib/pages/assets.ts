@@ -25,6 +25,7 @@ const CONTENT_TYPES: Readonly<Record<string, string>> = {
   ".webm": "video/webm",
   ".mov": "video/quicktime",
   ".mp3": "audio/mpeg",
+  ".m4a": "audio/mp4",
   ".wav": "audio/wav",
   ".vtt": "text/vtt; charset=utf-8",
   ".pdf": "application/pdf",

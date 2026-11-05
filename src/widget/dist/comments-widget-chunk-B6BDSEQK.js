@@ -1,2 +1,0 @@
-/* 生成物。直接編集しない。元のコードは src/widget/*.ts、作り直しは `pnpm build:widget`。 */
-import{a}from"./comments-widget-chunk-AGLVU6EO.js";import"./comments-widget-chunk-SJRMDVDN.js";import"./comments-widget-chunk-LPSXZC2S.js";import"./comments-widget-chunk-MAKVYIRV.js";import"./comments-widget-chunk-O3V7CSW5.js";import"./comments-widget-chunk-UQVG7YRY.js";import"./comments-widget-chunk-VJUEWAWK.js";import"./comments-widget-chunk-BJN73O4D.js";export{a as openAgentReview};

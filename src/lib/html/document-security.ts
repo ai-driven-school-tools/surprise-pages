@@ -13,6 +13,7 @@ import { DECK_FOCUS_MARK, DECK_FOCUS_OVERRIDES_MARK } from "../deck/design/focus
 import { DECK_LOGO_MARK, DECK_LOGO_OVERRIDES_MARK } from "../deck/media/logo";
 import { deckLogoAssetPaths, readDeckCustomizationHtml } from "../deck/edit/customization-html";
 import { readDeckChartSource } from "../deck/design/chart-source";
+import { diagramLoaderScript } from "../first-paint/diagrams";
 import { defaultTranslate } from "../i18n/default";
 import { LocalizedError } from "../i18n/errors";
 import type { MessageKey } from "../i18n/messages/types";
@@ -160,7 +161,8 @@ export function documentPolicy(html: string, requestOrigin?: string): string {
   walk(sourceTree(html), (node) => {
     if (node.nodeName === "script" && "attrs" in node && !node.attrs.some((attr) => attr.name === "type" && attr.value === "application/json")) {
       const text = scriptText(node);
-      if (approvedInline(text)) hashes.add(hash(text));
+      // 図の下描きの読み込み役（src/lib/first-paint/diagrams.ts）は版ごとに 1 通りの決まった文。字が一致するときだけ許す
+      if (approvedInline(text) || text === diagramLoaderScript()) hashes.add(hash(text));
     }
   });
   // 配布版はサイトの宛先が 1 つ（設定の PAGES_SITE_URL）。社内版で仕掛けを絞る組織は宛先が組織ごとなので、開かれた宛先で書く

@@ -20,7 +20,7 @@ const host=document.createElement('surprise-comments');const shadow=host.attachS
 const style=document.createElement('style');style.textContent=STYLES;shadow.append(style);document.body.append(host);
 const trigger=document.createElement('button');trigger.textContent='この資料を編集';trigger.style.cssText='position:fixed;right:24px;top:24px;pointer-events:auto';shadow.append(trigger);
 trigger.onclick=()=>openPageEditor({pageSlug:'internal/example/design',host:shadow,notify:console.log,fail:console.error});
-if(new URL(location.href).searchParams.get('edit')==='1')trigger.click();
+if(new URL(location.href).searchParams.get('edit')==='1'){const url=new URL(location.href);url.searchParams.delete('edit');history.replaceState(null,'',url.href);trigger.click();}
 `,resolveDir:root},bundle:true,write:false,format:'iife',platform:'browser'});
 const clientBundle=await buildClient();
 const vendors={'mermaid.js':'mermaid/mermaid.js','echarts.js':'echarts/echarts.js','lucide.js':'lucide/lucide.js','tailwind.js':'tailwindcss/tailwind.js'};

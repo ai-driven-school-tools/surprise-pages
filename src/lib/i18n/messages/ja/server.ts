@@ -27,6 +27,13 @@ export const server = {
     missingGroups: "閲覧グループ「{names}」が見つかりません。管理画面で作ってから投稿してください",
     groupNameSeparator: "」「",
     deckNeedsLatest: "スライドの最新版を読み取り、変更案を比較してから反映してください",
+    // {examples} は deckRevertSeparator でつないだ、下の 3 つのどれかの並び
+    deckRevertsEdits:
+      "このまま送ると、ブラウザやAIが直した {count} か所が消えるため止めました（{examples}）。最新の本文を読み取って直しを含めた原稿にするか、1 か所ずつ直す方法で反映してください",
+    deckRevertChanged: "「{current}」が「{proposed}」に戻る",
+    deckRevertDropped: "「{text}」が消える",
+    deckRevertRestored: "消された「{text}」が戻る",
+    deckRevertSeparator: "、",
     grantFailed:
       "ページは「選んだ人だけ」で作られましたが、閲覧グループへの許可付けに失敗しました。同じ内容をもう一度投稿すると、許可だけやり直せます",
   },

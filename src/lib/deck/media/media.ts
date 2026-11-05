@@ -29,18 +29,30 @@ export function mediaFileType(file:Pick<File,"type"|"name">):MediaType|null{
  * 画像だけを扱う口（リンクからの取り込み・画像の軽量化）は `mediaTypeSchema` のまま、動画を受けない。
  */
 export const MEDIA_VIDEO_TYPES = ["video/mp4","video/webm"] as const;
-export const uploadTypeSchema=z.enum([...MEDIA_IMAGE_TYPES,...MEDIA_VIDEO_TYPES]);
+/**
+ * 編集画面から送れる音声（MP3・M4A）。動画と同じく変換せず、送られたファイルをそのまま非公開で置く。
+ * 中身の頭（ID3・MPEG の同期・ftyp）はサーバーが確かめる（src/lib/deck/media/video-upload.ts の hasVideoSignature）。
+ */
+export const MEDIA_AUDIO_TYPES = ["audio/mpeg","audio/mp4"] as const;
+export const uploadTypeSchema=z.enum([...MEDIA_IMAGE_TYPES,...MEDIA_VIDEO_TYPES,...MEDIA_AUDIO_TYPES]);
 export type UploadType=z.infer<typeof uploadTypeSchema>;
-export const UPLOAD_EXTENSIONS:Record<UploadType,string>={...MEDIA_EXTENSIONS,"video/mp4":"mp4","video/webm":"webm"};
+export const UPLOAD_EXTENSIONS:Record<UploadType,string>={...MEDIA_EXTENSIONS,"video/mp4":"mp4","video/webm":"webm","audio/mpeg":"mp3","audio/mp4":"m4a"};
 export function isVideoUploadType(type:string):type is (typeof MEDIA_VIDEO_TYPES)[number]{return MEDIA_VIDEO_TYPES.some(one=>one===type);}
-/** 送るファイルの形式（画像か動画）。ブラウザが形式を名乗らないときは拡張子で読む。 */
+export function isAudioUploadType(type:string):type is (typeof MEDIA_AUDIO_TYPES)[number]{return MEDIA_AUDIO_TYPES.some(one=>one===type);}
+/** 変換せずにそのまま置く形式（動画と音声）。 */
+export function isTimedMediaUploadType(type:string):boolean{return isVideoUploadType(type)||isAudioUploadType(type);}
+/** ブラウザが名乗る音声の形式の別名（Safari・Chrome で違う）。 */
+const AUDIO_ALIASES:Readonly<Record<string,(typeof MEDIA_AUDIO_TYPES)[number]>>={"audio/mp3":"audio/mpeg","audio/x-mp3":"audio/mpeg","audio/mpeg3":"audio/mpeg","audio/x-m4a":"audio/mp4","audio/m4a":"audio/mp4","audio/aac":"audio/mp4"};
+/** 送るファイルの形式（画像・動画・音声）。ブラウザが形式を名乗らないときは拡張子で読む。 */
 export function uploadFileType(file:Pick<File,"type"|"name">):UploadType|null{
   const image=mediaFileType(file);if(image)return image;
   const type=uploadTypeSchema.safeParse(file.type);
   if(type.success)return type.data;
-  if(file.type)return null;
+  const alias=AUDIO_ALIASES[file.type.toLowerCase()];
   const extension=file.name.split(".").at(-1)?.toLowerCase();
-  return extension==="mp4"||extension==="m4v"?"video/mp4":extension==="webm"?"video/webm":null;
+  if(alias)return extension==="mp3"?"audio/mpeg":extension==="m4a"?"audio/mp4":alias;
+  if(file.type)return null;
+  return extension==="mp4"||extension==="m4v"?"video/mp4":extension==="webm"?"video/webm":extension==="mp3"?"audio/mpeg":extension==="m4a"?"audio/mp4":null;
 }
 export function youtubeId(value:string):string|null{
   try{

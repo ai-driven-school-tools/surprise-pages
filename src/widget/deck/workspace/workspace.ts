@@ -21,18 +21,24 @@ import {
 } from "../../../lib/deck/edit/source";
 import { isCollaborativeProperty } from "../../../lib/deck/edit/collaboration";
 import { styleDeckButton, type DeckIcon } from "../ui";
+import { createDeckWorkspaceClipboard } from './clipboard';
 import { createDeckWorkspaceData } from './data';
 import { createDeckWorkspaceDesign } from './design';
 import { createDeckWorkspaceDialogs } from './dialogs';
 import { createDeckWorkspaceInspector } from './inspector';
 import { createDeckWorkspaceNavigation } from './navigation';
+import { createDeckLayerPanel } from "../edit/layer-panel";
+import { ELEMENT_MENU_CSS, elementMenu, runElementMenuAction } from "../edit/element-menu";
 import { DECK_WORKSPACE_STYLES } from "./styles";
+import { LIST_GRID_STYLES } from "./list-grid";
+import { deckWheelZoom } from "./zoom";
 import type { Input } from './types';
 import { el } from "../../shared/util";
 import { markDeferredWork } from "../deferred-work";
 import { t } from "../../shared/i18n";
 import { LocalizedError } from "../../../lib/i18n/errors";
 import { deckErrorMessage } from "../../../lib/deck/edit/message";
+import { deckElementClips, deckElementPasteOperations } from "../../../lib/deck/edit/clipboard";
 const uid = () => `n-${crypto.randomUUID()}`;
 const button = (label: string, fn: () => void, cls = "ds-button") => {
   const b = el("button", cls);
@@ -84,6 +90,7 @@ const labelOf = (node: Element) =>
   node.hasAttribute("data-deck-sample-image") ? t("deckEditor.workspace.sampleImage") :
   node.getAttribute("data-deck-media-slot") === "image" ? t("deckEditor.workspace.image") :
   node.getAttribute("data-deck-media-slot") === "video" ? t("deckEditor.workspace.video") :
+  node.tagName === "AUDIO" ? t("deckStudio.audio.label") :
   node.tagName === "IMG"
     ? t("deckEditor.workspace.image")
     : node.tagName === "VIDEO"
@@ -104,7 +111,7 @@ export function createDeckWorkspace(input: Input) {
   let frame = input.frame;
   screen.classList.add("deck-studio");
   const style = el("style");
-  style.textContent = DECK_WORKSPACE_STYLES;
+  style.textContent = DECK_WORKSPACE_STYLES + ELEMENT_MENU_CSS + LIST_GRID_STYLES;
   screen.append(style);
   const root = el("div", "ds-workspace"),
     nav = el("nav", "ds-nav"),
@@ -123,7 +130,9 @@ export function createDeckWorkspace(input: Input) {
     button(t("deckEditor.workspace.addFirst"), () => dialogsFeature.layouts(false), "ds-button ds-primary"),
   );
   stage.append(frame, empty, notes);
-  root.append(nav, stage, inspector);
+  // 右の欄の下端に固定する「レイヤー」の一覧（../edit/layer-panel.ts）。設定を描き直しても一覧は作り直さない
+  const layerDock = el("section");
+  root.append(nav, stage, inspector, layerDock);
   screen.append(root, footer);
   let mediaControl: HTMLElement | null = null;
   let closeMedia = () => {};
@@ -144,7 +153,6 @@ export function createDeckWorkspace(input: Input) {
   let resizeFrame: number | undefined;
   let fingerprint = "",
     renderTimer: number | undefined;
-  let clipboard: { html: string; id: string }[] = [];
   let parsedSource: { html: string; doc: Document } | null = null;
   const sourceDoc = () => { const html = input.source(); if (parsedSource?.html !== html) parsedSource = { html, doc: parsedSource ? updateDeckSourceDocument(parsedSource.html,html,parsedSource.doc,parse) : parse(html) }; return parsedSource.doc; };
   let indexedSource: Document | null = null;
@@ -246,7 +254,8 @@ export function createDeckWorkspace(input: Input) {
     get layouts() { return dialogsFeature.layouts; },
     get slideMenu() { return dialogsFeature.slideMenu; },
     get labelOf() { return labelOf; },
-    get titleOf() { return titleOf; }
+    get titleOf() { return titleOf; },
+    slideClipboard: (command: "copy" | "cut" | "paste") => clipboardFeature.slides(command),
   });
 
   const inspectorFeature = createDeckWorkspaceInspector({
@@ -276,7 +285,9 @@ export function createDeckWorkspace(input: Input) {
     get distribute() { return distribute; },
     get groupSelection() { return groupSelection; },
     get ungroupSelection() { return ungroupSelection; },
-    get elementCommand() { return elementCommand; }
+    get elementCommand() { return elementCommand; },
+    get refreshLayers() { return layers.refresh; },
+    get uid() { return uid; }
   });
 
   const dataFeature = createDeckWorkspaceData({
@@ -305,6 +316,48 @@ export function createDeckWorkspace(input: Input) {
     get run() { return run; },
     get sourceDoc() { return sourceDoc; },
     get field() { return inspectorFeature.field; }
+  });
+
+  const layers = createDeckLayerPanel({
+    dock: layerDock,
+    signal: lifetime.signal,
+    slide: () => (attached && current ? find(attached, current) ?? null : null),
+    hidden: () => design || !current,
+    source: () => input.source(),
+    labelOf,
+    selection: () => selection,
+    select: (ids) => {
+      // 一覧で選んでも焦点は一覧に残す（キャンバスは選ぶと枠の文書へ焦点を移す）
+      const active = focused();
+      input.canvas()?.select(ids);
+      if (active instanceof HTMLElement && active.isConnected) active.focus({ preventScroll: true });
+    },
+    hover: (id) => input.canvas()?.hover(id),
+    commit,
+    sourceNode: (id) => find(sourceDoc(), id),
+    menu: (x, y) => openElementMenu({ x, y }),
+    command: (command) => {
+      elementCommand(command);
+    },
+    message: (text) => input.fail(text),
+  });
+
+  const clipboardFeature = createDeckWorkspaceClipboard({
+    get input() { return input; },
+    get run() { return run; },
+    get commit() { return commit; },
+    get uid() { return uid; },
+    get current() { return current; },
+    set current(value) { current = value; },
+    get chosenSlides() { return chosenSlides; },
+    set chosenSlides(value) { chosenSlides = value; },
+    get selection() { return selection; },
+    set selection(value) { selection = value; },
+    deleteSlides: () => navigationFeature.slideCommands("delete"),
+    deleteElements: () => elementCommand("delete"),
+    get modal() { return dialogsFeature.modal; },
+    get actions() { return dialogsFeature.actions; },
+    get closeDialog() { return dialogsFeature.closeDialog; },
   });
 
   function commit(ops: DeckEditOperation[]): boolean {
@@ -389,6 +442,33 @@ export function createDeckWorkspace(input: Input) {
       dialogsFeature.closeMenu();
   }, { signal: lifetime.signal });
   let disposeLibrary: (() => void) | null = null;
+  /** 要素の操作のメニュー（../edit/element-menu.ts）。キャンバスとレイヤーの一覧の右クリックから。at は画面の座標 */
+  function openElementMenu(at: { x: number; y: number }) {
+    dialogsFeature.closeMenu();
+    tip.hidden = true;
+    const chosen = sourceSelected();
+    elementMenu({
+      screen, at, button,
+      state: { count: selection.length, locked: chosen.some((node) => node.closest("[data-deck-locked]")), grouped: chosen.length === 1 && chosen[0].hasAttribute("data-deck-group"), canPaste: clipboardFeature.canPaste() },
+      close: (restore) => { const menu = openMenu; openMenu = null; menu?.remove(); if (restore) frame.contentWindow?.focus(); },
+      opened: (menu) => { openMenu = menu; menuTrigger = null; },
+      run: (action) => runElementMenuAction(action, {
+        command: (command) => {
+          if (command === "cut") elementCommand("cut");
+          else if (command === "group") groupSelection();
+          else if (command === "ungroup") ungroupSelection();
+          else elementCommand(command);
+        },
+        align: (mode) => input.canvas()?.align(mode),
+        distribute,
+        reorder: (direction) => inspectorFeature.reorderLayers(direction),
+        lock: (locked) => {
+          commit(sourceSelected().map((node): DeckEditOperation => ({ kind: "attribute", target: node.getAttribute(DECK_NODE_MARK) ?? "", name: "data-deck-locked", before: node.getAttribute("data-deck-locked"), after: locked ? "true" : null })));
+        },
+        selectAll: () => input.canvas()?.selectAll(),
+      }),
+    });
+  }
   function distribute(vertical: boolean) {
     if (!attached || selection.length < 3) return;
     const targets = selection
@@ -530,32 +610,23 @@ export function createDeckWorkspace(input: Input) {
   }
   function elementCommand(command: string) {
     run(() => {
-      if (command === "copy") {
-        clipboard = selection.flatMap((id) => {
-          const part = deckSourceFragment(input.source(), id);
-          return part ? [{ id, html: part.html }] : [];
-        });
+      // コピー・カットは別のタブ・窓の資料でも貼れる写しに置く（src/widget/deck/workspace/clipboard.ts）
+      if (command === "copy" || command === "cut") {
+        clipboardFeature.elements(command, selection);
         return;
       }
-      if (command === "paste" || command === "duplicate") {
-        if (command === "duplicate") elementCommand("copy");
-        const ops: DeckEditOperation[] = [],
-          selected: string[] = [];
-        for (const item of clipboard) {
-          const cloned = cloneDeckFragment(item.html, uid()),
-            id = cloned.ids[item.id];
-          ops.push({
-            kind: "fragment",
-            target: id,
-            parentId: current,
-            beforeId: null,
-            before: null,
-            after: cloned.html,
-          });
-          selected.push(id);
-        }
-        selection = selected;
-        commit(ops);
+      if (command === "paste") {
+        // 写しが無いときは何もしない（ブラウザの貼り付けを邪魔しない）
+        clipboardFeature.paste();
+        return;
+      }
+      // 複製はコピーした中身を置き換えない
+      if (command === "duplicate") {
+        if (!current) return;
+        const pasted = deckElementPasteOperations(deckElementClips(input.source(), selection), current, uid);
+        if (!pasted.ids.length) return;
+        selection = pasted.ids;
+        commit(pasted.operations);
         return;
       }
       if (command === "delete") {
@@ -590,6 +661,9 @@ export function createDeckWorkspace(input: Input) {
     css.textContent = `html:not([data-deck-mode="present"]),html:not([data-deck-mode="present"]) body{width:100%!important;height:100%!important;margin:0!important;padding:0!important;max-width:none!important;overflow:auto!important;background:var(--studio-desk,var(--deck-surface))!important}html:not([data-deck-mode="present"]) [data-deck-toolbar],html:not([data-deck-mode="present"]) [data-deck-exit],html:not([data-deck-mode="present"]) aside[data-deck-notes],html:not([data-deck-mode="present"]) [data-deck-focus-supplement],html:not([data-deck-mode="present"]) [data-deck-focus-supplements],html:not([data-deck-mode="present"]) [data-deck-focus-supplement-pages]{display:none!important}html:not([data-deck-mode="present"]) main[data-deck-slides]{display:flex!important;align-items:center!important;justify-content:center!important;min-width:calc(var(--studio-w) + 64px)!important;min-height:100%!important;width:100%!important;padding:32px!important;gap:0!important;margin:0!important;box-sizing:border-box!important}html:not([data-deck-mode="present"]) [data-deck-frame]{display:none!important}html:not([data-deck-mode="present"]) [data-deck-frame][data-studio-active]{display:block!important;flex:none!important;width:var(--studio-w)!important;height:var(--studio-h)!important;margin:0!important;padding:0!important;max-width:none!important}html:not([data-deck-mode="present"]) [data-deck-stage]{width:1280px!important;height:720px!important;transform:scale(var(--studio-scale))!important;transform-origin:top left!important;margin:0!important}html:not([data-deck-mode="present"]) [data-deck-stage]>section[data-deck-slide]{width:1280px!important;height:720px!important;transform:none!important;margin:0!important}html:not([data-deck-mode="present"]) [data-deck-stage]::after{display:none!important}html:not([data-deck-mode="present"]) main[data-deck-slides]>section{display:none!important}html:not([data-deck-mode="present"]) main[data-deck-slides]>section[data-studio-active]{display:block!important;flex:none!important;width:1280px!important;height:720px!important;transform:scale(var(--studio-scale))!important;transform-origin:center!important}html[data-deck-mode="present"] [data-deck-canvas-chrome]{display:none!important}`;
     doc.head.append(css);
     doc.querySelector("[data-deck-preview-containment]")?.remove();
+    // ⌘（Ctrl）を押しながらのスクロールとピンチで拡大・縮小（src/widget/deck/workspace/zoom.ts）
+    const zoomHost = { get attached() { return attached; }, frame, get zoom() { return zoom; }, set zoom(value: number | null) { zoom = value; } };
+    doc.addEventListener("wheel", event => { if (attached === doc) deckWheelZoom(event, zoomHost, () => { navigationFeature.fit(); navigationFeature.renderFooter(); }); }, { passive: false, signal: lifetime.signal });
     if (typeof ResizeObserver !== "undefined") {
       observer = new ResizeObserver(() => {
         // Writing layout during resize delivery can trigger another observation
@@ -662,6 +736,8 @@ export function createDeckWorkspace(input: Input) {
     if (!notes.contains(focused())) navigationFeature.renderNotes();
   }
   function refresh() {
+    // 直接当てた変更（取り消し・やり直しを含む）でも重なり順と固定の印を描き直す
+    layers.refresh();
     if(input.canvas()?.isInteracting()){pendingNavRefresh=true;return;}
     if (renderTimer) return;
     renderTimer = lifetime.timeout(() => {
@@ -726,6 +802,11 @@ export function createDeckWorkspace(input: Input) {
       if (node) run(() => dataFeature.dataEditor(node));
     },
     elementCommand,
+    /** キャンバスの右クリック。point は枠の中の座標なので、画面の座標へ直して出す */
+    elementMenuAt(point: { x: number; y: number }) {
+      const box = frame.getBoundingClientRect();
+      openElementMenu({ x: box.left + point.x, y: box.top + point.y });
+    },
     rememberSelection(ids: string[]) {
       selection = ids; pendingSelection = true;
     },

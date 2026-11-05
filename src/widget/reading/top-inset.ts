@@ -1,11 +1,13 @@
 import { VERSION_BANNER_MARK } from "../../lib/comments/types";
+import { keepInPlace, spotHere } from "./position";
 
 /**
  * 画面の上端を使う帯の高さを 1 か所で足し合わせ、本文の余白に配る。
  *
- * 上端に固定する帯は 3 つあり、上から順に積む:
+ * 上端に固定する帯は 4 つあり、上から順に積む:
  *
  *   location  現在地の行（location-bar.ts）
+ *   latest    「新しい版があります」（latest-bar.ts。清書を開いている間に新しい版ができたときだけ）
  *   compare   版を見比べている間の帯（comment-widget-history.ts）
  *   reading   清書の現在地の帯（reading-nav.ts。狭い画面でだけ出る）
  *
@@ -14,8 +16,11 @@ import { VERSION_BANNER_MARK } from "../../lib/comments/types";
  * 余白・飛び先の余白（scroll-padding-top）・ページ側に渡す値は、ここだけが書く。
  *
  * 帯の置き場所（自分より上にある帯の高さの合計）も、ここに聞く（`above`）。
+ *
+ * 余白を書き直すときは、読んでいる段落を動かさない（position.ts の `keepInPlace`）。帯が出るたび・しまうたびに
+ * 本文がその高さだけ跳ねると、読んでいた行を見失う。清書（目次のあるページ）だけでなく、どのページでも同じ。
  */
-const ORDER = ["location", "compare", "reading"] as const;
+const ORDER = ["location", "latest", "compare", "reading"] as const;
 export type TopBand = (typeof ORDER)[number];
 
 /**
@@ -25,7 +30,7 @@ export type TopBand = (typeof ORDER)[number];
 export const TOP_INSET_VAR = "--surprise-top-inset";
 
 class TopInset {
-  private readonly heights: Record<TopBand, number> = { location: 0, compare: 0, reading: 0 };
+  private readonly heights: Record<TopBand, number> = { location: 0, latest: 0, compare: 0, reading: 0 };
   private readonly listeners = new Set<() => void>();
   private original: { top: string; scroll: string } | null = null;
   private scrollGap = 0;
@@ -81,7 +86,9 @@ class TopInset {
     const banner = document.querySelector(`[${VERSION_BANNER_MARK}]`);
     if (banner instanceof HTMLElement) banner.style.top = `${this.above("reading")}px`;
     const covered = total + (banner?.getBoundingClientRect().height ?? 0);
-    html.style.paddingTop = total === 0 ? this.original.top : `${total}px`;
+    const paddingTop = total === 0 ? this.original.top : `${total}px`;
+    // 読んでいるところは、余白が変わる前の読む線（いまの scroll-padding-top）で測る
+    if (html.style.paddingTop !== paddingTop) keepInPlace(spotHere(), () => { html.style.paddingTop = paddingTop; });
     html.style.scrollPaddingTop = covered === 0 && this.scrollGap === 0 ? this.original.scroll : `${covered + this.scrollGap}px`;
     html.style.setProperty(TOP_INSET_VAR, `${total}px`);
   }

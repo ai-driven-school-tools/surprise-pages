@@ -1,3 +1,4 @@
+import { DECK_MEDIA_SOUND_ATTRIBUTES, DECK_PLAY, deckPlayAttributeAllowed } from "../media/play";
 import {serializeOuter} from "parse5";
 import {withVendorScripts} from "../../html/vendor-scripts";
 import {isStockDesign} from "../design/stock-design";
@@ -498,6 +499,7 @@ function createdHtml(node: DeckCreatedNode): string {
   const attributes = ` ${DECK_NODE_MARK}="${node.id}" ${DECK_CREATED_MARK}${style ? ` style="${escapeAttribute(style)}"` : ""}`;
   if(node.tag === "youtube")return `<figure${attributes} data-deck-youtube="${node.videoId}" aria-label="${escapeAttribute(node.label)}"><a href="https://www.youtube.com/watch?v=${node.videoId}" target="_blank" rel="noopener noreferrer">${escapeText(node.label)} — https://www.youtube.com/watch?v=${node.videoId}</a></figure>`;
   if(node.tag === "video")return `<video${attributes} controls playsinline preload="none" poster="${escapeAttribute(node.poster)}" aria-label="${escapeAttribute(node.label)}" src="${escapeAttribute(node.src)}"></video>`;
+  if(node.tag === "audio")return `<audio${attributes} controls preload="none"${node.loop ? " loop" : ""}${node.muted ? " muted" : ""} ${DECK_PLAY}="${node.play}" aria-label="${escapeAttribute(node.label)}" src="${escapeAttribute(node.src)}"></audio>`;
   return node.tag === "p" ? `<p${attributes}>${node.text ? escapeText(node.text) : `<!--${DECK_EMPTY_TEXT_PREFIX}0-->`}</p>`
     : `<img${attributes} loading="lazy" decoding="async" src="${escapeAttribute(node.src)}" alt="${escapeAttribute(node.alt)}">`;
 }
@@ -505,8 +507,9 @@ function safeCreatedSnippet(html: string): Element {
   const fragment = parseFragment(html, { sourceCodeLocationInfo: true });
   if (fragment.childNodes.length !== 1) throw new DeckEditConflictError(defaultTranslate("deckEditor.conflict.restoreInvalid"));
   const element = fragment.childNodes[0];
-  if (!("tagName" in element) || !["p", "img", "video", "figure"].includes(element.tagName) || attr(element, DECK_CREATED_MARK) === undefined) throw new DeckEditConflictError();
-  const allowed = new Set([DECK_NODE_MARK, DECK_CREATED_MARK, "style", ...(element.tagName === "figure" ? ["data-deck-youtube","aria-label"] : element.tagName === "img" ? ["src", "alt", "loading", "decoding"] : element.tagName === "video" ? ["src","poster","aria-label","controls","playsinline","preload"] : [])]);
+  if (!("tagName" in element) || !["p", "img", "video", "audio", "figure"].includes(element.tagName) || attr(element, DECK_CREATED_MARK) === undefined) throw new DeckEditConflictError();
+  // 動画・音声は、置いたあとに右の欄で付け外しする始まり・繰り返し・ミュートも持ったまま戻す
+  const allowed = new Set([DECK_NODE_MARK, DECK_CREATED_MARK, "style", ...(element.tagName === "figure" ? ["data-deck-youtube","aria-label"] : element.tagName === "img" ? ["src", "alt", "loading", "decoding"] : element.tagName === "video" ? ["src","poster","aria-label","controls","playsinline","preload",...DECK_MEDIA_SOUND_ATTRIBUTES] : element.tagName === "audio" ? ["src","aria-label","controls","preload",...DECK_MEDIA_SOUND_ATTRIBUTES] : [])]);
   if (element.attrs.some(item => !allowed.has(item.name))) throw new DeckEditConflictError(defaultTranslate("deckEditor.conflict.restoreAttributes"));
   if (element.tagName !== "figure" && element.childNodes.some(child => !("value" in child) && !("data" in child && child.data === `${DECK_EMPTY_TEXT_PREFIX}0`))) throw new DeckEditConflictError();
   if(element.tagName === "figure"){
@@ -521,8 +524,12 @@ function safeCreatedSnippet(html: string): Element {
   const style = Object.fromEntries(parsedStyle.map(item => [item.property, item.value]));
   const node = { id: attr(element, DECK_NODE_MARK), style };
   if(element.tagName === "video" && (attr(element,"preload")!=="none" || attr(element,"controls")===undefined || attr(element,"playsinline")===undefined || element.childNodes.length))throw new DeckEditConflictError();
+  if(element.tagName === "audio" && (attr(element,"preload")!=="none" || attr(element,"controls")===undefined || element.childNodes.length))throw new DeckEditConflictError();
+  for(const name of DECK_MEDIA_SOUND_ATTRIBUTES){const value=attr(element,name);if(value!==undefined&&!deckPlayAttributeAllowed(element.tagName,name,value))throw new DeckEditConflictError(defaultTranslate("deckEditor.conflict.restoreAttributes"));}
   deckCreatedNodeSchema.parse(element.tagName === "figure" ? {...node,tag:"youtube",videoId:attr(element,"data-deck-youtube"),label:attr(element,"aria-label")} : element.tagName === "video"
     ? {...node,tag:"video",src:attr(element,"src"),poster:attr(element,"poster"),label:attr(element,"aria-label")}
+    : element.tagName === "audio"
+    ? {...node,tag:"audio",src:attr(element,"src"),label:attr(element,"aria-label"),play:attr(element,DECK_PLAY)??"arrive",loop:attr(element,"loop")!==undefined,muted:attr(element,"muted")!==undefined}
     : element.tagName === "img"
     ? { ...node, tag: "img", src: attr(element, "src"), alt: attr(element, "alt") ?? "" }
     : { ...node, tag: "p", text: element.childNodes.map(child => "value" in child ? child.value : "").join("") });
@@ -651,6 +658,7 @@ function applyOne(html: string, operation: DeckEditOperation): { html: string; i
   }
   if (operation.kind === "attribute") {
     if(operation.name===DECK_PARENT&&(element.tagName!=="section"||operation.after!==null&&!deckNodeIdSchema.safeParse(operation.after).success))throw new DeckEditConflictError(defaultTranslate("deckEditor.conflict.invalidParent"));
+    if (!deckPlayAttributeAllowed(element.tagName, operation.name, operation.after)) throw new DeckEditConflictError(defaultTranslate("deckEditor.conflict.restoreAttributes"));
     if (operation.name === "data-deck-skip" && (element.tagName !== "section" || attr(element, "data-deck-slide") === undefined || (operation.after !== null && operation.after !== "true"))) {
       throw new DeckEditConflictError(defaultTranslate("deckEditor.conflict.skipSlidesOnly"));
     }

@@ -61,11 +61,17 @@ function samePage(a: URL, b: URL): boolean {
   return a.origin === b.origin && a.pathname.replace(/\/+$/, "") === b.pathname.replace(/\/+$/, "");
 }
 
+/** 清書の本文か（印の付いた本文か、原本ごとの節を持つ本文）。目次と、上端の「新しい版があります」が同じ見分け方を使う。 */
+export function isCleanCopyDocument(doc: Document): boolean {
+  const main = doc.querySelector("main");
+  return main instanceof HTMLElement && (main.hasAttribute(CLEAN_COPY_MARK) || main.querySelector(SOURCE) !== null);
+}
+
 export function readOutline(doc: Document): ReadingOutline | null {
   const main = doc.querySelector("main");
   if (!(main instanceof HTMLElement)) return null;
+  if (!isCleanCopyDocument(doc)) return null;
   const sources = Array.from(main.querySelectorAll(SOURCE)).filter((node): node is HTMLElement => node instanceof HTMLElement);
-  if (!main.hasAttribute(CLEAN_COPY_MARK) && sources.length === 0) return null;
   const old = main.querySelector('[data-clean-copy-ui="navigation"]');
   const oldNavigation = old instanceof HTMLElement ? old : null;
   const current = new URL(doc.URL);

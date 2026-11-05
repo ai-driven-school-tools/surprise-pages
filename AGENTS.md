@@ -51,6 +51,7 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 - スライド（deck）は HTML そのものが正本（`<body data-deck>` → `<main data-deck-slides>` → `<section data-deck-slide>`。`src/lib/deck/deck.ts` が目印の SSoT・実行部は `src/templates/deck.html` をページに丸ごと貼る）。公開のスライドの共有カードの絵は枚そのものを描く（`src/lib/deck/card/card.ts`・`src/lib/deck/card/card-image.ts`・入口は `src/app/api/og` だけ。招待した人だけのページに絵を渡さない）。新しいスライドの見た目は `docs/guides/deck-design.md`・`src/lib/deck/design/design.ts`・`src/deck-design/`（`pnpm build:deck-design` で貼る一式を作る）。編集は HTML の変更箇所だけを操作として保存する（`src/lib/deck/edit/model.ts` / `src/lib/deck/edit/source.ts`）。
 
 - コメントの一覧は、見ている間だけ数秒ごとに読み直す。いつ読み直すかは `src/widget/comments/live.ts` ただ 1 つが決め、数は `src/lib/comments/live-refresh.ts` の定数だけ（放置したタブで保存先を起こし続けない。設計は `docs/design/live-comments.md`・番人は `tests/checks/check-live-refresh.mjs`）。
+- 清書の「新しい版があります」（`src/widget/reading/page-latest.ts`）は自分では聞きに行かず、この読み直しの答えの `currentVersion` を受け取るだけ。読んでいた場所の控えと戻し（読み込み直し・版を移る・幅・目次から戻る）は `src/widget/reading/position.ts` ただ 1 つ。読み上げは端末の中の声だけでサーバーを呼ばず、声と速さはブラウザにだけ控える（`src/lib/read-aloud/settings.ts`）。番人は `tests/checks/check-reading-place.mjs`。
 
 ### 名乗りと鍵
 

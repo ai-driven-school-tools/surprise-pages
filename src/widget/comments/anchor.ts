@@ -8,6 +8,7 @@ import {
 import { DECK_EXIT, DECK_FOCUS_SUPPLEMENT, DECK_FOCUS_SUPPLEMENT_PAGES, DECK_LOGO_VIEW, DECK_TOOLBAR } from "../../lib/deck/deck";
 import { locateInText, type TextRange } from "../../lib/html/locate-text";
 import { DRAFT_MARK, MARK, bleedShadow } from "../shared/tokens";
+import { noteEditing } from "../editor/note-guard";
 import { EXPORT_TAG, HOST_TAG, MARK_ATTRIBUTE, normalizeText } from "../shared/util";
 
 /** 下書き中の印の目印。確定した印（MARK_ATTRIBUTE）とは別物として扱う。 */
@@ -287,6 +288,8 @@ function isInvisibleFiller(node: Text): boolean {
  * 何も包めなくても空の配列を返すだけで、書くこと自体は続けられる。
  */
 export function wrapRangeAsDraft(range: Range): HTMLElement[] {
+  // メモ帳で直している間は本文に印を差し込まない（編集の芯が打った字として読む・src/widget/editor/note-guard.ts）
+  if (noteEditing()) return [];
   // DOM を触ると範囲がずれるので、境目を先に控える
   const startNode = range.startContainer;
   const startOffset = range.startOffset;
@@ -532,6 +535,8 @@ export function clearHighlights(): void {
 export function applyHighlights(comments: readonly PageComment[]): Set<string> {
   clearHighlights();
   const anchored = new Set<string>();
+  // メモ帳で直している間は本文に印を差し込まない（終えると読み込み直して付け直す・src/widget/editor/note-guard.ts）
+  if (noteEditing()) return anchored;
 
   for (const comment of comments) {
     if (comment.parentId !== null) continue;

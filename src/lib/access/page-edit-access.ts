@@ -32,7 +32,7 @@ export async function loadEditablePage(organization: OrganizationScope, viewer: 
 
 /** Publication and legacy uploads cannot bypass the slide edit gate. */
 export async function deckPublicationTarget(organization:OrganizationScope,viewer:Member,pageSlug:string,incomingDeck=false):Promise<
- {ok:true;deck:boolean;versionId:string|null}|{ok:false;response:Response}
+ {ok:true;deck:boolean;versionId:string|null;existingDeck:{page:StoredPage;html:string}|null}|{ok:false;response:Response}
 >{
  const stored=await findPageIncludingDeleted(organization,pageSlug);
  if(stored?.recordingProtected){
@@ -42,7 +42,9 @@ export async function deckPublicationTarget(organization:OrganizationScope,viewe
  const head=stored?await readHeadOf(stored):null;
  const deck=incomingDeck||Boolean(head&&isDeckHtml(head.html));
  if(deck&&stored){const gate=await loadEditablePage(organization,viewer,pageSlug);if(!gate.ok)return gate;}
- return {ok:true,deck,versionId:head?.revision.versionId??null};
+ // 既にあるスライドなら、巻き戻しの確かめ（src/lib/deck/edit/republish-source.ts）に渡すページといまの本文も返す
+ const existingDeck=stored&&head&&isDeckHtml(head.html)?{page:stored,html:head.html}:null;
+ return {ok:true,deck,versionId:head?.revision.versionId??null,existingDeck};
 }
 
 

@@ -1,5 +1,47 @@
 [
   {
+    "id": "deck/canvas-multi-resize.ts:8899e610fb809145b1cc:1",
+    "owner": "drawScaleGrips",
+    "control": "grip.addEventListener(\"pointerdown\")",
+    "covers": [
+      "multi-select",
+      "resize"
+    ]
+  },
+  {
+    "id": "deck/canvas-multi-resize.ts:module:5916fc7e830e99d273dc",
+    "owner": "module",
+    "control": "module definitions, including data-driven actions",
+    "covers": [
+      "multi-select",
+      "resize"
+    ]
+  },
+  {
+    "id": "deck/canvas-shape-box.ts:05170e72d466cb930f9a:1",
+    "owner": "shapeGrips",
+    "control": "handle.addEventListener(\"pointerdown\")",
+    "covers": [
+      "resize"
+    ]
+  },
+  {
+    "id": "deck/canvas-shape-box.ts:1641eabaca2913773fd4:1",
+    "owner": "shapeGrips",
+    "control": "handle.addEventListener(\"keydown\")",
+    "covers": [
+      "resize"
+    ]
+  },
+  {
+    "id": "deck/canvas-shape-box.ts:module:4283d26154d1f8da191d",
+    "owner": "module",
+    "control": "module definitions, including data-driven actions",
+    "covers": [
+      "resize"
+    ]
+  },
+  {
     "id": "deck/canvas.ts:ce191fbe5d663009cffa:1",
     "owner": "listen",
     "control": "doc.addEventListener(name)",
@@ -64,6 +106,15 @@
     ]
   },
   {
+    "id": "deck/canvas.ts:28bf1b2c3b5d933c7825:2",
+    "owner": "draw",
+    "control": "button(\"\")",
+    "covers": [
+      "resize",
+      "multi-select"
+    ]
+  },
+  {
     "id": "deck/canvas.ts:fcb6dc00164f1b7e0e8b:1",
     "owner": "draw",
     "control": "handle.addEventListener(\"pointerdown\")",
@@ -93,6 +144,15 @@
       "resize",
       "image-crop",
       "video-playback"
+    ]
+  },
+  {
+    "id": "deck/canvas.ts:28bf1b2c3b5d933c7825:3",
+    "owner": "draw",
+    "control": "button(\"\")",
+    "covers": [
+      "resize",
+      "multi-select"
     ]
   },
   {
@@ -240,19 +300,14 @@
     ]
   },
   {
-    "id": "deck/canvas.ts:8fae7286bd4b94c2cae3:1",
+    "id": "deck/canvas.ts:612de991222cf9d01511:1",
     "owner": "createDeckCanvas",
     "control": "listen(\"pointerdown\")",
     "covers": [
       "select",
       "multi-select",
-      "type",
-      "composition",
-      "paste",
       "move",
-      "resize",
-      "image-crop",
-      "video-playback"
+      "element-menu"
     ]
   },
   {
@@ -269,6 +324,17 @@
       "resize",
       "image-crop",
       "video-playback"
+    ]
+  },
+  {
+    "id": "deck/canvas.ts:1ee5e5a54c240b9b7f2f:1",
+    "owner": "createDeckCanvas",
+    "control": "listen(\"pointermove\")",
+    "covers": [
+      "select",
+      "multi-select",
+      "move",
+      "element-menu"
     ]
   },
   {
@@ -349,6 +415,17 @@
       "resize",
       "image-crop",
       "video-playback"
+    ]
+  },
+  {
+    "id": "deck/canvas.ts:60c5b5dd85af5739854e:1",
+    "owner": "createDeckCanvas",
+    "control": "listen(\"contextmenu\")",
+    "covers": [
+      "select",
+      "multi-select",
+      "move",
+      "element-menu"
     ]
   },
   {
@@ -576,7 +653,7 @@
     ]
   },
   {
-    "id": "deck/canvas.ts:module:6c495ac82120cfc1770c",
+    "id": "deck/canvas.ts:module:1e2029e310261ff88cc1",
     "owner": "module",
     "control": "module definitions, including data-driven actions",
     "covers": [
@@ -770,6 +847,30 @@
     "covers": [
       "appearance",
       "font"
+    ]
+  },
+  {
+    "id": "deck/edit/element-menu.ts:9a5efa771239b24632dc:1",
+    "owner": "elementMenu",
+    "control": "options.button(row.label)",
+    "covers": [
+      "element-menu"
+    ]
+  },
+  {
+    "id": "deck/edit/element-menu.ts:335ee57c3bfa8864df08:1",
+    "owner": "elementMenu",
+    "control": "menu.addEventListener(\"keydown\")",
+    "covers": [
+      "element-menu"
+    ]
+  },
+  {
+    "id": "deck/edit/element-menu.ts:module:784a5e4795ef5e989019",
+    "owner": "module",
+    "control": "module definitions, including data-driven actions",
+    "covers": [
+      "element-menu"
     ]
   },
   {
@@ -974,6 +1075,142 @@
       "image-library",
       "image-upload",
       "image-replace"
+    ]
+  },
+  {
+    "id": "deck/edit/layer-panel.ts:7022e41783576ba1d5d9:1",
+    "owner": "listenResize",
+    "control": "handle.addEventListener(\"pointerdown\")",
+    "covers": [
+      "layers"
+    ]
+  },
+  {
+    "id": "deck/edit/layer-panel.ts:7ad51b800062a9f7ee7e:1",
+    "owner": "listenResize",
+    "control": "handle.addEventListener(\"pointermove\")",
+    "covers": [
+      "layers"
+    ]
+  },
+  {
+    "id": "deck/edit/layer-panel.ts:7164e4f51212acc8b3fd:1",
+    "owner": "listenResize",
+    "control": "handle.addEventListener(\"pointerup\")",
+    "covers": [
+      "layers"
+    ]
+  },
+  {
+    "id": "deck/edit/layer-panel.ts:3082d95b411532d661cf:1",
+    "owner": "listenResize",
+    "control": "handle.addEventListener(\"pointercancel\")",
+    "covers": [
+      "layers"
+    ]
+  },
+  {
+    "id": "deck/edit/layer-panel.ts:42484bb54af28419cba0:1",
+    "owner": "listenResize",
+    "control": "handle.addEventListener(\"keydown\")",
+    "covers": [
+      "layers"
+    ]
+  },
+  {
+    "id": "deck/edit/layer-panel.ts:43477f8805ac627c3612:1",
+    "owner": "listenDrag",
+    "control": "list.addEventListener(\"pointerdown\")",
+    "covers": [
+      "layers"
+    ]
+  },
+  {
+    "id": "deck/edit/layer-panel.ts:be9310415b9d1cac870b:1",
+    "owner": "listenDrag",
+    "control": "list.addEventListener(\"pointermove\")",
+    "covers": [
+      "layers"
+    ]
+  },
+  {
+    "id": "deck/edit/layer-panel.ts:264e1872ca374f5d6b06:1",
+    "owner": "listenDrag",
+    "control": "list.addEventListener(\"pointerup\")",
+    "covers": [
+      "layers"
+    ]
+  },
+  {
+    "id": "deck/edit/layer-panel.ts:ad6e1d5719f22301943a:1",
+    "owner": "listenDrag",
+    "control": "list.addEventListener(\"pointercancel\")",
+    "covers": [
+      "layers"
+    ]
+  },
+  {
+    "id": "deck/edit/layer-panel.ts:d67f74dd3d41f811b769:1",
+    "owner": "createDeckLayerPanel",
+    "control": "head.addEventListener(\"click\")",
+    "covers": [
+      "layers"
+    ]
+  },
+  {
+    "id": "deck/edit/layer-panel.ts:9c46eb6a7206b36bf9f8:1",
+    "owner": "createDeckLayerPanel",
+    "control": "list.addEventListener(\"click\")",
+    "covers": [
+      "layers"
+    ]
+  },
+  {
+    "id": "deck/edit/layer-panel.ts:ad1206164f340e7f7108:1",
+    "owner": "createDeckLayerPanel",
+    "control": "list.addEventListener(\"contextmenu\")",
+    "covers": [
+      "layers"
+    ]
+  },
+  {
+    "id": "deck/edit/layer-panel.ts:35148f60f937517bcf02:1",
+    "owner": "createDeckLayerPanel",
+    "control": "list.addEventListener(\"pointerover\")",
+    "covers": [
+      "layers"
+    ]
+  },
+  {
+    "id": "deck/edit/layer-panel.ts:86765e9a431fb0e6f280:1",
+    "owner": "createDeckLayerPanel",
+    "control": "list.addEventListener(\"pointerleave\")",
+    "covers": [
+      "layers"
+    ]
+  },
+  {
+    "id": "deck/edit/layer-panel.ts:55a77fba1b0f9127e44d:1",
+    "owner": "createDeckLayerPanel",
+    "control": "list.addEventListener(\"keydown\")",
+    "covers": [
+      "layers"
+    ]
+  },
+  {
+    "id": "deck/edit/layer-panel.ts:fe01b87e772ee20b0b37:1",
+    "owner": "createDeckLayerPanel",
+    "control": "host.signal.addEventListener(\"abort\")",
+    "covers": [
+      "layers"
+    ]
+  },
+  {
+    "id": "deck/edit/layer-panel.ts:module:a372e6ce445389ef27fa",
+    "owner": "module",
+    "control": "module definitions, including data-driven actions",
+    "covers": [
+      "layers"
     ]
   },
   {
@@ -1645,8 +1882,7 @@
     "owner": "openDeckEditSession",
     "control": "videoInput.addEventListener(\"cancel\")",
     "covers": [
-      "video-upload",
-      "video-playback"
+      "video-upload"
     ]
   },
   {
@@ -1654,8 +1890,7 @@
     "owner": "openDeckEditSession",
     "control": "videoInput.addEventListener(\"change\")",
     "covers": [
-      "video-upload",
-      "video-playback"
+      "video-upload"
     ]
   },
   {
@@ -1921,12 +2156,25 @@
     ]
   },
   {
-    "id": "deck/edit/session.ts:module:057909b7213b9bdbc113",
+    "id": "deck/edit/session.ts:module:82fa4d24d3bffec35ae3",
     "owner": "module",
     "control": "module definitions, including data-driven actions",
     "covers": [
       "open",
-      "close"
+      "close",
+      "type",
+      "save",
+      "undo",
+      "redo",
+      "remote",
+      "offline",
+      "draft",
+      "present",
+      "appearance",
+      "document-appearance",
+      "chart",
+      "font",
+      "presenter"
     ]
   },
   {
@@ -2146,8 +2394,7 @@
     "owner": "waitFor",
     "control": "video.addEventListener(event)",
     "covers": [
-      "video-upload",
-      "video-playback"
+      "video-upload"
     ]
   },
   {
@@ -2155,8 +2402,7 @@
     "owner": "waitFor",
     "control": "video.addEventListener(\"error\")",
     "covers": [
-      "video-upload",
-      "video-playback"
+      "video-upload"
     ]
   },
   {
@@ -2164,8 +2410,7 @@
     "owner": "waitFor",
     "control": "signal.addEventListener(\"abort\")",
     "covers": [
-      "video-upload",
-      "video-playback"
+      "video-upload"
     ]
   },
   {
@@ -2173,8 +2418,7 @@
     "owner": "module",
     "control": "module definitions, including data-driven actions",
     "covers": [
-      "open",
-      "close"
+      "video-upload"
     ]
   },
   {
@@ -2198,8 +2442,7 @@
     "owner": "module",
     "control": "module definitions, including data-driven actions",
     "covers": [
-      "open",
-      "close"
+      "video-upload"
     ]
   },
   {
@@ -2890,8 +3133,12 @@
     "owner": "module",
     "control": "module definitions, including data-driven actions",
     "covers": [
-      "open",
-      "close"
+      "insert",
+      "duplicate",
+      "delete",
+      "skip",
+      "template-library",
+      "insert-slide"
     ]
   },
   {
@@ -2904,6 +3151,14 @@
       "group",
       "image-crop",
       "resize"
+    ]
+  },
+  {
+    "id": "deck/workspace/inspector.ts:238f990f3fbb686d1c5b:1",
+    "owner": "alignRows",
+    "control": "button(short)",
+    "covers": [
+      "align"
     ]
   },
   {
@@ -2971,8 +3226,9 @@
     "owner": "refreshInspector",
     "control": "button(t(\"deckEditor.inspector.addVideo\"))",
     "covers": [
-      "video-upload",
-      "video-playback"
+      "text-style",
+      "layers",
+      "video-upload"
     ]
   },
   {
@@ -3096,39 +3352,23 @@
     ]
   },
   {
-    "id": "deck/workspace/inspector.ts:adbe81ebe707d229b4ed:1",
+    "id": "deck/workspace/inspector.ts:8057b3cd92837e6c6720:1",
     "owner": "refreshInspector",
     "control": "button(t(\"deckEditor.inspector.bold\"))",
     "covers": [
-      "select",
-      "align",
-      "group",
-      "image-crop",
-      "resize"
+      "text-style",
+      "layers",
+      "video-upload"
     ]
   },
   {
-    "id": "deck/workspace/inspector.ts:aade599ba706ba61151e:1",
+    "id": "deck/workspace/inspector.ts:9330aa3366bb2428343e:1",
     "owner": "refreshInspector",
     "control": "button(t(\"deckEditor.inspector.italic\"))",
     "covers": [
-      "select",
-      "align",
-      "group",
-      "image-crop",
-      "resize"
-    ]
-  },
-  {
-    "id": "deck/workspace/inspector.ts:64a15e8b7659c3852720:1",
-    "owner": "refreshInspector",
-    "control": "button(label)",
-    "covers": [
-      "select",
-      "align",
-      "group",
-      "image-crop",
-      "resize"
+      "text-style",
+      "layers",
+      "video-upload"
     ]
   },
   {
@@ -3180,27 +3420,23 @@
     ]
   },
   {
-    "id": "deck/workspace/inspector.ts:04763d2f685ef09c3971:1",
+    "id": "deck/workspace/inspector.ts:9b06a73ddeab4e8cdf82:1",
     "owner": "refreshInspector",
     "control": "button(t(\"deckEditor.inspector.bringForward\"))",
     "covers": [
-      "select",
-      "align",
-      "group",
-      "image-crop",
-      "resize"
+      "text-style",
+      "layers",
+      "video-upload"
     ]
   },
   {
-    "id": "deck/workspace/inspector.ts:4deb0b84c18227b7307c:1",
+    "id": "deck/workspace/inspector.ts:85a0eb59b6a05bdeb5fd:1",
     "owner": "refreshInspector",
     "control": "button(t(\"deckEditor.inspector.sendBackward\"))",
     "covers": [
-      "select",
-      "align",
-      "group",
-      "image-crop",
-      "resize"
+      "text-style",
+      "layers",
+      "video-upload"
     ]
   },
   {
@@ -3252,12 +3488,15 @@
     ]
   },
   {
-    "id": "deck/workspace/inspector.ts:module:bfc51df996db5e40a44c",
+    "id": "deck/workspace/inspector.ts:module:8ab77f72c5876d6977c7",
     "owner": "module",
     "control": "module definitions, including data-driven actions",
     "covers": [
-      "open",
-      "close"
+      "select",
+      "align",
+      "group",
+      "image-crop",
+      "resize"
     ]
   },
   {
@@ -3769,12 +4008,16 @@
     ]
   },
   {
-    "id": "deck/workspace/workspace.ts:module:492a873bb4995fe4218b",
+    "id": "deck/workspace/workspace.ts:module:b5720ec7e34b3a33b7b7",
     "owner": "module",
     "control": "module definitions, including data-driven actions",
     "covers": [
-      "open",
-      "close"
+      "group",
+      "align",
+      "duplicate",
+      "delete",
+      "remote",
+      "draft"
     ]
   },
   {

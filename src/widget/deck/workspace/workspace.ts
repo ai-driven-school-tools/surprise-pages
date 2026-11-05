@@ -30,6 +30,8 @@ import { createDeckWorkspaceNavigation } from './navigation';
 import { createDeckLayerPanel } from "../edit/layer-panel";
 import { ELEMENT_MENU_CSS, elementMenu, runElementMenuAction } from "../edit/element-menu";
 import { DECK_WORKSPACE_STYLES } from "./styles";
+import { LIST_GRID_STYLES } from "./list-grid";
+import { deckWheelZoom } from "./zoom";
 import type { Input } from './types';
 import { el } from "../../shared/util";
 import { markDeferredWork } from "../deferred-work";
@@ -108,7 +110,7 @@ export function createDeckWorkspace(input: Input) {
   let frame = input.frame;
   screen.classList.add("deck-studio");
   const style = el("style");
-  style.textContent = DECK_WORKSPACE_STYLES + ELEMENT_MENU_CSS;
+  style.textContent = DECK_WORKSPACE_STYLES + ELEMENT_MENU_CSS + LIST_GRID_STYLES;
   screen.append(style);
   const root = el("div", "ds-workspace"),
     nav = el("nav", "ds-nav"),
@@ -658,6 +660,9 @@ export function createDeckWorkspace(input: Input) {
     css.textContent = `html:not([data-deck-mode="present"]),html:not([data-deck-mode="present"]) body{width:100%!important;height:100%!important;margin:0!important;padding:0!important;max-width:none!important;overflow:auto!important;background:var(--studio-desk,var(--deck-surface))!important}html:not([data-deck-mode="present"]) [data-deck-toolbar],html:not([data-deck-mode="present"]) [data-deck-exit],html:not([data-deck-mode="present"]) aside[data-deck-notes],html:not([data-deck-mode="present"]) [data-deck-focus-supplement],html:not([data-deck-mode="present"]) [data-deck-focus-supplements],html:not([data-deck-mode="present"]) [data-deck-focus-supplement-pages]{display:none!important}html:not([data-deck-mode="present"]) main[data-deck-slides]{display:flex!important;align-items:center!important;justify-content:center!important;min-width:calc(var(--studio-w) + 64px)!important;min-height:100%!important;width:100%!important;padding:32px!important;gap:0!important;margin:0!important;box-sizing:border-box!important}html:not([data-deck-mode="present"]) [data-deck-frame]{display:none!important}html:not([data-deck-mode="present"]) [data-deck-frame][data-studio-active]{display:block!important;flex:none!important;width:var(--studio-w)!important;height:var(--studio-h)!important;margin:0!important;padding:0!important;max-width:none!important}html:not([data-deck-mode="present"]) [data-deck-stage]{width:1280px!important;height:720px!important;transform:scale(var(--studio-scale))!important;transform-origin:top left!important;margin:0!important}html:not([data-deck-mode="present"]) [data-deck-stage]>section[data-deck-slide]{width:1280px!important;height:720px!important;transform:none!important;margin:0!important}html:not([data-deck-mode="present"]) [data-deck-stage]::after{display:none!important}html:not([data-deck-mode="present"]) main[data-deck-slides]>section{display:none!important}html:not([data-deck-mode="present"]) main[data-deck-slides]>section[data-studio-active]{display:block!important;flex:none!important;width:1280px!important;height:720px!important;transform:scale(var(--studio-scale))!important;transform-origin:center!important}html[data-deck-mode="present"] [data-deck-canvas-chrome]{display:none!important}`;
     doc.head.append(css);
     doc.querySelector("[data-deck-preview-containment]")?.remove();
+    // ⌘（Ctrl）を押しながらのスクロールとピンチで拡大・縮小（src/widget/deck/workspace/zoom.ts）
+    const zoomHost = { get attached() { return attached; }, frame, get zoom() { return zoom; }, set zoom(value: number | null) { zoom = value; } };
+    doc.addEventListener("wheel", event => { if (attached === doc) deckWheelZoom(event, zoomHost, () => { navigationFeature.fit(); navigationFeature.renderFooter(); }); }, { passive: false, signal: lifetime.signal });
     if (typeof ResizeObserver !== "undefined") {
       observer = new ResizeObserver(() => {
         // Writing layout during resize delivery can trigger another observation

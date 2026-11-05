@@ -29,4 +29,27 @@ export const deckStudio = {
     invalid: "貼り付けの指定が正しくありません",
     tooLarge: "一度に貼り付ける量が大きすぎます",
   },
+  list: {
+    open: "一覧で見る",
+    close: "一覧を閉じる",
+    columns: "列の数",
+    columnsLabel: {
+      one: "{count}列",
+      other: "{count}列",
+    },
+    resize: "一覧の幅を変更",
+  },
+  zoom: {
+    guide: "拡大・縮小",
+    guideKeysApple: "⌘ を押しながらスクロール、またはピンチ",
+    guideKeysOther: "Ctrl を押しながらスクロール、またはピンチ",
+  },
+  guide: {
+    slide: "スライドの操作",
+    slideKeys: "一覧で選んで ⌘C・⌘V・⌘D・Delete、⌥↑↓ で並べ替え",
+    copyAcross: "別の資料へ貼り付け",
+    copyAcrossKeys: "⌘C でコピーし、別のタブ・窓の資料で ⌘V",
+    list: "一覧の並べ方",
+    listKeys: "下の「一覧で見る」と列の数（一覧で O・-・=）。ドラッグで並べ替え",
+  },
 } as const;

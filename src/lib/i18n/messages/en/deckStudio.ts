@@ -27,4 +27,27 @@ export const deckStudio = {
     invalid: "The paste request is invalid",
     tooLarge: "Too much to paste at once",
   },
+  list: {
+    open: "Grid view",
+    close: "Close grid",
+    columns: "Columns",
+    columnsLabel: {
+      one: "{count} column",
+      other: "{count} columns",
+    },
+    resize: "Resize the slide list",
+  },
+  zoom: {
+    guide: "Zoom",
+    guideKeysApple: "Scroll while holding ⌘, or pinch",
+    guideKeysOther: "Scroll while holding Ctrl, or pinch",
+  },
+  guide: {
+    slide: "Slides",
+    slideKeys: "Select in the list, then ⌘C, ⌘V, ⌘D, Delete; ⌥↑↓ to reorder",
+    copyAcross: "Paste into another deck",
+    copyAcrossKeys: "⌘C here, then ⌘V in a deck open in another tab or window",
+    list: "Slide list layout",
+    listKeys: "Grid view and columns at the bottom (O, -, = in the list). Drag to reorder",
+  },
 } as const satisfies Messages["deckStudio"];

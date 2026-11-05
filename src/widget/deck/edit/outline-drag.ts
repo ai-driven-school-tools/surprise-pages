@@ -27,6 +27,17 @@ type Input = {
   move: (id: string | null, placement: Placement) => boolean;
   folded: (id: string) => boolean; unfold: (id: string) => void;
 };
+/** 格子の一覧で指のいちばん近い枚と、その左右どちらの継ぎ目か。指が一覧の外なら null。 */
+function gridSeam(rows: readonly HTMLElement[], x: number, y: number): { row: HTMLElement; after: boolean } | null {
+  let best: { row: HTMLElement; after: boolean; distance: number } | null = null;
+  for (const row of rows) {
+    const rect = row.getBoundingClientRect();
+    const dx = x < rect.left ? rect.left - x : x > rect.right ? x - rect.right : 0, dy = y < rect.top ? rect.top - y : y > rect.bottom ? y - rect.bottom : 0;
+    const distance = Math.hypot(dx, dy);
+    if (!best || distance < best.distance) best = { row, after: x > rect.left + rect.width / 2, distance };
+  }
+  return best && best.distance < 48 ? { row: best.row, after: best.after } : null;
+}
 /** Internal moves use the same pointer model as the canvas. External file drops
  * retain native drag events; the two gestures never share a text payload. */
 export function createDeckOutlineDrag(input: Input) {
@@ -51,8 +62,18 @@ export function createDeckOutlineDrag(input: Input) {
     const all=[...list.querySelectorAll<HTMLElement>(".ds-slide")],rows=all.filter(row=>!row.hidden&&!!row.dataset.slideId&&!moved.has(row.dataset.slideId));
     // Finish geometry reads before updating the drag preview or insertion line.
     const seam=seamAt(list,rows,current.y),bounds=list.getBoundingClientRect(),scrollTop=list.scrollTop;
-    let target:Target|null=null,label=current.label,position:{top:number;left:number}|null=null;
-    if(seam){
+    let target:Target|null=null,label=current.label,position:{top:number;left:number}|null=null,vertical:number|null=null;
+    if(list.hasAttribute("data-columns")){
+      // 格子（2 列以上）: 指のいちばん近い枚の左右の継ぎ目。左半分ならその前、右半分ならその後ろ（同じ親のもと）
+      const near=gridSeam(rows,current.x,current.y);
+      if(near){
+        const id=near.row.dataset.slideId!,rect=near.row.getBoundingClientRect(),gap=parseFloat(getComputedStyle(list).columnGap)||16;
+        target={id,placement:near.after?"after":"before"};
+        try{moveOutline(source,current.ids,target.id,target.placement);position={top:rect.top-bounds.top+scrollTop,left:(near.after?rect.right+gap/2:rect.left-gap/2)-bounds.left};vertical=rect.height;}
+        catch(error){target=null;label=error instanceof Error?deckErrorMessage(error,t):t("deckEditor.view.cannotMoveHere");}
+      }
+    }
+    else if(seam){
       const anchor=seam.above??seam.below!,thumb=anchor.querySelector<HTMLElement>(".ds-thumb")!.getBoundingClientRect();
       const step=parseFloat(getComputedStyle(anchor).getPropertyValue("--space-5"))||24;
       const anchorDepth=outlineDepth(source,anchor.dataset.slideId!)-1,rootLeft=thumb.left-anchorDepth*step;
@@ -72,6 +93,7 @@ export function createDeckOutlineDrag(input: Input) {
     if(!target||!position){hideLine();return;}
     if(!line){line=el("div","ds-drop-line");line.setAttribute("aria-hidden","true");list.append(line);}
     line.style.top=`${position.top}px`;line.style.left=`${position.left}px`;
+    line.toggleAttribute("data-vertical",vertical!==null);line.style.height=vertical!==null?`${vertical}px`:"";
     if(target.id&&target.placement==="inside"&&input.folded(target.id)&&!unfoldTimer){const id=target.id;unfoldTimer=setTimeout(()=>{input.unfold(id);unfoldTimer=undefined;feedback();},650);}
   }
 

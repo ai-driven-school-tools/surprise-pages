@@ -11,6 +11,11 @@ import { moveToOtherScreen } from "../../reading/screens";
 import { intlLocale } from "../../../lib/i18n/locales";
 import { el } from "../../shared/util";
 import { t, widgetLocale } from "../../shared/i18n";
+import { presenterBrowse, type PresenterSpot } from "./browse";
+import { presenterClock } from "./clock";
+import { PRESENTER_KEY_MAP, presenterJumps, presenterKeyAction } from "./keys";
+import { NOTE_SIZES, readNoteSize, writeNoteSize } from "./local";
+import { presenterMedia } from "./media";
 
 type Saved = { html: string; versionId: string; versionNumber: number; updatedAt?: string; updatedBy?: string };
 type Hooks = {
@@ -103,6 +108,11 @@ const STYLES = `
 .dp-saved:not(:empty)::before{content:"·";margin-right:var(--space-2)}
 .dp-connection{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:var(--font-sm);color:var(--muted)}
 .dp-nav{display:flex;align-items:center;gap:var(--space-1)}
+/* 手元だけで見ている間の札（現在の枚の行の先頭の太字）と、番号を打っている間の札 */
+.dp-browse,.dp-typed{flex:none;font-size:var(--font-sm);font-weight:var(--weight-bold);color:var(--text)}
+.dp-keys{width:min(100%,560px)}
+.dp-key-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:var(--space-4);padding:var(--space-2) 0;font-size:var(--font-base)}
+.dp-key-row>span{color:var(--muted);text-align:right}
 /* 背の低い画面（ノート PC の 600px 前後）では、余白を 1 段詰めてノートの行数を守る */
 @media (max-height:640px){.dp-body{gap:var(--space-4);padding:var(--space-4)}.dp-main,.dp-upcoming,.dp-notes{gap:var(--space-2)}}
 .dp-conflict{width:min(100%,720px)}
@@ -132,20 +142,6 @@ const WAITING = () => message(t("decks.presenter.waitingTitle"), t("decks.presen
 const STOPPED = () => message(t("decks.presenter.stopped"), t("decks.presenter.stopped"));
 const ENDED = () => message(t("decks.presenter.endedTitle"), t("decks.presenter.ended"));
 
-/** 端末に覚えるのはノートの字の段（0〜3）だけ。本文は持たない。使えない環境では既定の段で動く。 */
-const NOTE_SIZE_KEY = "surprise:presenter-note-size", NOTE_SIZES = ["--font-notes-1", "--font-notes-2", "--font-notes-3", "--font-notes-4"], NOTE_SIZE_DEFAULT = 1;
-function readNoteSize() {
-  try { const value = Number(localStorage.getItem(NOTE_SIZE_KEY)); return Number.isInteger(value) && value >= 0 && value < NOTE_SIZES.length && localStorage.getItem(NOTE_SIZE_KEY) !== null ? value : NOTE_SIZE_DEFAULT; }
-  catch { return NOTE_SIZE_DEFAULT; }
-}
-function writeNoteSize(value: number) {
-  try { localStorage.setItem(NOTE_SIZE_KEY, String(value)); } catch { /* 覚えられなくても、この発表の間は効く */ }
-}
-
-function clockText(seconds: number) {
-  const absolute = Math.abs(seconds), hours = Math.floor(absolute / 3600), minutes = Math.floor(absolute / 60) % 60, rest = String(absolute % 60).padStart(2, "0");
-  return hours ? `${hours}:${String(minutes).padStart(2, "0")}:${rest}` : `${minutes}:${rest}`;
-}
 const yieldTask = () => new Promise<void>(resolve => setTimeout(resolve, 0));
 
 function savedAt(iso: string) {
@@ -163,11 +159,10 @@ export function openDeckPresenter(hooks: Hooks) {
   const button = (label: string, fn: () => void) => { const b = el("button", "edit-button"); b.type = "button"; b.textContent = label; b.onclick = fn; return b; };
 
   // 上の帯: 資料の名前 / 時間 / 終える
-  const header = el("div", "dp-bar dp-header"), deckTitle = el("div", "dp-title", t("decks.presenter.title")), timer = el("div", "dp-timer");
-  const duration = el("input"); duration.type = "number"; duration.inputMode = "numeric"; duration.min = "1"; duration.max = "1440"; duration.placeholder = t("decks.presenter.durationNone"); duration.setAttribute("aria-label", t("decks.presenter.durationLabel"));
-  const durationLabel = el("label", "dp-duration"); durationLabel.append(el("span", undefined, t("decks.presenter.duration")), duration, el("span", undefined, t("decks.presenter.minutes")));
-  const clock = el("div", "dp-clock"), clockLabel = el("span", "dp-clock-label"), clockTime = el("span", "dp-clock-time");
-  clock.setAttribute("role", "timer"); clock.append(clockLabel, clockTime); clock.hidden = true;
+  const header = el("div", "dp-bar dp-header"), deckTitle = el("div", "dp-title", t("decks.presenter.title"));
+  // 時計（持ち時間・経過または残り・止める・リセット）は src/widget/deck/present/clock.ts
+  const clockUI = presenterClock((label, fn) => button(label, fn), () => started);
+  const timer = clockUI.element;
 
   // 中: 現在のスライド（主役）と、次のスライド・ノート
   const body = el("div", "dp-body"), main = el("div", "dp-main"), stage = el("div", "dp-stage"), caption = el("div", "dp-caption");
@@ -198,12 +193,16 @@ export function openDeckPresenter(hooks: Hooks) {
   const current = makeSurface(t("decks.presenter.currentSlide"), 3), next = makeSurface(t("decks.presenter.nextSlide"), 2);
   let audience: Surface | null = null, popup: Window | null = null, idle: ReturnType<typeof setTimeout> | undefined;
   let disposed = false, blocked = false, version = "", targetHtml = "", appliedHtml = "";
-  let pending = false, started = false, paused = false, elapsed = 0, lastTick = performance.now();
+  let pending = false, started = false;
   let selected = hooks.current(), step = 0, noteId: string | null = null, noteBase = "", dirty = false, composing = false;
   let noteTimer: ReturnType<typeof setTimeout> | undefined;
   let running = false, desired = false, wantedForce = false;
   const queuedMoves: (-1 | 1)[] = [];
   let lastSource = "", entries: ReturnType<typeof presenterSlides> = [];
+  // 番号を打って飛ぶ・Z でさかのぼる（src/widget/deck/present/keys.ts）・動画と音声（media.ts）
+  let typed = "";
+  const jumps = presenterJumps();
+  const media = presenterMedia(text => { mediaNotice.textContent = text; });
   let editing = true, layoutChosen = false, noteSize = readNoteSize();
   const readOnly = hooks.readOnly === true, closeLabel = hooks.closeLabel ?? (readOnly ? t("decks.presenter.close") : t("decks.presenter.backToEdit"));
   let autoStart = !!hooks.audienceWindow && !hooks.audienceWindow.closed;
@@ -385,7 +384,7 @@ export function openDeckPresenter(hooks: Hooks) {
         const html = copies[position];
         if (surface.buffers.some(buffer => buffer.html === html || buffer.task?.html === html)) continue;
         const buffer = backBuffer(surface, [surface.shown.html, ...copies]);
-        try { await prepare(surface, buffer, html, item.slide.id, item.at, outer); } catch { /* 先読みの失敗は、めくったときに改めて描いて知らせる */ }
+        try { await prepare(surface, buffer, html, item.slide.id, item.at, outer); if (surface.audience) media.prime(buffer.frame, item.slide.id); } catch { /* 先読みの失敗は、めくったときに改めて描いて知らせる */ }
       }
     }
   }
@@ -440,8 +439,15 @@ export function openDeckPresenter(hooks: Hooks) {
         await paint(current, held.html, selected, step);
         if (upcoming) { for (const frame of frames(next)) frame.hidden = false; end.hidden = true; await paint(next, targetHtml, upcoming.id, 0); }
         else { for (const frame of frames(next)) frame.hidden = true; end.hidden = false; }
-        if (audience && popup && !popup.closed && started) { await paint(audience, held.html, selected, step); showConnection(); }
+        // 手元だけで見ている間は、観客用の窓に出している枚のまま（src/widget/deck/present/browse.ts）
+        const aired = browse.aired({ id: selected, step });
+        const airedId = aired.id && list.some(item => item.id === aired.id) ? aired.id : selected;
+        if (audience && popup && !popup.closed && started) { await paint(audience, held.html, airedId, aired.step); showConnection(); }
         appliedHtml = held.html;
+        // 鳴らすのは観客用の窓の表の枠。開いていなければ手元の現在の枠（発表中だけ）
+        const loud = !started ? null : audience && popup && !popup.closed ? audience.shown.frame : browse.on ? null : current.shown.frame;
+        media.show(loud, loud === current.shown.frame ? selected : airedId);
+        browse.paint(list);
         root.setAttribute("data-ready", "true");
         syncNotes();
       }
@@ -464,6 +470,8 @@ export function openDeckPresenter(hooks: Hooks) {
     if (blocked || !flush()) return;
     // 描いている途中に押された移動は捨てずに順番に回す（描画は処理を区切って進むので、その間にも押される）。
     if (running) { queuedMoves.push(direction); return; }
+    // 「クリックで」の動画・音声が残っていれば、枚を進めずに 1 本始める（手元だけで見ている間は観客の画面に触れない）
+    if (direction > 0 && started && !browse.on && media.advance()) return;
     const api = current.shown.frame.contentDocument?.deckPresentation;
     const before = api?.state();
     api?.move(direction); const state = api?.state();
@@ -472,9 +480,27 @@ export function openDeckPresenter(hooks: Hooks) {
     const nextSlide = list[list.findIndex(item => item.id === selected) + direction];
     const boundary = before?.id === state.id && before?.step === state.step;
     const moved = boundary && !!nextSlide;
+    if (moved && selected) jumps.remember(selected);
     selected = moved ? nextSlide.id : state.id; step = moved ? (direction < 0 ? Number.MAX_SAFE_INTEGER : 0) : state.step;
     syncNotes(); void update(moved);
   }
+  /** 枚へ飛ぶ（Home・End・番号・Z・前の枚・次の枚）。 */
+  function jump(to: Parameters<ReturnType<typeof presenterJumps>["target"]>[2]) {
+    if (blocked || running || !flush()) return;
+    const list = presenterSlides(hooks.saved().html);
+    const found = jumps.target(list.map(item => item.id), selected, to);
+    if (!found) return;
+    if (to !== "back" && selected && found.key !== selected) jumps.remember(selected);
+    selected = found.key; step = found.step; syncNotes(); void update(true);
+  }
+  /** 手元だけで見る・観客の画面に戻る（V とボタン）。 */
+  function toggleBrowse() {
+    if (blocked || !started || running || !flush()) return;
+    const spot: PresenterSpot = browse.toggle({ id: selected, step });
+    if (spot.id) { selected = spot.id; step = spot.step; }
+    syncNotes(); void update(true);
+  }
+  function showTyped() { typedState.hidden = !typed; typedState.textContent = typed ? t("deckStudio.presenter.jumpTyped", { number: typed }) : ""; }
   function controlKey(event: KeyboardEvent, owner: Document, fromAudience = false) {
     if (event.ctrlKey || event.metaKey || event.altKey) return;
     const ElementType = owner.defaultView?.Element, target = event.target;
@@ -482,21 +508,23 @@ export function openDeckPresenter(hooks: Hooks) {
       if (target.closest("input,textarea,select,[contenteditable],video,audio")) { event.stopPropagation(); return; }
       if (["Enter", " "].includes(event.key) && target.closest("button,a[href]")) { event.stopPropagation(); return; }
     }
-    if (!["ArrowRight", "ArrowDown", "PageDown", "Enter", " ", "ArrowLeft", "ArrowUp", "PageUp", "Backspace", "Home", "End", "Escape"].includes(event.key)) return;
+    // 読み替えはキーの台帳（src/widget/deck/present/keys.ts）だけが決める
+    const action = presenterKeyAction(event, typed);
+    if (!action) return;
     event.preventDefault(); event.stopImmediatePropagation();
+    if (action.kind !== "type" && typed) { typed = ""; showTyped(); }
     // Escape はブラウザの全画面を抜けるのにも押される。発表中と観客用の窓では、発表そのものを終わらせない。
-    if (event.key === "Escape") { if (!started && !fromAudience) close(); return; }
-    if (event.key === "Home" || event.key === "End") {
-      if (blocked || running || !flush()) return;
-      const list = presenterSlides(hooks.saved().html), chosen = event.key === "Home" ? list[0] : list[list.length - 1];
-      if (chosen) { selected = chosen.id; step = 0; syncNotes(); void update(true); }
-      return;
-    }
-    move(["ArrowLeft", "ArrowUp", "PageUp", "Backspace"].includes(event.key) ? -1 : 1);
+    if (event.key === "Escape" && action.kind === "none") { if (!started && !fromAudience) close(); return; }
+    if (action.kind === "none") return;
+    if (action.kind === "type") { typed = action.typed; showTyped(); return; }
+    if (action.kind === "browse") { toggleBrowse(); return; }
+    if (action.kind === "step") { move(action.direction); return; }
+    jump(action.to);
   }
   function stopAudience(text: string) {
     blocked = true; started = false; showNotice(text);
-    notes.readOnly = true; editButton.hidden = true; startButton.hidden = true; nav.hidden = true; pause.hidden = true; audienceButton.hidden = true;
+    notes.readOnly = true; editButton.hidden = true; startButton.hidden = true; nav.hidden = true; clockUI.hideControls(); audienceButton.hidden = true;
+    browse.leave(); browseButton.hidden = true; showButton.hidden = true; media.stop();
     for (const surface of [current, next, audience]) if (surface) { surface.generation++; for (const buffer of surface.buffers) { buffer.generation++; buffer.html = ""; buffer.frame.srcdoc = STOPPED(); } }
     connection.textContent = t("decks.presenter.stopped");
     endButton.textContent = closeLabel;
@@ -533,38 +561,23 @@ export function openDeckPresenter(hooks: Hooks) {
   }
   function close() {
     if (disposed || !flush()) return;
-    disposed = true; clearInterval(tick); if (noteTimer) clearTimeout(noteTimer); if (idle) clearTimeout(idle); lifetime.abort();
+    disposed = true; clearInterval(tick); if (noteTimer) clearTimeout(noteTimer); if (idle) clearTimeout(idle); lifetime.abort(); media.stop();
     if (warmTimer) clearTimeout(warmTimer);
     if (audience && popup && !popup.closed) { for (const buffer of audience.buffers) buffer.generation++; reveal(audience, audience.shown); audience.shown.frame.srcdoc = ENDED(); }
     root.remove(); underlying.forEach(({ node, inert }) => { node.inert = inert; }); hooks.closed();
   }
   function begin() {
     if (blocked || running || started || !flush()) return;
-    if (!duration.checkValidity()) { duration.reportValidity(); return; }
+    if (!clockUI.valid()) return;
     // 開始の 1 押しで観客用の窓も開く（押した瞬間だけ、ブラウザが窓を開くのを許す）。
     // 開けなくても手元の発表は始める。
     const opened = popup && !popup.closed ? true : openAudience();
-    started = true; paused = false; lastTick = performance.now(); renderClock();
-    startButton.hidden = true; durationLabel.hidden = true; clock.hidden = false; pause.hidden = false;
+    started = true; clockUI.begin();
+    startButton.hidden = true; browseButton.hidden = false;
     setEditing(false);
     endButton.textContent = t("decks.presenter.end");
     if (opened) showConnection();
     void update(true);
-  }
-  /** 時計は実際の経過から数える（間隔ごとに 1 秒足す形だと、裏のタブで遅れる）。 */
-  function renderClock() {
-    const at = performance.now(); if (started && !paused) elapsed += at - lastTick; lastTick = at;
-    const spent = Math.floor(elapsed / 1000), budget = Number(duration.value) * 60;
-    const seconds = budget > 0 ? budget - spent : spent, over = budget > 0 && seconds < 0;
-    const clockState = budget > 0 ? (over ? t("decks.presenter.clockOver") : t("decks.presenter.clockLeft")) : t("decks.presenter.clockElapsed");
-    clockLabel.textContent = paused ? t("decks.presenter.clockPaused", { state: clockState }) : clockState;
-    clockTime.textContent = clockText(seconds);
-    clock.toggleAttribute("data-over", over); clock.toggleAttribute("data-paused", paused);
-  }
-  function togglePause() {
-    renderClock(); paused = !paused; renderClock();
-    styleDeckButton(pause, paused ? "play" : "pause", true, paused ? t("decks.presenter.resumeTimer") : t("decks.presenter.pauseTimer"));
-    pause.setAttribute("aria-label", paused ? t("decks.presenter.resumeTimer") : t("decks.presenter.pauseTimer"));
   }
   /** 開始前は常に書ける。発表中は読む表示が既定で、押したときだけ書ける。書きかけ（衝突・変換中）は閉じない。 */
   function setEditing(value: boolean) {
@@ -610,7 +623,25 @@ export function openDeckPresenter(hooks: Hooks) {
   const adoptButton = button(t("decks.presenter.adopt"), () => { if (flush()) void update(true); });
   const retryButton = button(t("decks.presenter.retry"), () => { void update(); });
   const conflictButton = button(t("decks.presenter.conflictLabel"), openConflict); conflictButton.hidden = true;
-  const pause = styleDeckButton(button(t("decks.presenter.pauseTimer"), togglePause), "pause", true, t("decks.presenter.pauseTimer")); pause.hidden = true;
+  const browseButton = button(t("deckStudio.presenter.browse"), toggleBrowse); browseButton.hidden = true;
+  const showButton = button(t("deckStudio.presenter.showHere"), () => { if (blocked || running || !flush()) return; browse.air(); void update(true); }); showButton.hidden = true;
+  const browse = presenterBrowse(root, browseButton, showButton);
+  const typedState = el("span", "dp-typed"); typedState.setAttribute("role", "status"); typedState.hidden = true;
+  const mediaNotice = el("span", "dp-connection"); mediaNotice.setAttribute("role", "status");
+  const keysButton = button(t("deckStudio.presenter.keys"), openKeys);
+  /** キーの一覧（台帳 PRESENTER_KEY_MAP のまま）。 */
+  function openKeys() {
+    const backdrop = el("div", "ds-dialog-backdrop"), panel = el("div", "ds-dialog dp-keys");
+    panel.setAttribute("role", "dialog"); panel.setAttribute("aria-modal", "true"); panel.setAttribute("aria-label", t("deckStudio.presenter.keysTitle"));
+    panel.append(el("h2", undefined, t("deckStudio.presenter.keysTitle")));
+    for (const [label, keys] of PRESENTER_KEY_MAP) { const row = el("div", "dp-key-row"); row.append(el("strong", undefined, t(label)), el("span", undefined, t(keys))); panel.append(row); }
+    const dismiss = () => { backdrop.remove(); keysButton.focus(); };
+    const actions = el("div", "ds-dialog-actions"); actions.append(button(t("decks.presenter.close"), dismiss)); panel.append(actions);
+    backdrop.append(panel);
+    backdrop.addEventListener("keydown", event => { event.stopPropagation(); if (event.key === "Escape") { event.preventDefault(); dismiss(); } });
+    backdrop.addEventListener("click", event => { if (event.target === backdrop) dismiss(); });
+    root.append(backdrop); actions.querySelector("button")?.focus();
+  }
   const endButton = button(closeLabel, close);
   const startButton = styleDeckButton(button(t("decks.presenter.start"), begin), "play"); startButton.classList.add("ds-primary");
   const previousButton = styleDeckButton(button(t("decks.presenter.previous"), () => move(-1)), "previous"), nextButton = button(t("decks.presenter.nextButton"), () => move(1));
@@ -623,23 +654,22 @@ export function openDeckPresenter(hooks: Hooks) {
   smaller.setAttribute("aria-label", t("decks.presenter.smaller")); larger.setAttribute("aria-label", t("decks.presenter.larger"));
   noteTools.append(smaller, larger, editButton);
 
-  clock.append(pause); timer.append(durationLabel, clock);
   const headerEnd = el("div", "dp-group"); headerEnd.append(layoutButton, endButton);
   header.append(deckTitle, timer, headerEnd);
-  caption.append(position, slideTitle, notice);
+  caption.append(browse.state, position, slideTitle, typedState, notice);
   stage.append(...frames(current)); main.append(caption, stage);
   nextBox.append(...frames(next), end); end.hidden = true;
   noteFooter.append(noteStatus, savedMeta, conflictButton);
   notePanel.append(noteHead, noteRead, notes, noteFooter);
   upcomingPanel.append(nextLabel, nextBox); body.append(main, upcomingPanel, notePanel);
   const left = el("div", "dp-group"), right = el("div", "dp-group");
-  left.append(audienceButton, connection); right.append(nav, startButton); footer.append(left, right);
+  left.append(audienceButton, connection, mediaNotice); right.append(keysButton, showButton, browseButton, nav, startButton); footer.append(left, right);
   root.append(style, header, body, footer); hooks.host.append(root);
   root.addEventListener("keydown", event => controlKey(event, document));
 
   const tick = setInterval(() => {
     if (disposed) return;
-    renderClock();
+    clockUI.render();
     if (popup?.closed) { connection.textContent = t("decks.presenter.audienceClosed"); }
     else if (popup && audience) {
       try {

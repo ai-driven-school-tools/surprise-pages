@@ -1,5 +1,4 @@
 import type { Messages } from "../types";
-import { deckEditorAlign, deckEditorElementMenu, deckEditorLayers } from "./deckEditorArrange";
 
 export const deckEditor = {
   canvas: {
@@ -820,7 +819,38 @@ export const deckEditor = {
     mediaLimits: "Images can be up to 10 MB; videos must be MP4 or WebM, up to 100 MB",
     uploadExpiredResend: "The upload expired. Send it again",
   },
-  layers: deckEditorLayers,
-  align: deckEditorAlign,
-  elementMenu: deckEditorElementMenu,
+  /** The Layers list docked under the right pane (front-most at the top). */
+  layers: {
+    title: "Layers",
+    resize: "Resize layers",
+    list: "Layers on this slide (front to back)",
+    empty: "This slide has no elements",
+    expand: "Expand {label}",
+    collapse: "Collapse {label}",
+    row: "Layer “{label}”",
+    locked: "Layer “{label}” (position locked)",
+    box: "Box",
+    cannotMove: "You can't move it there. Drag it above or below another row.",
+    otherBox: "You can't move an element into a different box. Cut and paste it instead.",
+    unchanged: "The order didn't change",
+  },
+  /** Alignment rows, the selection resize grips and the shape grips. */
+  align: {
+    horizontal: "Horizontal",
+    vertical: "Vertical",
+    centerShort: "Center",
+    middleShort: "Middle",
+    toSlide: "Align to slide: {action}",
+    resizeSelection: "Resize the selected elements together",
+    resizeShape: "Resize shape (arrow keys also work)",
+  },
+  /** The element context menu on the canvas and the Layers list. */
+  elementMenu: {
+    title: "Element actions",
+    action: "{action} — element",
+    cut: "Cut",
+    copy: "Copy",
+    paste: "Paste",
+    selectAll: "Select all",
+  },
 } as const satisfies Messages["deckEditor"];

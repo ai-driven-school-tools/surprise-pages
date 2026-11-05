@@ -55,7 +55,6 @@ export const LAYER_PANEL_CSS = `
 .ds-layers-resize { height:var(--space-2); margin-top:calc(-1 * var(--space-1)); cursor:ns-resize; }
 .ds-layers-resize:focus-visible { outline:2px solid var(--accent); outline-offset:-2px; }
 .ds-layers-head { display:flex; align-items:center; gap:var(--space-2); width:100%; min-height:32px; padding:0 var(--studio-inset); border:0; background:transparent; font-size:var(--font-sm); font-weight:600; color:var(--text); text-align:left; }
-.ds-layers-head svg { transition:rotate .15s; }
 .ds-layers:not([data-open]) .ds-layers-head svg { rotate:-90deg; }
 .ds-layers-list { position:relative; height:var(--layers-height); overflow:auto; padding:0 var(--space-2); scrollbar-width:thin; }
 .ds-layer { display:grid; grid-template-columns:var(--space-5) minmax(0,1fr) var(--space-6); align-items:center; padding-left:calc(var(--layer-depth) * var(--space-4)); border-radius:4px; }

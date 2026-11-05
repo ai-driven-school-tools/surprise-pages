@@ -47,6 +47,7 @@ button { color: inherit; background: transparent; font: inherit; border: 0; padd
 button:hover { background: var(--surface-sunken); }
 button:focus-visible { outline: var(--rule-thick) solid var(--accent); outline-offset: var(--space-1); }
 .overflow { position: fixed; max-width: var(--size-popover); padding: var(--space-2); border-radius: var(--radius-sm); color: var(--danger); background: var(--surface); font: var(--font-base)/var(--leading-normal) system-ui,sans-serif; pointer-events: auto; }
+.hover { position: fixed; box-shadow: 0 0 0 var(--rule-thin) color-mix(in srgb, var(--accent) 50%, transparent); pointer-events: none; }
 .status { position: fixed; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
 .media-placeholder { position:fixed; display:grid; place-items:center; width:180px; aspect-ratio:16/9; padding:12px; border:var(--rule-thin) dashed var(--accent); border-radius:var(--radius-sm); background:color-mix(in srgb,var(--surface) 82%,transparent); color:var(--muted); font:var(--font-sm)/var(--leading-normal) system-ui,sans-serif; text-align:center; pointer-events:none; }
 `;
@@ -75,6 +76,8 @@ export function createDeckCanvas(options: DeckCanvasOptions) {
   let animation = 0;
   let marquee: { x: number; y: number; slide: Element; ids: string[]; box: HTMLDivElement } | null = null;
   let guides: { x?: number; y?: number } = {};
+  /** 乗せている要素（レイヤーの一覧の行に乗せたとき）。押したら選ばれる範囲を薄い線で見せる */
+  let hovered: string | null = null;
   const removers: (() => void)[] = [];
   const host = doc.createElement("div");
   host.setAttribute(CHROME, "");
@@ -188,6 +191,12 @@ export function createDeckCanvas(options: DeckCanvasOptions) {
         });
         box.append(handle);
       }
+      boxes.append(box);
+    }
+    const hoveredNode = hovered && !selected.includes(hovered) ? find(hovered) : null;
+    if (hoveredNode && safe(hoveredNode)) {
+      const rect = hoveredNode.getBoundingClientRect(), box = doc.createElement("div"); box.className = "hover";
+      Object.assign(box.style, { left: `${rect.left}px`, top: `${rect.top}px`, width: `${rect.width}px`, height: `${rect.height}px` });
       boxes.append(box);
     }
     for (const item of known.values()) {
@@ -964,6 +973,8 @@ export function createDeckCanvas(options: DeckCanvasOptions) {
     select, selection: () => [...selected], currentSlide, applyRemote, canApplyDirect, applySnapshot, applyAvailableSnapshot, flush, crop, align, editSelected,
     isCropping: () => cropping,
     refreshSelection: scheduleDraw,showMediaPlaceholder,
+    /** 外から乗せた要素を示す（レイヤーの一覧）。null で消す */
+    hover(id: string | null) { if (hovered === id) return; hovered = id; scheduleDraw(); },
     finishEditing: endText,
     cropInset(value:number) { const node=elements()[0];if(node?.tagName==="IMG"&&!readOnly)emit([styleOperation(node,"clip-path",`inset(${Math.max(0,Math.min(45,value))}%)`)]); },
     updateNodes(nodes: readonly DeckEditableNode[], slideIds?:readonly string[]) {

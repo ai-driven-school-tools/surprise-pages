@@ -1,3 +1,5 @@
+import { deckEditorAlign, deckEditorElementMenu, deckEditorLayers } from "./deckEditorArrange";
+
 /** スライドの直接編集の画面・窓口の文言（docs/guides/i18n.md）。 */
 export const deckEditor = {
   canvas: {
@@ -817,4 +819,7 @@ export const deckEditor = {
     mediaLimits: "画像は10MB、動画はMP4・WebMで100MBまでです",
     uploadExpiredResend: "送信の有効期限が切れました。もう一度送信してください",
   },
+  layers: deckEditorLayers,
+  align: deckEditorAlign,
+  elementMenu: deckEditorElementMenu,
 } as const;

@@ -1,4 +1,5 @@
 import type { Messages } from "../types";
+import { deckEditorAlign, deckEditorElementMenu, deckEditorLayers } from "./deckEditorArrange";
 
 export const deckEditor = {
   canvas: {
@@ -819,4 +820,7 @@ export const deckEditor = {
     mediaLimits: "Images can be up to 10 MB; videos must be MP4 or WebM, up to 100 MB",
     uploadExpiredResend: "The upload expired. Send it again",
   },
+  layers: deckEditorLayers,
+  align: deckEditorAlign,
+  elementMenu: deckEditorElementMenu,
 } as const satisfies Messages["deckEditor"];

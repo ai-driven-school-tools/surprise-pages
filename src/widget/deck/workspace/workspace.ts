@@ -26,6 +26,7 @@ import { createDeckWorkspaceDesign } from './design';
 import { createDeckWorkspaceDialogs } from './dialogs';
 import { createDeckWorkspaceInspector } from './inspector';
 import { createDeckWorkspaceNavigation } from './navigation';
+import { createDeckLayerPanel } from "../edit/layer-panel";
 import { DECK_WORKSPACE_STYLES } from "./styles";
 import type { Input } from './types';
 import { el } from "../../shared/util";
@@ -123,7 +124,9 @@ export function createDeckWorkspace(input: Input) {
     button(t("deckEditor.workspace.addFirst"), () => dialogsFeature.layouts(false), "ds-button ds-primary"),
   );
   stage.append(frame, empty, notes);
-  root.append(nav, stage, inspector);
+  // 右の欄の下端に固定する「レイヤー」の一覧（../edit/layer-panel.ts）。設定を描き直しても一覧は作り直さない
+  const layerDock = el("section");
+  root.append(nav, stage, inspector, layerDock);
   screen.append(root, footer);
   let mediaControl: HTMLElement | null = null;
   let closeMedia = () => {};
@@ -276,7 +279,8 @@ export function createDeckWorkspace(input: Input) {
     get distribute() { return distribute; },
     get groupSelection() { return groupSelection; },
     get ungroupSelection() { return ungroupSelection; },
-    get elementCommand() { return elementCommand; }
+    get elementCommand() { return elementCommand; },
+    get refreshLayers() { return layers.refresh; }
   });
 
   const dataFeature = createDeckWorkspaceData({
@@ -305,6 +309,31 @@ export function createDeckWorkspace(input: Input) {
     get run() { return run; },
     get sourceDoc() { return sourceDoc; },
     get field() { return inspectorFeature.field; }
+  });
+
+  const layers = createDeckLayerPanel({
+    dock: layerDock,
+    signal: lifetime.signal,
+    slide: () => (attached && current ? find(attached, current) ?? null : null),
+    hidden: () => design || !current,
+    source: () => input.source(),
+    labelOf,
+    selection: () => selection,
+    select: (ids) => {
+      // 一覧で選んでも焦点は一覧に残す（キャンバスは選ぶと枠の文書へ焦点を移す）
+      const active = focused();
+      input.canvas()?.select(ids);
+      if (active instanceof HTMLElement && active.isConnected) active.focus({ preventScroll: true });
+    },
+    hover: (id) => input.canvas()?.hover(id),
+    commit,
+    sourceNode: (id) => find(sourceDoc(), id),
+    menu: () => {},
+    command: (command) => {
+      if (command === "cut") { elementCommand("copy"); elementCommand("delete"); }
+      else elementCommand(command);
+    },
+    message: (text) => input.fail(text),
   });
 
   function commit(ops: DeckEditOperation[]): boolean {
@@ -662,6 +691,8 @@ export function createDeckWorkspace(input: Input) {
     if (!notes.contains(focused())) navigationFeature.renderNotes();
   }
   function refresh() {
+    // 直接当てた変更（取り消し・やり直しを含む）でも重なり順と固定の印を描き直す
+    layers.refresh();
     if(input.canvas()?.isInteracting()){pendingNavRefresh=true;return;}
     if (renderTimer) return;
     renderTimer = lifetime.timeout(() => {

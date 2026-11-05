@@ -13,6 +13,7 @@ import { DECK_LIBRARY } from "../../../lib/deck/design/library";
 import { deckIcon, styleDeckButton } from "../ui";
 import type { Input } from './types';
 import { el } from "../../shared/util";
+import { layerOrderOperations } from "../edit/layer-order";
 import { t } from "../../shared/i18n";
 
 /** Owns inspector behavior; receives only its required page/editor connections. */
@@ -41,6 +42,8 @@ type Host = {
   groupSelection: () => void;
   ungroupSelection: () => void;
   elementCommand: (command: string) => void;
+  /** 右の欄の下端のレイヤーの一覧を描き直す（選択・枚・中身が変わるたび。次の描画の前に 1 回だけ） */
+  refreshLayers: () => void;
 };
 
 export function createDeckWorkspaceInspector(connections: Host) {
@@ -79,6 +82,17 @@ export function createDeckWorkspaceInspector(connections: Host) {
         : [];
     });
     commit(ops);
+  }
+
+  /** 前面へ・背面へ。重なっている相手と同じ土俵の外側の箱で順番を変える（../edit/layer-order.ts）。1 回の操作で取り消せる */
+  function reorderLayers(direction: "front" | "back") {
+    const live = connections.attached ? find(connections.attached, connections.selection[0]) : null;
+    const slide = live?.closest("section[data-deck-slide]");
+    if (!slide) return;
+    commit(layerOrderOperations(slide, connections.selection, direction, (id, property) => {
+      const target = inspectNode(id);
+      return target ? target.style[property] ?? null : undefined;
+    }));
   }
 
   function attribute(
@@ -197,6 +211,7 @@ export function createDeckWorkspaceInspector(connections: Host) {
   }
 
   function refreshInspector() {
+    connections.refreshLayers();
     connections.input.bar
       .querySelector("[data-studio-design]")
       ?.setAttribute("aria-pressed", String(connections.design));
@@ -552,23 +567,8 @@ export function createDeckWorkspaceInspector(connections: Host) {
         placement.append(button(t("deckEditor.inspector.ungroup"), ungroupSelection));
     }
     placement.append(
-      button(t("deckEditor.inspector.bringForward"), () =>
-        setStyle(
-          "z-index",
-          String(
-            Math.max(
-              ...sourceSelected().map((n) => parseInt(n.style.zIndex) || 0),
-              0,
-            ) + 1,
-          ),
-        ),
-      ),
-      button(t("deckEditor.inspector.sendBackward"), () =>
-        setStyle(
-          "z-index",
-          String(Math.max(0, (parseInt(node.style.zIndex) || 0) - 1)),
-        ),
-      ),
+      button(t("deckEditor.inspector.bringForward"), () => reorderLayers("front")),
+      button(t("deckEditor.inspector.sendBackward"), () => reorderLayers("back")),
       button(t("deckEditor.inspector.resetLayout"), () => {
         const props: DeckEditStyleProperty[] = [
           "translate",
@@ -616,6 +616,7 @@ export function createDeckWorkspaceInspector(connections: Host) {
   return {
     field,
     selectField,
+    reorderLayers,
     togglePanel,
     startCrop,
     refreshInspector

@@ -16,6 +16,8 @@ import { el } from "../../shared/util";
 import { layerOrderOperations } from "../edit/layer-order";
 import { t } from "../../shared/i18n";
 
+type Align = "left" | "center" | "right" | "top" | "middle" | "bottom";
+
 /** Owns inspector behavior; receives only its required page/editor connections. */
 type Host = {
   closeMedia:()=>void;
@@ -82,6 +84,29 @@ export function createDeckWorkspaceInspector(connections: Host) {
         : [];
     });
     commit(ops);
+  }
+
+  /**
+   * 揃えの 2 行（左右の 3 つ・上下の 3 つ）。複数なら選んだ範囲に、1 つ（グループ 1 つ）ならスライドに揃える。
+   * 行の中の真ん中は字を「中央」に縮め、読み上げの名前は左右中央・上下中央のまま（1 つのときは「スライドの〜に揃える」）。
+   */
+  function alignRows(parent: HTMLElement, count: number) {
+    const rows: [string, [Align, string, string][]][] = [
+      [t("deckEditor.align.horizontal"), [["left", t("deckEditor.inspector.left"), t("deckEditor.inspector.left")], ["center", t("deckEditor.align.centerShort"), t("deckEditor.inspector.center")], ["right", t("deckEditor.inspector.right"), t("deckEditor.inspector.right")]]],
+      [t("deckEditor.align.vertical"), [["top", t("deckEditor.inspector.top"), t("deckEditor.inspector.top")], ["middle", t("deckEditor.align.middleShort"), t("deckEditor.inspector.middle")], ["bottom", t("deckEditor.inspector.bottom"), t("deckEditor.inspector.bottom")]]],
+    ];
+    for (const [label, modes] of rows) {
+      const row = el("div", "ds-row ds-align-row");
+      row.setAttribute("role", "group");
+      row.setAttribute("aria-label", label);
+      row.append(el("span", "ds-property-label", label));
+      for (const [mode, short, name] of modes) {
+        const one = button(short, () => connections.input.canvas()?.align(mode));
+        one.setAttribute("aria-label", count === 1 ? t("deckEditor.align.toSlide", { action: name }) : name);
+        row.append(one);
+      }
+      parent.append(row);
+    }
   }
 
   /** 前面へ・背面へ。重なっている相手と同じ土俵の外側の箱で順番を変える（../edit/layer-order.ts）。1 回の操作で取り消せる */
@@ -521,23 +546,9 @@ export function createDeckWorkspaceInspector(connections: Host) {
       }
     }
     const placement = section(t("deckEditor.inspector.arrange"));
+    alignRows(placement, chosen.length);
     if (chosen.length > 1) {
-      const row = el("div", "ds-row");
-      for (const [value, label] of [
-        ["left", t("deckEditor.inspector.left")],
-        ["center", t("deckEditor.inspector.center")],
-        ["right", t("deckEditor.inspector.right")],
-        ["top", t("deckEditor.inspector.top")],
-        ["middle", t("deckEditor.inspector.middle")],
-        ["bottom", t("deckEditor.inspector.bottom")],
-      ] satisfies [
-        "left" | "center" | "right" | "top" | "middle" | "bottom",
-        string,
-      ][]) {
-        row.append(button(label, () => connections.input.canvas()?.align(value)));
-      }
       placement.append(
-        row,
         button(t("deckEditor.inspector.distributeHorizontal"), () => distribute(false)),
         button(t("deckEditor.inspector.distributeVertical"), () => distribute(true)),
         button(t("deckEditor.inspector.group"), groupSelection),

@@ -8,6 +8,10 @@ import { deckSlideDrawn } from "../../lib/deck/design/typography";
 import { canvasDelta, cropPosition, dragCropPosition, resizeBox, translateBy, moveCropWindow, type CanvasPoint } from "./canvas-geometry";
 import { t } from "../shared/i18n";
 import { deckErrorMessage } from "../../lib/deck/edit/message";
+import { CANVAS_SNAP_CSS, drawSnapGuides, partTargets, snapEdges, snapMove, snapScaledPart, type SnapGuides } from "./canvas-snap";
+import { SCALE_FRAME_CSS, applySelectionScale, beginSelectionScale, drawScaleGrips, selectionBox, selectionScaleOperations, type ScaleCorner, type SelectionScaling } from "./canvas-multi-resize";
+import { CANVAS_SHAPE_BOX_CSS, GRIP_HANDLES, resizeFromHandle, shapeGrips, type ShapeGrip } from "./canvas-shape-box";
+import { CANVAS_OUTLINE_CSS, drawGroupOutline, outlineRect } from "./canvas-outline";
 
 export type DeckCanvasOptions = {
   document: Document;
@@ -32,7 +36,9 @@ type Align = "left" | "center" | "right" | "top" | "middle" | "bottom";
 type TextRun = { target: string; run: number; node: Text; before: string };
 type TextBox = { node: HTMLElement; operations: DeckEditOperation[]; applied: boolean; persisted: boolean };
 type DragItem = { node: HTMLElement; before: string | null; translation: string };
-type Drag = { pointer: number; start: CanvasPoint; slide: HTMLElement; items: DragItem[]; active: boolean; mode: "move" | "resize" | "crop"; width: number; height: number; originalScale: number; scaleBefore: string | null; originBefore: string | null; cropBefore: string | null; clipBefore: string | null; clip: number[]; crop: CanvasPoint };
+/** 図形の 8 つの持ち手で引いているとき（./canvas-shape-box.ts）。rect は押したときの画面の箱、size は枚の px。 */
+type EdgeDrag = { grip: ShapeGrip; rect: { left: number; top: number; width: number; height: number }; size: { width: number; height: number }; translation: string; before: Record<"width" | "height" | "translate" | "scale", string | null> };
+type Drag = { pointer: number; start: CanvasPoint; slide: HTMLElement; items: DragItem[]; active: boolean; mode: "move" | "resize" | "crop" | "scale" | "edge"; width: number; height: number; originalScale: number; scaleBefore: string | null; originBefore: string | null; cropBefore: string | null; clipBefore: string | null; clip: number[]; crop: CanvasPoint; scaling?: SelectionScaling; edge?: EdgeDrag };
 const CHROME = "data-deck-canvas-chrome";
 const graphemes = new Intl.Segmenter("ja", { granularity: "grapheme" });
 const EXCLUDED = `svg,script,style,[${DECK_NOTES}],.mermaid,[data-deck-chart],[data-deck-logo-view],[${CHROME}]`;
@@ -75,7 +81,8 @@ export function createDeckCanvas(options: DeckCanvasOptions) {
   let remoteQueue: DeckEditOperation[] = [];
   let animation = 0;
   let marquee: { x: number; y: number; slide: Element; ids: string[]; box: HTMLDivElement } | null = null;
-  let guides: { x?: number; y?: number } = {};
+  /** 吸い付いた線と相手（./canvas-snap.ts）。動かしている・大きさを変えている間だけ描く */
+  let guides: Partial<SnapGuides> = {};
   /** 乗せている要素（レイヤーの一覧の行に乗せたとき）。押したら選ばれる範囲を薄い線で見せる */
   let hovered: string | null = null;
   const removers: (() => void)[] = [];
@@ -83,7 +90,7 @@ export function createDeckCanvas(options: DeckCanvasOptions) {
   host.setAttribute(CHROME, "");
   const shadow = host.attachShadow({ mode: "open" });
   const style = doc.createElement("style");
-  style.textContent = TOKENS + CSS;
+  style.textContent = TOKENS + CSS + CANVAS_SNAP_CSS + SCALE_FRAME_CSS + CANVAS_SHAPE_BOX_CSS + CANVAS_OUTLINE_CSS;
   shadow.append(style);
   const boxes = doc.createElement("div");
   const status = doc.createElement("div");
@@ -169,19 +176,33 @@ export function createDeckCanvas(options: DeckCanvasOptions) {
     if (disposed) return;
     syncVideoControls();
     boxes.replaceChildren();
-    for (const [axis, value] of Object.entries(guides)) {
-      const guide = doc.createElement("div");
-      guide.style.cssText = `position:fixed;pointer-events:none;background:var(--accent);${axis === "x" ? `left:${value}px;top:0;width:1px;height:100vh` : `top:${value}px;left:0;height:1px;width:100vw`}`;
-      boxes.append(guide);
-    }
+    drawSnapGuides(doc, boxes, guides);
     const chosen = elements();
+    // グループ（包み）を選んだときは、全体の枠と中の要素の細い線（./canvas-outline.ts）。中の要素に選択の枠を重ねない
+    const outlined = new Set<HTMLElement>();
+    for (const id of selected) {
+      const group = find(id);
+      if (!group?.hasAttribute("data-deck-group")) continue;
+      const members = [...group.children].filter((child): child is HTMLElement => child instanceof view!.HTMLElement && safe(child));
+      drawGroupOutline(doc, boxes, members);
+      members.forEach((member) => outlined.add(member));
+    }
     for (const node of chosen) {
+      if (outlined.has(node)) continue;
       const full = node.getBoundingClientRect();
       const clip = node.tagName === "IMG" ? clipInsets(node) : [0, 0, 0, 0];
       const rect = { left: full.left + full.width * clip[3] / 100, top: full.top + full.height * clip[0] / 100, width: full.width * (1 - (clip[1] + clip[3]) / 100), height: full.height * (1 - (clip[0] + clip[2]) / 100) };
       const box = doc.createElement("div"); box.className = "box";
       Object.assign(box.style, { left: `${rect.left}px`, top: `${rect.top}px`, width: `${rect.width}px`, height: `${rect.height}px` });
-      if (!readOnly && !node.hasAttribute("data-deck-locked") && (node.tagName === "IMG" || node.tagName === "VIDEO" || node.hasAttribute("data-deck-youtube") || options.externalToolbar && node.hasAttribute("data-deck-shape")) && chosen.length === 1 && !editing && node!==previewVideo) {
+      if (!readOnly && !node.hasAttribute("data-deck-locked") && options.externalToolbar && node.hasAttribute("data-deck-shape") && chosen.length === 1 && !editing) {
+        // 図形は 8 つの持ち手で縦横を別々に変える（./canvas-shape-box.ts）
+        box.append(...shapeGrips(rect, () => button("", () => {}), t("deckEditor.align.resizeShape"), (event, grip) => startEdge(event, node, grip), (event, grip) => {
+          const delta = keyDelta(event), handle = GRIP_HANDLES[grip];
+          if (!delta || !(delta.x && handle.x || delta.y && handle.y)) return;
+          event.preventDefault(); resizeEdgeByKey(node, grip, delta);
+        }));
+      }
+      else if (!readOnly && !node.hasAttribute("data-deck-locked") && (node.tagName === "IMG" || node.tagName === "VIDEO" || node.hasAttribute("data-deck-youtube")) && chosen.length === 1 && !editing && node!==previewVideo) {
         const handle = button("", () => {}); handle.className = "handle";
         handle.setAttribute("aria-label", node.tagName==="VIDEO"?t("deckEditor.canvas.resizeVideo"):t("deckEditor.canvas.resizeImage"));
         handle.addEventListener("pointerdown", (event) => startDrag(event, node, "resize"));
@@ -193,9 +214,13 @@ export function createDeckCanvas(options: DeckCanvasOptions) {
       }
       boxes.append(box);
     }
-    const hoveredNode = hovered && !selected.includes(hovered) ? find(hovered) : null;
+    // 複数を選んでいるときは、選んだ範囲の 4 つの角でまとめて大きさを変える（./canvas-multi-resize.ts）
+    if (chosen.length > 1 && !readOnly && !editing && !drag && options.externalToolbar && chosen.every((node) => !node.closest("[data-deck-locked]"))) {
+      drawScaleGrips(boxes, selectionBox(chosen.map((node) => outlineRect(node))), () => button("", () => {}), t("deckEditor.align.resizeSelection"), startScale);
+    }
+    const hoveredNode = hovered && !selected.includes(hovered) && !drag ? find(hovered) : null;
     if (hoveredNode && safe(hoveredNode)) {
-      const rect = hoveredNode.getBoundingClientRect(), box = doc.createElement("div"); box.className = "hover";
+      const rect = outlineRect(hoveredNode), box = doc.createElement("div"); box.className = "hover";
       Object.assign(box.style, { left: `${rect.left}px`, top: `${rect.top}px`, width: `${rect.width}px`, height: `${rect.height}px` });
       boxes.append(box);
     }
@@ -511,6 +536,74 @@ export function createDeckCanvas(options: DeckCanvasOptions) {
       cropBefore: originalStyle(node, "object-position"), clipBefore: originalStyle(node, "clip-path"), clip: clipInsets(node), crop: positionOf(node) };
     activity();
   }
+  /** 複数を選んだ範囲の角を押したとき。全員を同じ比で大きく・小さくする */
+  function startScale(event: PointerEvent, corner: ScaleCorner) {
+    if (readOnly || editing || event.button !== 0) return;
+    const nodes = elements(), slide = nodes[0] ? slideOf(nodes[0]) : null;
+    if (!slide || nodes.some((node) => slideOf(node) !== slide || !resizeAllowed(node))) return;
+    event.preventDefault(); event.stopPropagation();
+    const { items, scaling } = beginSelectionScale(nodes, slide.getBoundingClientRect(), corner, { view: view!, scale: scaleOf, original: originalStyle });
+    drag = { pointer: event.pointerId, start: { x: event.clientX, y: event.clientY }, slide, items, active: false, mode: "scale", width: 0, height: 0, originalScale: 1,
+      scaleBefore: null, originBefore: null, cropBefore: null, clipBefore: null, clip: [0, 0, 0, 0], crop: { x: 50, y: 50 }, scaling };
+    activity();
+  }
+  /** 図形の持ち手を押したとき（引いた辺だけを動かす） */
+  function edgeState(node: HTMLElement, grip: ShapeGrip): EdgeDrag | null {
+    const slide = slideOf(node), rect = node.getBoundingClientRect(), width = slide?.getBoundingClientRect().width ?? 0;
+    if (!slide || !(rect.width > 0 && rect.height > 0 && width > 0)) return null;
+    const ratio = DECK_CANVAS.width / width;
+    return { grip, rect: { left: rect.left, top: rect.top, width: rect.width, height: rect.height }, size: { width: rect.width * ratio, height: rect.height * ratio }, translation: view!.getComputedStyle(node).translate,
+      before: { width: originalStyle(node, "width"), height: originalStyle(node, "height"), translate: originalStyle(node, "translate"), scale: originalStyle(node, "scale") } };
+  }
+  function startEdge(event: PointerEvent, node: HTMLElement, grip: ShapeGrip) {
+    if (readOnly || editing || event.button !== 0 || node.closest("[data-deck-locked]") || !resizeAllowed(node)) return;
+    const slide = slideOf(node), edge = edgeState(node, grip);
+    if (!slide || !edge) return;
+    event.preventDefault(); event.stopPropagation();
+    drag = { pointer: event.pointerId, start: { x: event.clientX, y: event.clientY }, slide, items: [{ node, before: edge.before.translate, translation: edge.translation }], active: false, mode: "edge", width: edge.size.width, height: edge.size.height, originalScale: 1,
+      scaleBefore: null, originBefore: null, cropBefore: null, clipBefore: null, clip: [0, 0, 0, 0], crop: { x: 50, y: 50 }, edge };
+    activity();
+  }
+  /** 図形を、持ち手の向きに delta（枚の px）だけ引いた大きさにする。scale は外して width・height に移す。free は吸い付かせない */
+  function resizeEdge(node: HTMLElement, edge: EdgeDrag, delta: CanvasPoint, keep: boolean, free: boolean) {
+    const handle = GRIP_HANDLES[edge.grip], next = resizeFromHandle(edge.size, handle, delta, keep), k = edge.size.width / edge.rect.width;
+    let size = next;
+    guides = {};
+    if (!free && !keep) {
+      const targets = partTargets([node]);
+      const proposed = { left: edge.rect.left + next.shift.x / k, top: edge.rect.top + next.shift.y / k, width: next.width / k, height: next.height / k };
+      if (targets) {
+        const snapped = snapEdges(proposed, handle, targets);
+        guides = snapped.guides;
+        size = { width: snapped.box.width * k, height: snapped.box.height * k, shift: { x: (snapped.box.left - edge.rect.left) * k, y: (snapped.box.top - edge.rect.top) * k } };
+      }
+    }
+    writeStyle(node, "scale", null);
+    node.style.setProperty("width", `${Math.round(size.width * 10) / 10}px`);
+    node.style.setProperty("height", `${Math.round(size.height * 10) / 10}px`);
+    writeStyle(node, "translate", edge.before.translate);
+    // 並びの中の図形は大きさを変えると置き場所も動くので、引かなかった辺が止まるよう差を足す
+    const now = node.getBoundingClientRect();
+    const shift = { x: size.shift.x + Math.round((edge.rect.left - now.left) * k * 10) / 10, y: size.shift.y + Math.round((edge.rect.top - now.top) * k * 10) / 10 };
+    if (shift.x || shift.y) node.style.setProperty("translate", translateBy(edge.translation, shift));
+  }
+  function edgeOperations(node: HTMLElement, edge: EdgeDrag): DeckEditOperation[] {
+    const target = node.getAttribute(DECK_NODE_MARK)!, now = (property: string) => node.style.getPropertyValue(property) || null;
+    const properties = ["width", "height", "translate", "scale"] as const;
+    return properties.map((property): DeckEditOperation => ({ kind: "style", target, property, before: edge.before[property], after: now(property) }))
+      .filter((operation) => operation.kind !== "style" || operation.before !== operation.after);
+  }
+  /** 持ち手に焦点があるときの矢印キー（1px・Shift で 10px） */
+  function resizeEdgeByKey(node: HTMLElement, grip: ShapeGrip, delta: CanvasPoint) {
+    if (readOnly || node.closest("[data-deck-locked]") || !resizeAllowed(node)) return;
+    const edge = edgeState(node, grip);
+    if (!edge) return;
+    resizeEdge(node, edge, delta, false, true);
+    guides = {};
+    const operations = edgeOperations(node, edge);
+    if (operations.length) commit(operations);
+    draw();
+  }
   function moveDrag(event: PointerEvent) {
     if (!drag || drag.pointer !== event.pointerId) return;
     const delta = canvasDelta({ x: event.clientX - drag.start.x, y: event.clientY - drag.start.y }, drag.slide.getBoundingClientRect().width);
@@ -521,21 +614,25 @@ export function createDeckCanvas(options: DeckCanvasOptions) {
     if (drag.mode === "move") {
       for (const item of drag.items) item.node.style.setProperty("translate", translateBy(item.translation, delta));
       guides = {};
-      if (options.externalToolbar && !event.altKey) {
-        const stage = drag.slide.getBoundingClientRect(), rect = node.getBoundingClientRect(), scale = stage.width / 1280;
-        const peers = [...drag.slide.querySelectorAll<HTMLElement>(`[${DECK_NODE_MARK}]`)].filter(n => !drag!.items.some(item => item.node === n || item.node.contains(n) || n.contains(item.node)) && n.getBoundingClientRect().width > 0);
-        const xs = [stage.left, stage.left + stage.width / 2, stage.right], ys = [stage.top, stage.top + stage.height / 2, stage.bottom];
-        for (const peer of peers) { const r = peer.getBoundingClientRect(); xs.push(r.left, r.left + r.width / 2, r.right); ys.push(r.top, r.top + r.height / 2, r.bottom); }
-        const snap = (points: number[], candidates: number[]) => candidates.flatMap(to => points.map(from => ({ to, delta: to - from }))).filter(v => Math.abs(v.delta) < 5).sort((a,b) => Math.abs(a.delta)-Math.abs(b.delta))[0];
-        const x = snap([rect.left, rect.left + rect.width / 2, rect.right], xs), y = snap([rect.top, rect.top + rect.height / 2, rect.bottom], ys);
-        if(x)guides.x=x.to;if(y)guides.y=y.to;
-        for (const item of drag.items) item.node.style.setProperty("translate", translateBy(item.translation, { x: delta.x + (x?.delta ?? 0) / scale, y: delta.y + (y?.delta ?? 0) / scale }));
+      // 動かしている物（複数なら全員を合わせた範囲）の端・中央を、スライドとほかの部品の端・中央に吸い付ける。⌥ で吸い付かない
+      const targets = options.externalToolbar && !event.altKey ? partTargets(drag.items.map((item) => item.node)) : null;
+      if (targets) {
+        const scale = drag.slide.getBoundingClientRect().width / DECK_CANVAS.width;
+        const rect = selectionBox(drag.items.map((item) => outlineRect(item.node)));
+        const snapped = snapMove({ left: rect.left, top: rect.top, width: rect.right - rect.left, height: rect.bottom - rect.top }, targets);
+        guides = snapped.guides;
+        if (snapped.dx || snapped.dy) for (const item of drag.items) item.node.style.setProperty("translate", translateBy(item.translation, { x: delta.x + snapped.dx / scale, y: delta.y + snapped.dy / scale }));
       }
     }
     if (drag.mode === "resize") {
       const size = resizeBox({ width: drag.width, height: drag.height }, delta, true);
-      node.style.setProperty("transform-origin", "0 0"); node.style.setProperty("scale", String(drag.originalScale * size.width / drag.width));
+      // 画像・動画の右下の持ち手も、ほかの部品の幅・高さや端に吸い付く（⌥ で吸い付かない）
+      const snapped = snapScaledPart(node, drag.slide, size, !!options.externalToolbar && !event.altKey);
+      guides = snapped.guides;
+      node.style.setProperty("transform-origin", "0 0"); node.style.setProperty("scale", String(drag.originalScale * snapped.width / drag.width));
     }
+    if (drag.mode === "scale" && drag.scaling) applySelectionScale(drag.scaling, drag.items, delta, writeStyle);
+    if (drag.mode === "edge" && drag.edge) resizeEdge(node, drag.edge, delta, event.shiftKey, event.altKey);
     if (drag.mode === "crop") {
       if (drag.clip.some((inset) => inset > 0)) {
         const insets = moveCropWindow(drag.clip, { x: delta.x / drag.width * 100, y: delta.y / drag.height * 100 });
@@ -555,6 +652,8 @@ export function createDeckCanvas(options: DeckCanvasOptions) {
     const node = current.items[0]?.node;
     if (current.active && node) {
       if (current.mode === "move") for (const item of current.items) operations.push({ kind: "style", target: item.node.getAttribute(DECK_NODE_MARK)!, property: "translate", before: item.before, after: item.node.style.getPropertyValue("translate") });
+      if (current.mode === "scale" && current.scaling) operations.push(...selectionScaleOperations(current.scaling, current.items));
+      if (current.mode === "edge" && current.edge) operations.push(...edgeOperations(node, current.edge));
       if (current.mode === "resize") {
         operations.push({ kind: "style", target: node.getAttribute(DECK_NODE_MARK)!, property: "transform-origin", before: current.originBefore, after: "0 0" }, { kind: "style", target: node.getAttribute(DECK_NODE_MARK)!, property: "scale", before: current.scaleBefore, after: node.style.getPropertyValue("scale") });
       }
@@ -592,15 +691,20 @@ export function createDeckCanvas(options: DeckCanvasOptions) {
   }
   function align(mode: Align) {
     if (readOnly) return;
-    const nodes = elements(); if (nodes.length < 2 || nodes.some((node) => !movementAllowed(node))) return;
+    const nodes = elements(); if (!nodes.length || nodes.some((node) => node.closest("[data-deck-locked]") || !movementAllowed(node))) return;
     const slide = slideOf(nodes[0]); if (!slide || nodes.some((node) => slideOf(node) !== slide)) return;
+    // 1 つ（またはグループ 1 つ）だけを選んでいるときは、スライドに揃える。グループは全員を 1 つの範囲として動かす（中の位置を保つ）
+    const alone = selected.length === 1;
     const rects = nodes.map((node) => node.getBoundingClientRect());
     const horizontal = mode === "left" || mode === "center" || mode === "right";
-    const min = Math.min(...rects.map((rect) => horizontal ? rect.left : rect.top));
-    const max = Math.max(...rects.map((rect) => horizontal ? rect.right : rect.bottom));
+    const frame = alone ? slide.getBoundingClientRect() : null;
+    const min = frame ? (horizontal ? frame.left : frame.top) : Math.min(...rects.map((rect) => horizontal ? rect.left : rect.top));
+    const max = frame ? (horizontal ? frame.right : frame.bottom) : Math.max(...rects.map((rect) => horizontal ? rect.right : rect.bottom));
     const target = mode === "left" || mode === "top" ? min : mode === "right" || mode === "bottom" ? max : (min + max) / 2;
+    const range = alone ? selectionBox(rects.map((rect) => ({ left: rect.left, top: rect.top, width: rect.width, height: rect.height }))) : null;
     emit(nodes.flatMap((node, index) => {
-      const rect = rects[index]; const value = mode === "left" ? rect.left : mode === "right" ? rect.right : mode === "top" ? rect.top : mode === "bottom" ? rect.bottom : horizontal ? (rect.left + rect.right) / 2 : (rect.top + rect.bottom) / 2;
+      const rect = range ?? rects[index];
+      const value = mode === "left" ? rect.left : mode === "right" ? rect.right : mode === "top" ? rect.top : mode === "bottom" ? rect.bottom : horizontal ? (rect.left + rect.right) / 2 : (rect.top + rect.bottom) / 2;
       const delta = canvasDelta(horizontal ? { x: target - value, y: 0 } : { x: 0, y: target - value }, slide.getBoundingClientRect().width);
       if (!delta) return [];
       return [styleOperation(node, "translate", translateBy(view!.getComputedStyle(node).translate, delta))];
@@ -801,11 +905,17 @@ export function createDeckCanvas(options: DeckCanvasOptions) {
       return;
     }
     const id = node.getAttribute(DECK_NODE_MARK)!;
-    if (event.shiftKey) { select(selected.includes(id) ? selected.filter((value) => value !== id) : [...selected, id]); return; }
+    if (event.shiftKey || event.metaKey) { select(selected.includes(id) ? selected.filter((value) => value !== id) : [...selected, id]); return; }
     if (!selected.includes(id)) select([id]);
     startDrag(event, node, cropping && node.tagName === "IMG" ? "crop" : "move");
   });
   listen("pointermove", moveDrag);
+  // 乗せたとき: 押したら選ばれる範囲を薄い線で見せる（./canvas-outline.ts）
+  listen("pointermove", (event) => {
+    if (drag || marquee || editing || readOnly) return;
+    const id = event.composedPath().includes(host) ? null : target(event)?.getAttribute(DECK_NODE_MARK) ?? null;
+    if (id !== hovered) { hovered = id; scheduleDraw(); }
+  });
   listen("pointermove", event => { if(!marquee)return;const left=Math.min(marquee.x,event.clientX),top=Math.min(marquee.y,event.clientY),right=Math.max(marquee.x,event.clientX),bottom=Math.max(marquee.y,event.clientY);Object.assign(marquee.box.style,{left:`${left}px`,top:`${top}px`,width:`${right-left}px`,height:`${bottom-top}px`}); });
   listen("pointerup", event => { if(!marquee)return;const area=marquee,box=area.box.getBoundingClientRect();marquee=null;area.box.remove();if(Math.hypot(event.clientX-area.x,event.clientY-area.y)<3)return;const ids=[...area.slide.querySelectorAll<HTMLElement>(`[${DECK_NODE_MARK}]`)].filter(n=>safe(n)&&!n.closest("[data-deck-locked]")&&(n.matches("img,video,table,[data-deck-media-slot],[data-dd-chart],[data-deck-shape],[data-deck-group]")||collectRuns(n).some(run=>run.node.data.trim()))).filter(n=>{const r=n.getBoundingClientRect();return r.width>0&&r.left>=box.left&&r.right<=box.right&&r.top>=box.top&&r.bottom<=box.bottom;}).map(n=>n.getAttribute(DECK_NODE_MARK)!);select([...area.ids,...ids]); });
   listen("pointercancel",()=>{marquee?.box.remove();marquee=null;});
@@ -973,6 +1083,12 @@ export function createDeckCanvas(options: DeckCanvasOptions) {
     select, selection: () => [...selected], currentSlide, applyRemote, canApplyDirect, applySnapshot, applyAvailableSnapshot, flush, crop, align, editSelected,
     isCropping: () => cropping,
     refreshSelection: scheduleDraw,showMediaPlaceholder,
+    /** いま見せている枚の、選べる要素を全部選ぶ（固定した要素は除く） */
+    selectAll() {
+      const slide = currentSlide(), node = slide ? find(slide) : null;
+      if (!node || readOnly) return;
+      select([...node.querySelectorAll<HTMLElement>(`[${DECK_NODE_MARK}]`)].filter((child) => safe(child) && !child.closest("[data-deck-locked]") && child.parentElement?.closest(`[${DECK_NODE_MARK}]`) === node && child.getBoundingClientRect().width > 0).map((child) => child.getAttribute(DECK_NODE_MARK)!));
+    },
     /** 外から乗せた要素を示す（レイヤーの一覧）。null で消す */
     hover(id: string | null) { if (hovered === id) return; hovered = id; scheduleDraw(); },
     finishEditing: endText,

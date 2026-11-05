@@ -46,6 +46,8 @@ try {
   const goTo = async (index) => { await page.locator(".ds-slide").nth(index).click(); await page.waitForTimeout(300); };
   const undo = () => page.getByRole("button", { name: "元に戻す", exact: true }).click();
   const layerRows = () => page.locator(".ds-layer-pick");
+  /** 何も無い所を押して選び直す */
+  const clear = () => slide().click({ position: { x: 6, y: 6 } });
   /** 描き直しを待って値を比べる（一覧は次の描画で描き直す） */
   const until = async (read, expected, label) => {
     let value;
@@ -94,6 +96,95 @@ try {
   assert.equal(await slide().locator(`[data-deck-node="${lockedId}"]`).getAttribute("data-deck-locked"), null);
   report("レイヤー: 錠で位置を固定し、読み込み直しても残る");
   await page.screenshot({ path: `${output}/layers.png` });
+
+  // 複数選択: ⇧ で足し、選んだ範囲の角でまとめて拡大。揃え・取り消し
+  await goTo(4);
+  const kicker = () => slide().locator("p.dd-kicker"), title = () => slide().locator("h2.dd-title");
+  await kicker().click();
+  await title().click({ modifiers: ["Shift"] });
+  await page.locator(".ds-inspector h2").filter({ hasText: "2個を選択" }).waitFor();
+  const grips = frame.locator("[data-selection-grip]");
+  await until(() => grips.count(), 4, "選んだ範囲の 4 つの角に持ち手");
+  report("複数選択: ⇧ で足すと選んだ範囲に 4 つの持ち手");
+  const widths = async () => [await kicker().evaluate((node) => node.getBoundingClientRect().width), await title().evaluate((node) => node.getBoundingClientRect().width)];
+  const startWidths = await widths();
+  const se = await grips.and(frame.locator('[data-selection-grip="se"]')).boundingBox();
+  await page.mouse.move(se.x + se.width / 2, se.y + se.height / 2);
+  await page.mouse.down();
+  await page.mouse.move(se.x + se.width / 2 + 60, se.y + se.height / 2 + 20, { steps: 10 });
+  await page.mouse.up();
+  await saved();
+  const grown = await widths();
+  assert.ok(grown[0] > startWidths[0] + 5 && grown[1] > startWidths[1] + 5, "どちらも大きくなる");
+  assert.ok(Math.abs(grown[0] / startWidths[0] - grown[1] / startWidths[1]) < 0.02, "同じ比で大きくなる");
+  report("複数選択: 角を引くと全員を同じ比で大きくする");
+  await undo();
+  await saved();
+  await until(async () => (await widths()).map(Math.round), startWidths.map(Math.round), "取り消しで大きさが戻る");
+  report("複数選択: まとめた拡大を 1 回で取り消せる");
+  await clear();
+  await kicker().click();
+  await title().click({ modifiers: ["Shift"] });
+  await page.getByRole("group", { name: "左右" }).getByRole("button", { name: "右端", exact: true }).click();
+  await saved();
+  await until(async () => Math.round((await kicker().boundingBox()).x + (await kicker().boundingBox()).width) - Math.round((await title().boundingBox()).x + (await title().boundingBox()).width), 0, "右端が揃う");
+  report("揃え: 複数の右端を揃える");
+  await undo();
+  await saved();
+  await clear();
+  await title().click();
+  if (!(await page.locator(".ds-placement").evaluate((node) => node.open))) await page.locator(".ds-placement summary").click();
+  await page.getByRole("button", { name: "スライドの中央に揃える", exact: true }).click();
+  await saved();
+  const centered = async () => { const box = await title().boundingBox(), stage = await slide().boundingBox(); return Math.round(box.x + box.width / 2 - (stage.x + stage.width / 2)); };
+  await until(centered, 0, "スライドの左右中央に揃う");
+  report("揃え: 1 つならスライドに揃える");
+  await undo();
+  await saved();
+
+  // 吸い付き: 動かしている間に線を出し、スライドの左右中央に合わせる
+  await title().click();
+  const box = await title().boundingBox(), stage = await slide().boundingBox();
+  const aim = stage.x + stage.width / 2 - (box.x + box.width / 2);
+  await page.mouse.move(box.x + 10, box.y + 10);
+  await page.mouse.down();
+  await page.mouse.move(box.x + 10 + aim / 2, box.y + 14, { steps: 6 });
+  await page.mouse.move(box.x + 10 + aim + 2, box.y + 14, { steps: 6 });
+  assert.ok(await frame.locator(".snap-line").count() > 0, "動かしている間に揃いの線が出る");
+  await page.screenshot({ path: `${output}/snap.png` });
+  await page.mouse.up();
+  await saved();
+  await until(centered, 0, "スライドの中央に吸い付く");
+  assert.equal(await frame.locator(".snap-line").count(), 0, "離したら線を消す");
+  report("吸い付き: 動かすとスライドの中央に合わせ、線を出す");
+  await undo();
+  await saved();
+
+  // 図形の 8 つの持ち手: 右の辺だけを引くと幅だけが変わり、読み込み直しても残る
+  await page.getByRole("button", { name: "＋ 挿入", exact: true }).click().catch(async () => page.getByRole("button", { name: "挿入", exact: true }).click());
+  await page.getByRole("dialog", { name: "挿入", exact: true }).getByRole("button", { name: "四角", exact: true }).click();
+  await saved();
+  const shape = () => slide().locator("[data-deck-shape]").last();
+  const shapeId = await shape().getAttribute("data-deck-node");
+  await until(() => frame.locator("[data-grip]").count(), 8, "図形に 8 つの持ち手");
+  const before2 = await shape().boundingBox();
+  const east = await frame.locator('[data-grip="e"]').boundingBox();
+  await page.mouse.move(east.x + east.width / 2, east.y + east.height / 2);
+  await page.mouse.down();
+  await page.mouse.move(east.x + east.width / 2 + 70, east.y + east.height / 2 + 30, { steps: 10 });
+  await page.mouse.up();
+  await saved();
+  const after2 = await shape().boundingBox();
+  assert.ok(after2.width > before2.width + 30, "幅が広がる");
+  assert.ok(Math.abs(after2.height - before2.height) < 1, "高さは変わらない");
+  assert.ok(Math.abs(after2.x - before2.x) < 1, "左の辺は止まったまま");
+  report("図形: 右の辺の持ち手で幅だけを変える");
+  await open();
+  await goTo(4);
+  const reloaded = await slide().locator(`[data-deck-node="${shapeId}"]`).boundingBox();
+  assert.ok(Math.abs(reloaded.width - after2.width) < 1, "読み込み直しても幅が残る");
+  report("図形: 大きさの変更が読み込み直しても残る");
+  await page.screenshot({ path: `${output}/arrange.png` });
 
   assert.deepEqual(errors, []);
   console.log(`${results.length} checks passed`);

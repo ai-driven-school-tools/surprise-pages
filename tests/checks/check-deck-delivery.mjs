@@ -72,8 +72,8 @@ ok("配る実行部（組み立て済み）にも入っている", navigationRun
 console.log("\n--- 4. 配信が通す ---");
 const internal = await read("src/lib/pages/private-page.ts");
 const shared = await read("src/app/public/[...slug]/route.ts");
-ok("招待した人だけの配信が通す", /withCleanCopyLook\(withDeferredPosters\(html\)\)/.test(internal), true);
-ok("門なし公開の配信が通す（ノートを取り除いたあと）", /withDeferredPosters\(withoutDeckNotes\(stored\)\)/.test(shared), true);
+ok("招待した人だけの配信が通す（いまの版）", /withDeferredPosters\(withPageIcon\(withOgTags\(withAssetBase\(withCleanCopyLook\(html\), here\)/.test(internal), true);
+ok("門なし公開の配信が通す（ノートを取り除いたあと）", /const html = withCleanCopyLook\(withoutDeckNotes\(stored\)\);/.test(shared) && /withDeferredPosters\(withPageIcon\(\s*withOgTags\(\s*withAssetBase\(html, here\)/.test(shared), true);
 
 console.log(`\n${fails === 0 ? "すべて通りました" : `${fails} 件が通りませんでした`}`);
 process.exitCode = fails === 0 ? 0 : 1;

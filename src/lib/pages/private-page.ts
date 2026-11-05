@@ -327,7 +327,7 @@ export async function servePrivatePage(
   const page = withFirstPaintChrome(await withFastFirstPaint(
     withVendorScripts(
       withCommentsWidget(
-        withPageIcon(withOgTags(withAssetBase(withCleanCopyLook(withDeferredPosters(html)), here), "internal", look.name)),
+        withDeferredPosters(withPageIcon(withOgTags(withAssetBase(withCleanCopyLook(html), here), "internal", look.name))),
         gate.page.pageSlug,
         look,
       ),

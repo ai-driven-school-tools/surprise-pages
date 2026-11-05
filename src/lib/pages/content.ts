@@ -1,3 +1,4 @@
+import { SOURCE_NOTE_ELEMENT } from "../html/source-note";
 import pageImageStamp from "../../widget/dist/page-images-stamp.json";
 import { CLEAN_COPY_LOOK_STAMP } from "../settings/clean-copy-look";
 export {withAssetBase,withSafeAnchorIds,PAGE_TOP_ID,PAGE_TO_TOP_ID} from "./preview";
@@ -204,11 +205,6 @@ export function parseSourceNote(html: string): PageSource | null {
   return { repo, path, commit, committedAt: readAttr(tag, "data-source-committed-at") };
 }
 
-/**
- * 出典の札の要素そのもの（開きから閉じまで）。中に要素を入れない決まりなので、
- * 閉じは最初に見つかったもので足りる。
- */
-const SOURCE_NOTE_ELEMENT = /[ \t]*<(\w+)\b[^>]*\bdata-source-note\b[^>]*>[\s\S]*?<\/\1\s*>[ \t]*\n?/i;
 
 /**
  * 出典の札を取り除いた本文。**原本と本文を比べるための形。**
@@ -221,6 +217,7 @@ const SOURCE_NOTE_ELEMENT = /[ \t]*<(\w+)\b[^>]*\bdata-source-note\b[^>]*>[\s\S]
 export function stripSourceNote(html: string): string {
   return html.replace(SOURCE_NOTE_ELEMENT, "");
 }
+
 
 /**
  * スピーカーノート（`<aside data-deck-notes>`）を全部取り除く。

@@ -83,6 +83,11 @@ export const FEATURES = {
     personal: true,
     routes: ["src/app/api/pages/diagrams"],
   },
+  notes: {
+    purpose: "メモ帳。清書のページを、ブラウザで本文の上のまま直す（ProseMirror の編集の部品・「/」のブロックの一覧・手を止めるたびに 1 版）。直せるのは canEditPage の人だけ。サーバーは有料の資源を使わない",
+    personal: true,
+    routes: ["src/app/api/pages/notes", "src/app/api/pages/notes/assets"],
+  },
   "page-agent": {
     purpose: "手元の AI（bin/pages-agent.mjs）から資料を直す口。サーバーは有料の資源を起動しない",
     personal: true,

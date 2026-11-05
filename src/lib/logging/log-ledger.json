@@ -50,6 +50,8 @@
     "src/app/api/pages/diagrams/route.ts": "routeLog",
     "src/app/api/pages/edit/route.ts": "routeLog",
     "src/app/api/pages/logo/route.ts": "routeLog",
+    "src/app/api/pages/notes/assets/route.ts": "routeLog",
+    "src/app/api/pages/notes/route.ts": "routeLog",
     "src/app/api/pages/prepare/route.ts": "routeLog",
     "src/app/api/pages/route.ts": "routeLog",
     "src/app/api/pages/source/route.ts": "routeLog",
@@ -62,8 +64,8 @@
     "src/app/comments-widget.js/[[...stamp]]/route.ts": "routeLog",
     "src/app/history/[visibility]/[...slug]/route.ts": "routeLog",
     "src/app/internal/[...slug]/route.ts": "routeLog",
-    "src/app/public/[...slug]/route.ts": "routeLog",
     "src/app/page-images.js/[[...stamp]]/route.ts": "routeLog",
+    "src/app/public/[...slug]/route.ts": "routeLog",
     "src/app/vendor/[name]/[[...stamp]]/route.ts": "routeLog",
     "src/app/vendor/deck-fonts/[file]/route.ts": "routeLog"
   },

@@ -16,6 +16,7 @@ import { deckEditor } from "./en/deckEditor";
 import { toolbox } from "./en/toolbox";
 import { server } from "./en/server";
 import { organization } from "./en/organization";
+import { notes } from "./en/notes";
 
 /**
  * 画面の文言の辞書（英語）。形は日本語の辞書（`./ja.ts`）が正本で、鍵が欠けると型の誤りになる。
@@ -39,4 +40,5 @@ export const en = {
   toolbox,
   server,
   organization,
+  notes,
 } as const satisfies Messages;

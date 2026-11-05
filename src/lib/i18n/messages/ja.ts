@@ -15,6 +15,7 @@ import { deckEditor } from "./ja/deckEditor";
 import { toolbox } from "./ja/toolbox";
 import { server } from "./ja/server";
 import { organization } from "./ja/organization";
+import { notes } from "./ja/notes";
 
 /**
  * 画面の文言の辞書（日本語）。**これが正本**。ほかの言語はこの形に合わせて訳す（`./en.ts`）。
@@ -45,4 +46,5 @@ export const ja = {
   toolbox,
   server,
   organization,
+  notes,
 } as const;

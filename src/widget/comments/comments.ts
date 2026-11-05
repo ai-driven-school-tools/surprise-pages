@@ -59,6 +59,8 @@ import {
   toolbarVisible
 } from "./dock";
 import { editorActive, openPageEditor, warmEditor, type EditorHooks } from "../editor/loader";
+import { finishNotes, ICON_NOTEPAD, noteOffered, noteOpen, openNotes } from "../editor/note-loader";
+import { upgradeNoteEmbeds } from "../editor/note-embed";
 import {
   bindExportSource,
   mountPageExport,
@@ -98,6 +100,7 @@ import {
   ICON_BRACES,
   ICON_MORE,
   ICON_CLOSE,
+  ICON_CHECK,
   ICON_COMMENT,
   ICON_EDIT,
   ICON_FILE_TEXT,
@@ -875,7 +878,7 @@ async function refresh(options: { quiet: boolean } = { quiet: false }): Promise<
 
 const liveFeature = createCommentLive({
   refresh,
-  editing: () => deckEditSessionActive() || editorActive(),
+  editing: () => deckEditSessionActive() || editorActive() || noteOpen(),
   lifetime,
 });
 
@@ -1194,9 +1197,36 @@ async function startPageEdit(presenter?: EditorHooks["presenter"]): Promise<void
   });
 }
 
+/** メモ帳を開く。開いている板・比べている状態・本文の印を先に外す（編集の芯が印を打った字として読まないように）。 */
+async function startNotes(): Promise<void> {
+  if (root === null || editorActive() || noteOpen()) return;
+  readingNavigation?.close(false);
+  if (historyFeature.isComparing()) historyFeature.exitCompare();
+  selectionFeature.setOpen(false);
+  selectionFeature.hideSelectionBar();
+  await openNotes({
+    pageSlug: state.slug,
+    notify: (text) => showError(text),
+    fail: (text) => showError(text),
+    // 乗せると決まってから本文の印を外す（乗せられなかったときは本文に触らない）
+    prepare: () => {
+      selectionFeature.dropDraft();
+      clearHighlights();
+    },
+  });
+  render();
+}
+
 function renderBar(openCount: number): void {
   if (bar === null) return;
   bar.replaceChildren();
+  // メモ帳で直している間は、終えるボタンだけ（コメント・履歴は本文に印を差し込むので、終えて読み込み直してから使う）
+  if (noteOpen()) {
+    const done = barButton(t("notes.entry.done"), ICON_CHECK, () => void finishNotes());
+    done.setAttribute("data-note-done", "");
+    bar.appendChild(done);
+    return;
+  }
 
   const comments = barButton(t("toolbox.bar.comments"), ICON_COMMENT, () => {
     if (state.open && state.view === "comments") {
@@ -1242,6 +1272,12 @@ function renderBar(openCount: number): void {
     const edit = barButton(t("toolbox.bar.edit"), ICON_EDIT, () => void startPageEdit());
     edit.setAttribute("data-editor-trigger", "");
     bar.appendChild(edit);
+    // 清書のページは、本文の上のまま直すメモ帳も出す（可否は同じ features.edit・src/widget/editor/note-loader.ts）
+    if (noteOffered()) {
+      const notes = barButton(t("notes.entry.open"), ICON_NOTEPAD, () => void startNotes());
+      notes.setAttribute("data-note-trigger", "");
+      bar.appendChild(notes);
+    }
   }
 
   /*
@@ -2088,6 +2124,8 @@ function start(): void {
   // 読み込みが終わった合図で描き始め、そのときに元の文字を消してしまう。
   // 控えられるのは、その前に通るこの 1 か所だけ（書き出しがここを読む）
   keepMermaidSource(document);
+  // メモ帳の埋め込みの箱を、見るときの枠へ差し替える（保存する本文には枠を書けない・src/widget/editor/note-embed.ts）
+  upgradeNoteEmbeds(document);
 
   // スライドのページなら、プレゼン中に引っ込むための規則を先に置く（属性 1 つを見るだけ）
   mountDeckStyles();

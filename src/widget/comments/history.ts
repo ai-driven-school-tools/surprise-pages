@@ -21,6 +21,7 @@ import {
 } from "../shared/api";
 import type { Compare, State } from './types';
 import { topInset } from "../reading/top-inset";
+import { carryPlace, keepInPlace, spotHere } from "../reading/position";
 import {
   applyRedline,
   changeElements,
@@ -138,6 +139,18 @@ export function createCommentHistory(connections: Host) {
   }
 
 
+  /**
+   * 別の版の本文へ移る（読み込み直す）。読んでいた段落を控えて、移った先で同じ段落から見せる（src/widget/reading/position.ts）。
+   * URL の印（見出しの #・コメントの #c=）は持っていかない——移った先でブラウザと道具箱がそこへ飛び、読んでいた所を失う。
+   */
+  function moveTo(from: string | null, version: string | null): void {
+    carryPlace();
+    const url = new URL(compareUrl(from, version), window.location.href);
+    url.hash = "";
+    window.location.href = url.href;
+  }
+
+
   function isComparing(): boolean {
     return state.compare !== null;
   }
@@ -194,7 +207,7 @@ export function createCommentHistory(connections: Host) {
    */
   async function startCompare(from: PageVersion, to: PageVersion, push: boolean): Promise<void> {
     if (!bodyShows(to)) {
-      window.location.href = compareUrl(from.sha, to.sha);
+      moveTo(from.sha, to.sha);
       return;
     }
     if (push) window.history.pushState(null, "", compareUrl(from.sha, loadedVersion));
@@ -206,8 +219,11 @@ export function createCommentHistory(connections: Host) {
   async function applyCompare(from: PageVersion, to: PageVersion): Promise<void> {
     // 比べている間はコメントの印を出さない。同じ文字を 2 つの仕組みが奪い合うと
     // 位置がずれるうえ、いま見えているのは過去の版の文章で、引用の指す先とは別物
-    clearHighlights();
-    setVersionBannerHidden(true);
+    // 印を外す・過去の版の帯をしまう・赤入れを差し込むたびに本文の高さが変わる。読んでいる段落は動かさない
+    keepInPlace(spotHere(), () => {
+      clearHighlights();
+      setVersionBannerHidden(true);
+    });
     hidePopover();
     hideSelectionBar();
     hideMarkPeek();
@@ -235,8 +251,11 @@ export function createCommentHistory(connections: Host) {
     }
 
     current.diff = result.value;
-    current.placed = applyRedline(result.value.changes);
-    markAddedImages(result.value.images.added);
+    current.placed = keepInPlace(spotHere(), () => {
+      const placed = applyRedline(result.value.changes);
+      markAddedImages(result.value.images.added);
+      return placed;
+    });
     await fillOutcomes(to.sha);
     if (lifetime.disposed) return;
     if (state.compare !== current) return;
@@ -256,10 +275,12 @@ export function createCommentHistory(connections: Host) {
   function clearCompare(): void {
     state.compare = null;
     stopWatchingChanges();
-    clearRedline();
-    setVersionBannerHidden(false);
-    // 外したので、コメントの印を戻す（本文が最新へ戻っているので必ず張り直す）
-    syncMarks(true);
+    keepInPlace(spotHere(), () => {
+      clearRedline();
+      setVersionBannerHidden(false);
+      // 外したので、コメントの印を戻す（本文が最新へ戻っているので必ず張り直す）
+      syncMarks(true);
+    });
     if (state.view === "changes") state.view = "versions";
     const latest = outcomeTargetVersion();
     if (state.outcomesFor !== latest) {
@@ -286,7 +307,7 @@ export function createCommentHistory(connections: Host) {
     clearCompare();
     // 過去の版を見ていたなら、本文ごと最新へ帰る（既存の道に任せる）
     if (loadedVersion !== null) {
-      window.location.href = compareUrl(null, null);
+      moveTo(null, null);
       return;
     }
     window.history.pushState(null, "", compareUrl(null, null));
@@ -348,6 +369,7 @@ export function createCommentHistory(connections: Host) {
   function onPopState(): void {
     // 本文そのものが別の版になるなら、読み込み直すのが確実
     if (asSha(urlParams().get("v")) !== loadedVersion) {
+      carryPlace();
       window.location.reload();
       return;
     }

@@ -21,6 +21,7 @@ import { el, icon, ICON_CHECK, ICON_CLOSE } from "../shared/util";
 import { ICON_SIZE } from "../shared/tokens";
 import { isDeckHtml } from "../../lib/deck/deck";
 import { deckEditSessionActive } from "../deck/edit/state";
+import { carryPlace } from "../reading/position";
 
 /**
  * ページの本文を、その場で直す画面。
@@ -680,6 +681,8 @@ async function save(): Promise<void> {
   }
   hooks.onSaved?.({ baseVersionId });
   hooks.notify(t("toolbox.editor.saved"));
+  // 読み込み直した新しい版でも、直していた段落から見せる（src/widget/reading/position.ts）
+  carryPlace();
   window.location.reload();
 }
 

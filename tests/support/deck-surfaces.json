@@ -1641,6 +1641,24 @@
     ]
   },
   {
+    "id": "deck/edit/session.ts:49d139d53f6f1b9fe0c1:1",
+    "owner": "openDeckEditSession",
+    "control": "videoInput.addEventListener(\"cancel\")",
+    "covers": [
+      "video-upload",
+      "video-playback"
+    ]
+  },
+  {
+    "id": "deck/edit/session.ts:1993d36364c7c2423fcc:1",
+    "owner": "openDeckEditSession",
+    "control": "videoInput.addEventListener(\"change\")",
+    "covers": [
+      "video-upload",
+      "video-playback"
+    ]
+  },
+  {
     "id": "deck/edit/session.ts:b22026e66386ca9dde54:1",
     "owner": "openDeckEditSession",
     "control": "fileInput.addEventListener(\"change\")",
@@ -1903,25 +1921,12 @@
     ]
   },
   {
-    "id": "deck/edit/session.ts:module:79f28a4261d099d29b65",
+    "id": "deck/edit/session.ts:module:057909b7213b9bdbc113",
     "owner": "module",
     "control": "module definitions, including data-driven actions",
     "covers": [
       "open",
-      "close",
-      "type",
-      "save",
-      "undo",
-      "redo",
-      "remote",
-      "offline",
-      "draft",
-      "present",
-      "appearance",
-      "document-appearance",
-      "chart",
-      "font",
-      "presenter"
+      "close"
     ]
   },
   {
@@ -2137,6 +2142,42 @@
     ]
   },
   {
+    "id": "deck/edit/video-poster.ts:760625b25f2b5fbb5675:1",
+    "owner": "waitFor",
+    "control": "video.addEventListener(event)",
+    "covers": [
+      "video-upload",
+      "video-playback"
+    ]
+  },
+  {
+    "id": "deck/edit/video-poster.ts:5ea6aeae35385383abf0:1",
+    "owner": "waitFor",
+    "control": "video.addEventListener(\"error\")",
+    "covers": [
+      "video-upload",
+      "video-playback"
+    ]
+  },
+  {
+    "id": "deck/edit/video-poster.ts:991816c4a7afbacc030c:1",
+    "owner": "waitFor",
+    "control": "signal.addEventListener(\"abort\")",
+    "covers": [
+      "video-upload",
+      "video-playback"
+    ]
+  },
+  {
+    "id": "deck/edit/video-poster.ts:module:b4bf5c465b6e0f72e671",
+    "owner": "module",
+    "control": "module definitions, including data-driven actions",
+    "covers": [
+      "open",
+      "close"
+    ]
+  },
+  {
     "id": "deck/edit/video-upload.ts:43ffe12e8167d5ba8d21:1",
     "owner": "delay",
     "control": "signal.addEventListener(\"abort\")",
@@ -2153,11 +2194,12 @@
     ]
   },
   {
-    "id": "deck/edit/video-upload.ts:module:e68f401d60a780c41733",
+    "id": "deck/edit/video-upload.ts:module:5825d9593ae23a8f0058",
     "owner": "module",
     "control": "module definitions, including data-driven actions",
     "covers": [
-      "video-upload"
+      "open",
+      "close"
     ]
   },
   {
@@ -2844,16 +2886,12 @@
     ]
   },
   {
-    "id": "deck/workspace/dialogs.ts:module:4b99dfc9a950e41d1840",
+    "id": "deck/workspace/dialogs.ts:module:c8edcadc4657ea31c362",
     "owner": "module",
     "control": "module definitions, including data-driven actions",
     "covers": [
-      "insert",
-      "duplicate",
-      "delete",
-      "skip",
-      "template-library",
-      "insert-slide"
+      "open",
+      "close"
     ]
   },
   {
@@ -2926,6 +2964,15 @@
       "group",
       "image-crop",
       "resize"
+    ]
+  },
+  {
+    "id": "deck/workspace/inspector.ts:67c7a2de0c1dfbba2c60:1",
+    "owner": "refreshInspector",
+    "control": "button(t(\"deckEditor.inspector.addVideo\"))",
+    "covers": [
+      "video-upload",
+      "video-playback"
     ]
   },
   {
@@ -3205,15 +3252,12 @@
     ]
   },
   {
-    "id": "deck/workspace/inspector.ts:module:1ec8c32f27078b63345b",
+    "id": "deck/workspace/inspector.ts:module:bfc51df996db5e40a44c",
     "owner": "module",
     "control": "module definitions, including data-driven actions",
     "covers": [
-      "select",
-      "align",
-      "group",
-      "image-crop",
-      "resize"
+      "open",
+      "close"
     ]
   },
   {
@@ -3725,16 +3769,12 @@
     ]
   },
   {
-    "id": "deck/workspace/workspace.ts:module:dc3cd3b893afe17d6f7e",
+    "id": "deck/workspace/workspace.ts:module:492a873bb4995fe4218b",
     "owner": "module",
     "control": "module definitions, including data-driven actions",
     "covers": [
-      "group",
-      "align",
-      "duplicate",
-      "delete",
-      "remote",
-      "draft"
+      "open",
+      "close"
     ]
   },
   {

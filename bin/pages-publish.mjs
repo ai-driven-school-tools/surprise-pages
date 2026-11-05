@@ -933,7 +933,8 @@ export async function pageAgentAsset(url, page) {
   return pagesFetch(target, {headers:{authorization:`Bearer ${token}`},signal:AbortSignal.timeout(JSON_TIMEOUT_MS)});
 }
 
-async function callJson(method, pathname, token, payload) {
+/** `hints` は応答の番号ごとに、サーバーの断りのあとへ添える次の一手（無ければ断りだけ）。 */
+async function callJson(method, pathname, token, payload, hints = {}) {
   if (PERSONAL && Buffer.byteLength(JSON.stringify(payload), "utf8") > 4 * MB) die("送信する内容は1回4MBまでです。画像は小さくして別ファイルにしてください");
   const response = await send(() =>
     pagesFetch(`${currentOrigin()}${pathname}`, {
@@ -947,7 +948,11 @@ async function callJson(method, pathname, token, payload) {
     }),
   );
 
-  if (!response.ok) die(await failureMessage(response));
+  if (!response.ok) {
+    const message = await failureMessage(response);
+    const hint = hints[response.status];
+    die(hint ? `${message}\n      → ${hint}` : message);
+  }
   return response.json();
 }
 
@@ -1384,7 +1389,8 @@ async function main() {
 
   // Check before any page preparation or upload. A standalone CLI without its
   // rendering tools cannot silently publish unverified slide photographs.
-  if (/<body\b[^>]*\sdata-deck(?:[\s=>/]|$)/i.test(html)) {
+  const isDeck = /<body\b[^>]*\sdata-deck(?:[\s=>/]|$)/i.test(html);
+  if (isDeck) {
     let checkDeckImages;
     try { ({checkDeckImages}=await import("./deck-image-check.mjs")); }
     catch { die("画像付きスライドの検査道具がありません。このリポジトリで pnpm install を実行し、検査用ブラウザを用意してください（未検査では投稿できません）"); }
@@ -1415,7 +1421,10 @@ async function main() {
       : {}),
     // 指定なし … 素材に触らない / 空の一覧 … 全部片付ける / 名前の並び … それだけ残す
     ...(touchesAssets ? { keep: assets.map((asset) => asset.rel) } : {}),
-  });
+  }, isDeck ? {
+    // 既にあるスライドを古い原稿で丸ごと送り直すと、ブラウザや AI の直しが消えるのでサーバーが止める。版の番号だけ差し替えて送り直さない
+    409: `pages-publish get --slug ${slug}${visibility === "public" ? " --public" : ""} --out <新しいフォルダ> で最新の本文を取り寄せ、その直しを含めた原稿にしてから、表示された版を --base-version に付けて送り直してください（版の番号だけを差し替えて送らない）`,
+  } : {});
 
   const done = [];
   if (assets.length > 0) done.push(`素材 ${assets.length} ファイル`);

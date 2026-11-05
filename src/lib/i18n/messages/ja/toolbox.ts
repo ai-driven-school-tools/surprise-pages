@@ -62,6 +62,13 @@ export const toolbox = {
     notesShow: "ノートを表示",
     // 右端の ⋯。たまにしか使わない道具を 1 つの小窓に畳む（段の見出しは置かない。余白で分ける）
     more: "その他",
+    // 読み上げ（端末の声だけ・src/widget/reading/read-aloud.ts）。入口は ⋯ の中、読んでいる間だけバーにも出す
+    readAloud: "読み上げ",
+    pauseReading: "読み上げを一時停止",
+    resumeReading: "読み上げを再開",
+    stopReading: "読み上げを止める",
+    rateTitle: "読み上げの速さを変える",
+    rateLabel: "読み上げの速さ {rate}。押すと変わります",
   },
   panel: {
     comments: "コメント",
@@ -173,6 +180,7 @@ export const toolbox = {
     surface: "選んだ箇所へのコメント",
     copy: "選択した文字をコピー",
     copyFailed: "コピーできませんでした。文字を選び直してコピーしてください",
+    readFrom: "ここから読み上げ",
   },
   history: {
     /** 版の呼び方。履歴の一覧と現在地の行で同じ言い方にする */
@@ -562,5 +570,19 @@ export const toolbox = {
       external: "資料外の素材を含む版は、当時の素材を確認してから復元してください",
       unreadable: "過去の版の素材を読み取れません。現在の素材で代用せず、復元を止めました。",
     },
+  },
+  // 読み上げ（端末の声だけ）。読めなかったときに右下へ 1 行
+  readAloud: {
+    noVoice: "この端末に読み上げの声が入っていないため、読み上げられません",
+    noText: "読み上げる文章がありません",
+    stopped: "読み上げを続けられませんでした",
+  },
+  // 清書を開いている間に新しい版ができたときの、上端の 1 行（src/widget/reading/page-latest.ts）
+  latest: {
+    pageNewer: "新しい版があります",
+    pageDetailNamed: "{time} {name} が更新・{ago}",
+    pageDetail: "{time} 更新・{ago}",
+    reload: "再読み込み",
+    unsent: "書きかけのコメントは消えます。もう一度押すと再読み込みします",
   },
 } as const;

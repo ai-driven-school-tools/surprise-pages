@@ -77,6 +77,12 @@ import {
 } from "./redline";
 import { STYLES } from "../shared/styles";
 import { topInset } from "../reading/top-inset";
+import { carryPlace, startReadingPlace } from "../reading/position";
+import { isCleanCopyDocument } from "../reading/outline";
+import { ReadAloud } from "../reading/read-aloud";
+import type { PageLatest } from "../reading/page-latest";
+import { rateLabel } from "../../lib/read-aloud/settings";
+import { OWN_CHROME } from "./anchor";
 import {
   addToast,
   autoDismissMs,
@@ -102,7 +108,9 @@ import {
   ICON_LIST_FILTER,
   ICON_NOTEBOOK_TEXT,
   ICON_ORIGIN,
+  ICON_PAUSE,
   ICON_PLAY,
+  ICON_VOLUME,
   ICON_PRESENTATION,
   ICON_THUMBS,
   ICON_USERS,
@@ -376,6 +384,26 @@ const listFeature = createCommentList({
   }
 });
 
+/**
+ * 読み上げ。**本文を読むだけ**で、サーバーにも本文の DOM にも触らない（src/widget/reading/read-aloud.ts）。
+ * 声は端末の中で動くものだけ。対象は記事と清書で、スライドには出さない——
+ * あちらは 1 枚ずつ進むもので、上から順に読む前提が合わない。
+ */
+const readAloud = new ReadAloud({
+  root: () => document.querySelector<HTMLElement>("main") ?? document.body,
+  ownChrome: OWN_CHROME,
+  onChange: () => render(),
+  onProblem: (text) => { pushToast(text, "failure"); },
+  // 上端の帯の下から、狭い画面で開いた一覧の板の上までが見えている範囲
+  coveredTop: () => topInset.total(),
+  coveredBottom: () => (state.open && selectionFeature.isNarrow() && panel !== null ? panel.getBoundingClientRect().top : window.innerHeight),
+});
+function readsAsArticle(): boolean {
+  return !document.body.hasAttribute("data-deck");
+}
+/** 清書を開いている間の「新しい版があります」（src/widget/reading/page-latest.ts）。見張らない画面では null。 */
+let pageLatest: PageLatest | null = null;
+
 const selectionFeature = createCommentSelection({
   get isComparing() { return historyFeature.isComparing; },
   get inList() { return listFeature.inList; },
@@ -413,6 +441,13 @@ const selectionFeature = createCommentSelection({
   get copyText() { return sharingFeature.copyText; },
   get showError() { return showError; },
   get sheetComposer() { return listFeature.sheetComposer; },
+  // 選んだ文から読み上げる。出す条件は ⋯ の「読み上げ」と同じ（声の仕組みがあり、記事と清書のときだけ）
+  readFrom: (point) => {
+    if (!readAloud.supported || !readsAsArticle()) return false;
+    readAloud.readFrom(point);
+    return true;
+  },
+  canReadFrom: () => readAloud.supported && readsAsArticle(),
   state: {
     get comments() { return state.comments; }, set comments(value: State["comments"]) { state.comments = value; },
     get filter() { return state.filter; }, set filter(value: State["filter"]) { state.filter = value; },
@@ -766,6 +801,7 @@ function applyLoaded(value: LoadedComments): void {
   state.currentVersion = value.currentVersion;
   state.favorite = value.favorite;
   showCurrentVersion();
+  watchForUpdates(value.currentVersion);
   showFavorite();
   showSelf();
   // 消えたコメントを選んだままにしない（別のタブで消された分・動かし終わった分）
@@ -1142,6 +1178,7 @@ function barButton(
  */
 async function startPageEdit(presenter?: EditorHooks["presenter"]): Promise<void> {
   if (root === null || editorActive()) return;
+  readAloud.stop();
   readingNavigation?.close(false);
   if (historyFeature.isComparing()) historyFeature.exitCompare();
   selectionFeature.setOpen(false);
@@ -1225,9 +1262,34 @@ function renderBar(openCount: number): void {
       const reload = el("button", "bar-status is-action");
       reload.type = "button";
       reload.textContent = t("toolbox.bar.reload");
-      reload.addEventListener("click", () => window.location.reload(), { signal: lifetime.signal });
+      // 新しい版でも、読んでいた段落から見せる（src/widget/reading/position.ts）
+      reload.addEventListener("click", () => { carryPlace(); window.location.reload(); }, { signal: lifetime.signal });
       bar.appendChild(reload);
     }
+  }
+
+  /*
+   * 読み上げ。入口は ⋯ の中だが、**読んでいる間だけ**一時停止・再開、停止と速さをバーに出す
+   * （動いているものを止めるのに小窓を開かせない）。速さは押すと 1 段送り、個人設定の速さとして残る。
+   */
+  if (readAloud.supported && readsAsArticle() && readAloud.active) {
+    const pauseAction = pauseReadingAction();
+    const pause = barButton(pauseAction.label, pauseAction.icon, () => {
+      pauseAction.run();
+      // 描き直しでボタンが入れ替わっても、キーボードで同じ場所から再開できる
+      bar?.querySelector<HTMLButtonElement>("[data-read-aloud-pause]")?.focus({ preventScroll: true });
+    });
+    pause.setAttribute("data-read-aloud-pause", "");
+    bar.appendChild(pause);
+    const speak = barButton(t("toolbox.bar.stopReading"), ICON_VOLUME, () => readAloud.toggle());
+    speak.setAttribute("aria-pressed", "true");
+    bar.appendChild(speak);
+    const rate = el("button", "bar-status is-action", rateLabel(readAloud.rate));
+    rate.type = "button";
+    rate.title = t("toolbox.bar.rateTitle");
+    rate.setAttribute("aria-label", t("toolbox.bar.rateLabel", { rate: rateLabel(readAloud.rate) }));
+    rate.addEventListener("click", () => readAloud.cycleRate(), { signal: lifetime.signal });
+    bar.appendChild(rate);
   }
 
   barLink = barButton(t("toolbox.common.copyLink"), ICON_LINK, () => void sharingFeature.copyPageUrl());
@@ -1417,10 +1479,29 @@ function moreMenuSections(): MoreSection[] {
     }
   }
 
+  // 読み上げ。声の仕組みが無いブラウザでは出さない（押せない行を出さない）。バーと同じ一時停止・再開も使える
+  if (readAloud.supported && readsAsArticle()) {
+    if (readAloud.active) reading.push(pauseReadingAction());
+    reading.push({
+      label: readAloud.active ? t("toolbox.bar.stopReading") : t("toolbox.bar.readAloud"),
+      icon: ICON_VOLUME,
+      run: () => readAloud.toggle(),
+    });
+  }
+
   const sections: MoreSection[] = [];
   if (page.length > 0) sections.push({ id: "page", rows: page });
   if (reading.length > 0) sections.push({ id: "reading", rows: reading });
   return sections;
+}
+
+/** バーと ⋯ が同じ状態・名前・操作を使う一時停止・再開。停止は別の口として残す。 */
+function pauseReadingAction(): MoreRow {
+  return {
+    label: t(readAloud.paused ? "toolbox.bar.resumeReading" : "toolbox.bar.pauseReading"),
+    icon: readAloud.paused ? ICON_PLAY : ICON_PAUSE,
+    run: () => readAloud.togglePause(),
+  };
 }
 
 /**
@@ -1942,6 +2023,33 @@ function showCurrentVersion(): void {
 }
 
 /**
+ * 開いている間に、ページの新しい版に気づかせる（上端の 1 行・src/widget/reading/page-latest.ts）。
+ *
+ * 見張るのは**いまの版を開いている**清書の画面だけ（`?v=` の過去の版は、それ自体が古い版を読む行為）で、
+ * 履歴を見てよい人（`features.history`。門は版の一覧と同じ）。聞きに行く時機は持たず、コメントの一覧の
+ * 読み直し（live.ts）が届けた「いまの版の目印」を渡すだけ。最初に届いた目印が、本文が出している版。
+ */
+function watchForUpdates(currentVersion: string | null): void {
+  if (pageLatest !== null) {
+    pageLatest.observe(currentVersion);
+    return;
+  }
+  if (currentVersion === null || historyFeature.loadedVersion !== null) return;
+  if (!state.features.history || !isCleanCopyDocument(document)) return;
+  const shownVersion = currentVersion;
+  void import("../reading/page-latest").then((latest) => {
+    if (lifetime.disposed || pageLatest !== null) return;
+    pageLatest = new latest.PageLatest({
+      slug: state.slug,
+      shownVersion,
+      // 送っていないコメントは、読み込み直すと消える（ページの直しかけはブラウザが確かめる）
+      unsent: () => [...(root?.querySelectorAll("textarea") ?? [])].some((area) => area.value.trim().length > 0),
+    });
+    lifetime.signal.addEventListener("abort", () => pageLatest?.dispose(), { once: true });
+  });
+}
+
+/**
  * 立ち上げ。
  *
  * **道具箱を出すのは会社の人の画面だけ。** 出してよい相手かの見極め方は、
@@ -1959,6 +2067,8 @@ function start(): void {
   const visibility = visibilityOf(path);
   if (visibility === null) return;
   if (document.querySelector(HOST_TAG) !== null) return;
+  // 読み込み直す・版を移る・窓の幅が変わる（折りたたみの端末の開閉）ときに、読んでいた段落を保つ（src/widget/reading/position.ts）
+  startReadingPlace();
 
   // ページの呼び名には見せ方を含める（例: public/guide/intro）。
   // コメント 1 件を見ただけで、社内のものか公開のものかが分かるようにするため。

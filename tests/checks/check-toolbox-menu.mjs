@@ -117,8 +117,8 @@ const sections = fn("moreMenuSections");
 // ⋯ は buildMoreButton の中で同じ土台（barButton）を通る。並びは呼び出しの位置で読む
 const barButtons = [...barBuild.matchAll(/barButton\(t\("toolbox\.(?:bar|common)\.([a-zA-Z]+)"\)|buildMoreButton\(\)/g)].map((m) => m[1] ?? "more");
 console.log(`      バーの道具: ${barButtons.join(" / ")}`);
-// 配布版には録音（文字起こし）と読み上げが無いので、その 2 つがバーから抜けた
-ok("並びは コメント → プレゼン → 直す → リンク → その他", barButtons.join(","), "comments,present,edit,copyLink,more");
+// 配布版には録音（文字起こし）が無いので、バーから抜けた。読み上げを止める口は、読んでいる間だけリンクの前に出る
+ok("並びは コメント → プレゼン → 直す →（読んでいる間だけ 止める）→ リンク → その他", barButtons.join(","), "comments,present,edit,stopReading,copyLink,more");
 // スライドのプレゼンは、文字起こしと同じ「そのページでいちばん使う道具」。コメントの隣（区切り線の前）に置き、押すのは保存済みの操作列の釦そのもの
 ok("プレゼンは区切り線の前（面を開く道具の側）", barBuild.indexOf('t("toolbox.bar.present")') < barBuild.indexOf('el("span", "bar-divider")'), true);
 ok("プレゼンは保存済みの操作列の釦を押す（取り決めを足さない）", /const deckPresent = readDeckTools\(\)\?\.present \?\? null;[\s\S]*?\(\) => deckPresent\.click\(\)/.test(barBuild), true);
@@ -134,14 +134,16 @@ ok("プロンプターはバーに無い", /toolbox\.bar\.prompter/.test(barBuil
 ok("「自分」はバーに無い（現在地の行の右端へ移った）", /toolbox\.self\./.test(barBuild), false);
 ok("区切り線は 1 本（面を開く道具と、変える・持ち出す道具の境）", (barBuild.match(/el\("span", "bar-divider"\)/g) ?? []).length, 1);
 ok("直すを出すのはサーバーが「直してよい」と言った人だけ", /if \(state\.features\.edit && historyFeature\.loadedVersion === null\) \{\s*const edit = barButton/.test(barBuild), true);
-ok("読み上げ・文字起こしの口はバーに無い（配布版に無い機能）", /toolbox\.bar\.(?:stopReading|transcript|readAloud)/.test(barBuild), false);
+ok("文字起こしの口はバーに無い（配布版に無い機能）", /toolbox\.bar\.transcript/.test(barBuild), false);
+ok("読み上げはバーから始めない（入口は ⋯。バーに出すのは読んでいる間の一時停止・停止・速さだけ）", /toolbox\.bar\.readAloud/.test(barBuild) === false && /if \(readAloud\.supported && readsAsArticle\(\) && readAloud\.active\) \{/.test(barBuild), true);
 
 console.log("\n   ⋯ の中身（段と行）");
 const menuRows = [...sections.matchAll(/label: (?:readAloud\.active \? t\("toolbox\.bar\.stopReading"\) : )?(?:document\.body\.hasAttribute\("data-deck"\) \? t\("toolbox\.bar\.deckOrigin"\) : )?t\("toolbox\.bar\.([a-zA-Z]+)"\)/g)].map((m) => m[1]).filter((name) => !name.startsWith("menu"));
 console.log(`      行: ${menuRows.join(" / ")}`);
-// Slack で共有・読み上げ・プロンプターは配布版に無い。読み方の段に残るのはスライドの行（発表者画面・一覧・ノート）だけ
+// Slack で共有・プロンプターは配布版に無い。読み方の段はスライドの行（発表者画面・一覧・ノート）と読み上げ（端末の声だけ）
 // 配布版で足した「この資料を複製」（スライドのいまの版を直せる人だけ）は、共有範囲の次に置く
-ok("このページ: 履歴 → 取り込み → 共有範囲 → 複製", menuRows.join(","), "history,origin,access,duplicateDeck");
+ok("このページ: 履歴 → 取り込み → 共有範囲 → 複製、読み方: 読み上げ", menuRows.join(","), "history,origin,access,duplicateDeck,readAloud");
+ok("読み上げの行は読み方の段で、記事と清書だけ（スライドには出さない）", /if \(readAloud\.supported && readsAsArticle\(\)\) \{\s*if \(readAloud\.active\) reading\.push\(pauseReadingAction\(\)\);\s*reading\.push\(\{/.test(sections), true);
 ok("段は 2 つ（このページの道具 / 読み方）", /sections\.push\(\{ id: "page", rows: page \}\)/.test(sections) && /sections\.push\(\{ id: "reading", rows: reading \}\)/.test(sections), true);
 ok("段に見出しは置かない（余白で分ける。行が 3〜5 本なので見出しのほうが強く見える）", /label: t\("toolbox\.bar\.menu/.test(sections) || /list-menu-label/.test(fn("moreMenuNodes")), false);
 ok("行が 0 の段は出さない", /if \(page\.length > 0\) sections\.push/.test(sections) && /if \(reading\.length > 0\) sections\.push/.test(sections), true);

@@ -40,6 +40,22 @@ export const settings = {
       other: "Pages you've viewed. Deleted after {count} days",
     },
   },
+  readAloud: {
+    title: "Read aloud",
+    voice: {
+      title: "Voice",
+      detail: "Choose from the voices installed on this device. Saved in this browser.",
+      label: "Reading voice",
+      auto: "Automatic",
+      option: "{name} ({lang})",
+      none: "No voices are available on this device",
+    },
+    rate: {
+      title: "Speed",
+      detail: "The speed reading starts at. Speed changes made while reading are saved here too.",
+      group: "Reading speed",
+    },
+  },
   beta: {
     title: "Beta features",
     group: "Use {feature}",

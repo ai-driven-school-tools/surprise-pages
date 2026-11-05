@@ -58,6 +58,12 @@ export const toolbox = {
     notesHide: "Hide notes",
     notesShow: "Show notes",
     more: "More",
+    readAloud: "Read aloud",
+    pauseReading: "Pause reading",
+    resumeReading: "Resume reading",
+    stopReading: "Stop reading",
+    rateTitle: "Change reading speed",
+    rateLabel: "Reading speed {rate}. Press to change.",
   },
   panel: {
     comments: "Comments",
@@ -168,6 +174,7 @@ export const toolbox = {
     surface: "Comment on the selection",
     copy: "Copy selected text",
     copyFailed: "Couldn't copy. Select the text again and copy it.",
+    readFrom: "Read aloud from here",
   },
   history: {
     /** 版の呼び方。履歴の一覧と現在地の行で同じ言い方にする */
@@ -556,5 +563,17 @@ export const toolbox = {
       external: "This version has files from outside the document. Check those files before restoring.",
       unreadable: "Couldn't read the files of the earlier version. The restore was stopped instead of using the current files.",
     },
+  },
+  readAloud: {
+    noVoice: "This device has no voice for reading aloud",
+    noText: "There's no text to read",
+    stopped: "Couldn't continue reading aloud",
+  },
+  latest: {
+    pageNewer: "A newer version is available",
+    pageDetailNamed: "Updated by {name} at {time} · {ago}",
+    pageDetail: "Updated at {time} · {ago}",
+    reload: "Reload",
+    unsent: "Your unsent comment will be lost. Press Reload again to continue.",
   },
 } as const satisfies Messages["toolbox"];

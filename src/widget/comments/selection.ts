@@ -60,6 +60,7 @@ import {
   ICON_CLOSE,
   ICON_COMMENT,
   ICON_COPY,
+  ICON_VOLUME,
   ICON_EDIT,
   ICON_TRASH,
   el,
@@ -120,6 +121,10 @@ type Host = {
   showError: (message: string) => void;
   copyText: (text: string, done: string, failure?: string) => Promise<boolean>;
   sheetComposer: (current: Draft) => HTMLElement;
+  /** 選んだ文から読み上げる（src/widget/reading/read-aloud.ts）。読めない画面なら false。 */
+  readFrom: (point: Range) => boolean;
+  /** 「ここから読み上げ」を出してよいか（声の仕組みがあり、記事と清書のとき）。 */
+  canReadFrom: () => boolean;
   state: Pick<State, "comments" | "filter" | "open" | "editor" | "confirmDeleteId" | "width" | "view">;
 };
 
@@ -1233,6 +1238,34 @@ export function createCommentSelection(connections: Host) {
     }, "selection-aside");
   }
 
+  /**
+   * 「ここから読み上げ」。選んだ文に対してできること（コメント・コピー）と同じ列に並べる。
+   * 押したら書きかけと選択を畳んでから読み始める（読みたいだけの人に、入力欄を残さない）。
+   */
+  function appendReadFromButton(parent: HTMLElement): void {
+    if (!connections.canReadFrom()) return;
+    parent.appendChild(connections.iconAction(t("toolbox.selection.readFrom"), ICON_VOLUME, () => readFromSelection(), "selection-aside"));
+  }
+
+  function readFromSelection(): void {
+    // 位置は**畳む前に**取る。広い画面は選んだ所を印で包んであるので、その印の手前を指す
+    // （印を外すと、手前を指した位置はそのまま選んだ文字の先頭へ移る）。狭い画面は控えた範囲の先頭
+    const mark = draft?.marks.find((node) => node.isConnected) ?? null;
+    const point = document.createRange();
+    if (mark !== null) {
+      point.setStartBefore(mark);
+    } else {
+      const live = pendingRange ?? currentRange();
+      if (live === null) return;
+      point.setStart(live.startContainer, live.startOffset);
+    }
+    point.collapse(true);
+    hidePopover();
+    hideSelectionBar();
+    window.getSelection()?.removeAllRanges();
+    connections.readFrom(point);
+  }
+
   function beginPopoverDraft(anchor: Anchor): void {
     selectedCopyText = window.getSelection()?.toString() || anchor.quote;
     const previous = draft;
@@ -1303,6 +1336,7 @@ export function createCommentSelection(connections: Host) {
       el("p", "pop-quote", current.anchor.quote),
     );
     quoteRow.appendChild(selectionCopyButton(selectedCopyText));
+    appendReadFromButton(quoteRow);
     const close = el("button", "icon-button");
     close.type = "button";
     close.title = t("toolbox.common.close");
@@ -1499,6 +1533,7 @@ export function createCommentSelection(connections: Host) {
     comment.addEventListener("click", () => beginDraftFromBar(), { signal: lifetime.signal });
 
     selectionBar.appendChild(selectionCopyButton(window.getSelection()?.toString() || anchor.quote));
+    appendReadFromButton(selectionBar);
     selectionBar.appendChild(comment);
 
     selectionBar.hidden = false;

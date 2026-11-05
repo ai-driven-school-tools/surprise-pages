@@ -59,6 +59,7 @@
   "check-deck-themes.mjs": 1.6,
   "check-deck-video-upload.mjs": 1.4,
   "check-deck.mjs": 1.2,
+  "check-design-frame.mjs": 0.1,
   "check-design.mjs": 0.1,
   "check-diff.mjs": 0.1,
   "check-dismiss.mjs": 0.1,

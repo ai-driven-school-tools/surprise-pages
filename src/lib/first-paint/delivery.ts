@@ -10,6 +10,7 @@ import {
   type TailwindConfig,
 } from "./first-paint";
 import { featureAvailable } from "../settings/features";
+import { diagramPrerenderOn } from "./diagrams";
 import vendorStamps from "../../../vendor/stamp.json";
 import { CLEAN_COPY_LOOK_STAMP } from "../settings/clean-copy-look";
 
@@ -81,10 +82,20 @@ async function rememberCss(pageId: string, versionId: string, make: () => Promis
  *
  * スライドと動画には手を出さない——どちらも書体と図の準備を自分の実行部が測って
  * 進める作りで、読み込みの順を変えると「時間切れで元の書体に落ちる」側に倒れる。
- * 個人用の配布版も対象外（src/lib/settings/features.ts の台帳。本文ごとに実行制限を計算していて、差し込みの形が合わない）。
+ * 見た目の指定の先回り（Tailwind・書体）は個人用の配布版では対象外（src/lib/settings/features.ts の台帳。本文ごとに実行制限を
+ * 計算していて、差し込みの形が合わない）。図の下描きだけは配布版でも当てる（src/lib/first-paint/diagrams.ts）。
  */
 export async function withFastFirstPaint(page: string, key: { pageId: string; versionId: string }): Promise<string> {
-  if (!featureAvailable("first-paint") || isDeckHtml(page)) return page;
+  if (isDeckHtml(page)) return page;
+  const styled = featureAvailable("first-paint") ? await withTailwindFirstPaint(page, key) : page;
+  // 図のページは、サーバーで描いておいた図を置き、図の道具を描画のあとで読む（src/lib/first-paint/diagram-prerender.ts）。
+  // 配布版でも動く（差し込むスクリプトは決まった 1 本で、実行制限が字の一致で許す）。スイッチが切れている・控えに無ければ今までどおり
+  if (!diagramPrerenderOn()) return styled;
+  const { withDiagramFirstPaint } = await import("./diagram-prerender");
+  return withDiagramFirstPaint(styled, key);
+}
+
+async function withTailwindFirstPaint(page: string, key: { pageId: string; versionId: string }): Promise<string> {
   const out = withNonBlockingFonts(page);
   if (out.length > HTML_MAX) return out;
   const plan = tailwindPlan(out);

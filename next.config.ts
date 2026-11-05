@@ -42,6 +42,8 @@ const nextConfig: NextConfig = {
     // 自動の追跡から漏れて「Cannot find module …/browsers.json」で落ちた（2026-10-08 のお試し公開）。
     // pnpm の実体の置き場（.pnpm/<名前>@<版>/…）を指す。繋ぎ（symlink）越しの指定は Vercel が断る
     "/api/og": ["./.deck-card-runtime/**/*", "./node_modules/.pnpm/playwright-core@*/node_modules/playwright-core/**/*"],
+    // 図の下描き（src/lib/first-paint/diagram-render.ts）。共有カードと同じブラウザと、描くときに手元のファイルから応える図の道具・見た目の道具
+    "/api/pages/diagrams": ["./.deck-card-runtime/**/*", "./node_modules/.pnpm/playwright-core@*/node_modules/playwright-core/**/*", "./vendor/mermaid/mermaid.js", "./vendor/tailwindcss/tailwind.js"],
     "/vendor/deck-fonts/*": ["./vendor/deck-fonts/*.woff2"],
     "/**/*": ["./src/widget/dist/*.js", "./vendor/**/*.js", "./bin/*"],
     // 見た目の指定を配信時に作る道具（src/lib/first-paint/delivery.ts）が、実行時に読む土台の CSS

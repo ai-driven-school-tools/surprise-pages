@@ -47,6 +47,7 @@
     "src/app/api/pages/deck-edit/media/import/route.ts": "routeLog",
     "src/app/api/pages/deck-edit/media/upload/route.ts": "routeLog",
     "src/app/api/pages/deck-edit/route.ts": "routeLog",
+    "src/app/api/pages/diagrams/route.ts": "routeLog",
     "src/app/api/pages/edit/route.ts": "routeLog",
     "src/app/api/pages/logo/route.ts": "routeLog",
     "src/app/api/pages/prepare/route.ts": "routeLog",

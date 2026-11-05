@@ -35,6 +35,19 @@
       }
     },
     {
+      "name": "PAGES_DIAGRAM_PRERENDER",
+      "scope": "both",
+      "required": false,
+      "feature": "diagram-prerender",
+      "purpose": "図（Mermaid）のページの図を、サーバーのブラウザで版ごとに 1 回描いて本文と一緒に配る（src/lib/first-paint/diagram-prerender.ts）。on のときだけ動く。描くたびに関数が 1 回ブラウザを起こすので、使う量を見てから入れる",
+      "featureSwitch": {
+        "owner": "mako-surprise",
+        "unset": "off",
+        "removeBy": "2027-06-30",
+        "cleanup": "全員に入れて描けなかった件数と関数の使用量が落ち着いたら、スイッチを消して常に動かす。やめると決めたら、src/lib/first-paint/diagram*.ts と src/app/api/pages/diagrams ごと消す"
+      }
+    },
+    {
       "name": "PAGES_EDITION",
       "scope": "both",
       "required": false,

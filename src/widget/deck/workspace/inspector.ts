@@ -7,8 +7,10 @@ import {
   type DeckEditStyleProperty,
 } from "../../../lib/deck/edit/model";
 import {
+  deckSourceFragment,
   inspectDeckNode
 } from "../../../lib/deck/edit/source";
+import { deckTexts, styleDeckTextRange } from "../edit/text-style";
 import { DECK_LIBRARY } from "../../../lib/deck/design/library";
 import { deckIcon, styleDeckButton } from "../ui";
 import type { Input } from './types';
@@ -46,6 +48,7 @@ type Host = {
   elementCommand: (command: string) => void;
   /** 右の欄の下端のレイヤーの一覧を描き直す（選択・枚・中身が変わるたび。次の描画の前に 1 回だけ） */
   refreshLayers: () => void;
+  uid: () => string;
 };
 
 export function createDeckWorkspaceInspector(connections: Host) {
@@ -69,21 +72,36 @@ export function createDeckWorkspaceInspector(connections: Host) {
   const inspectNode=(id:string)=>connections.input.inspectNode?connections.input.inspectNode(id):inspectDeckNode(connections.input.source(),id);
 
   function setStyle(property: DeckEditStyleProperty, value: string | null) {
+    setStyles([[property, value]]);
+  }
+
+  /** 複数の項目を 1 回の操作で変える（取り消しも 1 回で戻る） */
+  function setStyles(entries: readonly (readonly [DeckEditStyleProperty, string | null])[]) {
     const ops: DeckEditOperation[] = connections.selection.flatMap((id) => {
       const node = inspectNode(id);
-      return node
-        ? [
-          {
-            kind: "style",
-            target: id,
-            property,
-            before: node.style[property] ?? null,
-            after: value,
-          },
-        ]
-        : [];
+      return node ? entries.map(([property, value]): DeckEditOperation => ({ kind: "style", target: id, property, before: node.style[property] ?? null, after: value })) : [];
     });
     commit(ops);
+  }
+
+  /**
+   * 文字の見た目（大きさ・太字・斜体・色）。文字を直していて字を選んでいれば、選んだ字だけを span で囲んで付ける（../edit/text-style.ts）。
+   * 囲みは箱の HTML の置き換え 1 つで送るので、保存・取り消し・同期は今の操作のまま。囲んだ span を選び直すので、
+   * 続けて押す太字・色は同じ字に付く。画面と原稿で字が食い違えば、箱全体に付ける今の動きに戻す。
+   */
+  function setTextStyles(entries: readonly (readonly [DeckEditStyleProperty, string | null])[]) {
+    const canvas = connections.input.canvas(), range = canvas?.textSelection();
+    if (!canvas || !range) { setStyles(entries); return; }
+    // 打ちかけの字を先に送ってから原稿を読む（読んだあとで送ると、置き換える前の HTML が古くなる）
+    if (!canvas.finishEditing()) return;
+    const part = deckSourceFragment(connections.input.source(), range.id);
+    if (!part?.parentId) { setStyles(entries); return; }
+    const box = find(sourceDoc(), range.id)?.cloneNode(true);
+    if (!(box instanceof HTMLElement) || deckTexts(box).map((text) => text.data).join("") !== range.text) { setStyles(entries); return; }
+    const ids = styleDeckTextRange(box, range.start, range.end, entries, connections.uid);
+    if (!ids.length) return;
+    connections.selection = ids;
+    commit([{ kind: "fragment", target: range.id, parentId: part.parentId, beforeId: part.beforeId, before: part.html, after: box.outerHTML }]);
   }
 
   /**
@@ -480,7 +498,7 @@ export function createDeckWorkspaceInspector(connections: Host) {
           String(parseFloat(css?.fontSize ?? "32")),
           (v) => {
             if (Number(v) >= 8 && Number(v) <= 240)
-              setStyle("font-size", `${v}px`);
+              setTextStyles([["font-size", `${v}px`]]);
           },
           "number",
         );
@@ -503,17 +521,19 @@ export function createDeckWorkspaceInspector(connections: Host) {
         );
         line.step = "0.1";
         const format = el("div", "ds-row"),
+          // 字を選んでいれば、その字の見た目から切り替える（選んだ字だけに付ける）
+          chosenStyle = () => connections.input.canvas()?.textSelection()?.style ?? css,
           bold = button(t("deckEditor.inspector.bold"), () =>
-            setStyle(
+            setTextStyles([[
               "font-weight",
-              parseInt(css?.fontWeight ?? "400") >= 600 ? "400" : "700",
-            ),
+              parseInt(chosenStyle()?.fontWeight ?? "400") >= 600 ? "400" : "700",
+            ]]),
           ),
           italic = button(t("deckEditor.inspector.italic"), () =>
-            setStyle(
+            setTextStyles([[
               "font-style",
-              css?.fontStyle === "italic" ? "normal" : "italic",
-            ),
+              chosenStyle()?.fontStyle === "italic" ? "normal" : "italic",
+            ]]),
           );
         bold.setAttribute(
           "aria-pressed",
@@ -529,7 +549,7 @@ export function createDeckWorkspaceInspector(connections: Host) {
           group,
           t("deckEditor.inspector.textColor"),
           toHex(css?.color ?? ""),
-          (v) => setStyle("color", v),
+          (v) => setTextStyles([["color", v]]),
           "color",
         );
         selectField(

@@ -281,7 +281,8 @@ export function createDeckWorkspace(input: Input) {
     get groupSelection() { return groupSelection; },
     get ungroupSelection() { return ungroupSelection; },
     get elementCommand() { return elementCommand; },
-    get refreshLayers() { return layers.refresh; }
+    get refreshLayers() { return layers.refresh; },
+    get uid() { return uid; }
   });
 
   const dataFeature = createDeckWorkspaceData({

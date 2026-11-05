@@ -224,6 +224,52 @@ try {
   await page.locator(".ds-inspector h2").filter({ hasText: "個を選択" }).waitFor();
   report("右クリック: 何も無い所ではすべて選択");
 
+  // 選んだ字だけの見た目: 字を直していて一部を選び、太字を押すとその字だけを span で囲む。取り消し・読み込み直し
+  await clear();
+  const select = (from, to) => kicker().evaluate((node, [start, end]) => {
+    const text = [...node.childNodes].find((child) => child.nodeType === 3 && child.data.trim());
+    const range = node.ownerDocument.createRange(); range.setStart(text, start); range.setEnd(text, end);
+    const selection = node.ownerDocument.getSelection(); selection.removeAllRanges(); selection.addRange(range);
+  }, [from, to]);
+  const kickerText = await kicker().textContent();
+  await kicker().dblclick();
+  await until(() => kicker().getAttribute("contenteditable"), "true", "字を直し始める");
+  await select(0, 2);
+  await page.locator(".ds-inspector").getByRole("button", { name: "太字", exact: true }).click();
+  await saved();
+  const piece = () => kicker().locator("span[data-deck-node]");
+  await until(() => piece().count(), 1, "選んだ字だけを囲む");
+  assert.equal(await piece().textContent(), kickerText.slice(0, 2));
+  assert.equal(await piece().evaluate((node) => getComputedStyle(node).fontWeight), "700");
+  assert.notEqual(await kicker().evaluate((node) => getComputedStyle(node).fontWeight), "700", "残りの字は太字にしない");
+  assert.equal(await kicker().textContent(), kickerText, "字は変わらない");
+  report("選んだ字: 太字は選んだ字だけに付く");
+  // 囲んだ字が選ばれたままなので、続けて色を変えると同じ字に付く
+  await page.locator(".ds-inspector .ds-field").filter({ hasText: "文字色" }).locator("input[type=color]").evaluate((input) => { input.value = "#cc3300"; input.dispatchEvent(new Event("input", { bubbles: true })); input.dispatchEvent(new Event("change", { bubbles: true })); });
+  await saved();
+  await until(() => piece().evaluate((node) => getComputedStyle(node).color), "rgb(204, 51, 0)", "続けた色も同じ字に付く");
+  report("選んだ字: 続けて押した色も同じ字に付く");
+  await undo();
+  await saved();
+  await undo();
+  await saved();
+  await until(() => piece().count(), 0, "取り消しで囲みが消える");
+  assert.equal(await kicker().textContent(), kickerText);
+  report("選んだ字: 取り消しで元に戻る");
+  const redo = () => page.getByRole("button", { name: "やり直す", exact: true }).click();
+  await redo();
+  await saved();
+  await redo();
+  await saved();
+  await until(() => piece().count(), 1, "やり直しで囲みが戻る");
+  await open();
+  await goTo(4);
+  await until(() => kicker().locator("span[data-deck-node]").count(), 1, "読み込み直しても囲みが残る");
+  assert.equal(await kicker().locator("span[data-deck-node]").evaluate((node) => getComputedStyle(node).fontWeight), "700");
+  assert.equal(await kicker().locator("span[data-deck-node]").evaluate((node) => getComputedStyle(node).color), "rgb(204, 51, 0)");
+  report("選んだ字: やり直して、読み込み直しても残る");
+  await page.screenshot({ path: `${output}/text-style.png` });
+
   assert.deepEqual(errors, []);
   console.log(`${results.length} checks passed`);
 } finally {

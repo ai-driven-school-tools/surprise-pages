@@ -12,6 +12,7 @@ import { CANVAS_SNAP_CSS, drawSnapGuides, partTargets, snapEdges, snapMove, snap
 import { SCALE_FRAME_CSS, applySelectionScale, beginSelectionScale, drawScaleGrips, selectionBox, selectionScaleOperations, type ScaleCorner, type SelectionScaling } from "./canvas-multi-resize";
 import { CANVAS_SHAPE_BOX_CSS, GRIP_HANDLES, resizeFromHandle, shapeGrips, type ShapeGrip } from "./canvas-shape-box";
 import { CANVAS_OUTLINE_CSS, drawGroupOutline, outlineRect } from "./canvas-outline";
+import { deckTextSelection } from "./edit/text-style";
 
 export type DeckCanvasOptions = {
   document: Document;
@@ -1107,6 +1108,8 @@ export function createDeckCanvas(options: DeckCanvasOptions) {
     /** 外から乗せた要素を示す（レイヤーの一覧）。null で消す */
     hover(id: string | null) { if (hovered === id) return; hovered = id; scheduleDraw(); },
     finishEditing: endText,
+    /** 文字を直していて字を選んでいるときの範囲（選んだ字だけに見た目を付ける・./edit/text-style.ts） */
+    textSelection: () => deckTextSelection(editing, textRange()),
     cropInset(value:number) { const node=elements()[0];if(node?.tagName==="IMG"&&!readOnly)emit([styleOperation(node,"clip-path",`inset(${Math.max(0,Math.min(45,value))}%)`)]); },
     updateNodes(nodes: readonly DeckEditableNode[], slideIds?:readonly string[]) {
       elementIndex.clear();for(const node of doc.querySelectorAll<HTMLElement>(`[${DECK_NODE_MARK}]`))elementIndex.set(node.getAttribute(DECK_NODE_MARK)!,node);

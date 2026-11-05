@@ -17,6 +17,8 @@ for(const[name,engine]of[['chromium',chromium],['webkit',webkit]].filter(([name]
   const saved=()=>page.locator('.deck-edit-status[data-state=saved]').waitFor();
   const menu=async label=>{await page.getByRole('button',{name:'スライドの操作',exact:true}).click();await page.getByRole('menuitem',{name:label+' — スライド',exact:true}).click();await saved();};
   const outline=()=>frame.locator('section[data-deck-slide]').evaluateAll(nodes=>nodes.map(node=>({id:node.getAttribute('data-deck-node'),parent:node.getAttribute('data-deck-parent')})));
+  // 保存の表示は前の保存のまま残っているので、枚の数が変わる操作のあとはその数になるまで待ってから読む
+  const outlineOf=async count=>{const end=Date.now()+20000;let rows=await outline();while(rows.length!==count&&Date.now()<end){await page.waitForTimeout(100);rows=await outline();}return rows;};
   const original=await outline();assert.equal(original.length,6);
   await page.locator('.ds-slide').nth(1).click();await menu('前のスライドの子にする');assert.equal((await outline())[1].parent,original[0].id);
   await page.locator('.ds-slide').nth(2).click();await menu('前のスライドの子にする');await menu('前のスライドの子にする');assert.equal((await outline())[2].parent,original[1].id);
@@ -40,8 +42,8 @@ for(const[name,engine]of[['chromium',chromium],['webkit',webkit]].filter(([name]
   }
   assert.equal(edges[2].fold,null);
   await menu('後ろへ');assert.deepEqual((await outline()).map(row=>row.id),[original[3].id,original[0].id,original[1].id,original[2].id,original[4].id,original[5].id]);
-  await menu('複製');assert.equal((await outline()).length,9);const copied=await outline();assert.equal(copied[5].parent,copied[4].id);assert.equal(copied[6].parent,copied[5].id);
-  await page.getByRole('button',{name:'元に戻す',exact:true}).click();await saved();assert.equal((await outline()).length,6);
+  await menu('複製');const copied=await outlineOf(9);assert.equal(copied.length,9);assert.equal(copied[5].parent,copied[4].id);assert.equal(copied[6].parent,copied[5].id);
+  await page.getByRole('button',{name:'元に戻す',exact:true}).click();await saved();assert.equal((await outlineOf(6)).length,6);
   const from=await page.locator('.ds-slide').last().boundingBox(),to=await page.locator('.ds-slide').first().boundingBox();await page.mouse.move(from.x+50,from.y+40);await page.mouse.down();await page.mouse.move(to.x+50,to.y+8,{steps:12});await page.mouse.move(to.x+51,to.y+9);await page.mouse.up();await page.waitForFunction(id=>document.querySelector('surprise-comments')?.shadowRoot?.querySelector('iframe.edit-frame')?.contentDocument?.querySelector('section[data-deck-slide]')?.getAttribute('data-deck-node')===id,original[5].id);await saved();assert.equal((await outline())[0].id,original[5].id);
   await page.getByRole('button',{name:'元に戻す',exact:true}).click();await saved();
   console.log('PASS',name,'実際のドラッグで順序を変え、取り消せる');
@@ -61,13 +63,13 @@ for(const[name,engine]of[['chromium',chromium],['webkit',webkit]].filter(([name]
   await page.getByText('2枚目の後に追加',{exact:true}).waitFor();
   const card=page.locator('[data-choice]').first();await card.locator('iframe').waitFor();await card.frameLocator('iframe').locator('body[data-deck-design-ready]').waitFor();await card.click();
   await page.getByRole('button',{name:'このスライドを追加',exact:true}).click();await saved();
-  const inserted=await outline();assert.equal(inserted.length,7);assert.equal(inserted[1].id,seamAbove);assert.equal(inserted[2].parent,seamAbove,'2枚目の子が続くので、その子として差し込む');assert.equal(inserted[3].id,original[1].id);
-  await page.getByRole('button',{name:'元に戻す',exact:true}).click();await saved();assert.equal((await outline()).length,6);console.log('PASS',name,'継ぎ目の + でその位置に差し込み、取り消せる');
+  const inserted=await outlineOf(7);assert.equal(inserted.length,7);assert.equal(inserted[1].id,seamAbove);assert.equal(inserted[2].parent,seamAbove,'2枚目の子が続くので、その子として差し込む');assert.equal(inserted[3].id,original[1].id);
+  await page.getByRole('button',{name:'元に戻す',exact:true}).click();await saved();assert.equal((await outlineOf(6)).length,6);console.log('PASS',name,'継ぎ目の + でその位置に差し込み、取り消せる');
   await page.reload();await page.locator('.ds-slide').first().waitFor();assert.equal((await outline())[2].parent,original[0].id);
   console.log('PASS',name,'親子・孫・折り畳み・まとめて移動・複製・取り消し・再読み込み');
   await page.locator('.ds-slide').nth(1).click();await page.getByRole('button',{name:'スライドの操作',exact:true}).click();await page.getByRole('menuitem',{name:'削除 — スライド',exact:true}).click();
-  await page.getByRole('button',{name:'この枚だけ削除',exact:true}).click();await saved();const deleted=await outline();assert.equal(deleted.length,5);assert.equal(deleted.find(row=>row.id===original[1].id).parent,null);assert.equal(deleted.find(row=>row.id===original[2].id).parent,original[1].id);
-  await page.getByRole('button',{name:'元に戻す',exact:true}).click();await saved();assert.equal((await outline()).length,6);console.log('PASS',name,'親だけ削除で子を繰り上げ、一度に取り消せる');
+  await page.getByRole('button',{name:'この枚だけ削除',exact:true}).click();await saved();const deleted=await outlineOf(5);assert.equal(deleted.length,5);assert.equal(deleted.find(row=>row.id===original[1].id).parent,null);assert.equal(deleted.find(row=>row.id===original[2].id).parent,original[1].id);
+  await page.getByRole('button',{name:'元に戻す',exact:true}).click();await saved();assert.equal((await outlineOf(6)).length,6);console.log('PASS',name,'親だけ削除で子を繰り上げ、一度に取り消せる');
   const beforeImages=await frame.locator('img[data-deck-created]').count();
   await page.locator('input[type=file][accept^="image/"]').setInputFiles([{name:'transparent.png',mimeType:'image/png',buffer:png},{name:'second.png',mimeType:'image/png',buffer:png}]);
   await page.locator('.ds-media-item[data-state=saved]').nth(1).waitFor({state:'attached'});await saved();assert.equal(await frame.locator('img[data-deck-created]').count(),beforeImages+2);console.log('PASS',name,'複数画像を追加し軽量化・保存まで完了');

@@ -212,24 +212,24 @@ GitHub CLI（`gh`）は、講座のパソコン準備に含まれていません
 - Mac：`brew --version` で版の数字が出れば、`brew install gh` を実行します。出なければ、[GitHub CLI](https://cli.github.com/) の **Download for Mac** から入れ物（`.pkg`）を取り、開いて画面のとおりに入れます。
 - Windows（WSL2）：WSL 側のターミナルで `sudo apt update && sudo apt install -y gh` を実行します。途中で聞かれるパスワードは、WSL を作ったときに決めたものです。
 
-1. Cursor を起動し、画面上部の **Terminal → New Terminal**（ターミナル → 新しいターミナル）を押します。画面下に文字を入力できる欄が開きます。以降の「実行する」は、この欄へ貼り付けて Enter を押す操作です。
-2. 次を実行し、ホームフォルダに講座用のフォルダを作ります。
+2. Cursor を起動し、画面上部の **Terminal → New Terminal**（ターミナル → 新しいターミナル）を押します。画面下に文字を入力できる欄が開きます。以降の「実行する」は、この欄へ貼り付けて Enter を押す操作です。
+3. 次を実行し、ホームフォルダに講座用のフォルダを作ります。
 
 ```bash
 mkdir -p ~/pages-course
 cd ~/pages-course
 ```
 
-1. 次の `配布物のURL` を、いま読んでいるこのリポジトリの URL に置き換えて実行します。URL は、GitHub のこのリポジトリの画面で緑の **Code** ボタンを押し、**HTTPS** の欄に出ているものです。後ろの `surprise-pages-distribution` はそのまま使います。**ZIP のダウンロード（Download ZIP）ではなく、必ずこのコマンドで取得します。** ZIP には、3-3 以降と更新の受け取りで使う git の記録が入っていません。既にこのコマンドで取得済みなら、この手順は飛ばします。
+4. 次の `配布物のURL` を、いま読んでいるこのリポジトリの URL に置き換えて実行します。URL は、GitHub のこのリポジトリの画面で緑の **Code** ボタンを押し、**HTTPS** の欄に出ているものです。後ろの `surprise-pages-distribution` はそのまま使います。**ZIP のダウンロード（Download ZIP）ではなく、必ずこのコマンドで取得します。** ZIP には、3-3 以降と更新の受け取りで使う git の記録が入っていません。既にこのコマンドで取得済みなら、この手順は飛ばします。
 
 ```bash
 git clone 配布物のURL surprise-pages-distribution
 ```
 
-1. ダウンロードが終わったら、Cursor 上部の **File → Open Folder…**（ファイル → フォルダーを開く）を押し、ホームフォルダの **pages-course → surprise-pages-distribution** を開きます。
-2. 左側のファイル一覧に `README.md`、`package.json`、`deployment.json`、`src`、`scripts`、`bin` が並んでいることを確認します。
-3. もう一度 **Terminal → New Terminal** を押します。このフォルダを開いた状態のターミナルを、以後ずっと使います。
-4. 次を 1 行ずつ実行し、版を確認します。
+5. ダウンロードが終わったら、Cursor 上部の **File → Open Folder…**（ファイル → フォルダーを開く）を押し、ホームフォルダの **pages-course → surprise-pages-distribution** を開きます。
+6. 左側のファイル一覧に `README.md`、`package.json`、`deployment.json`、`src`、`scripts`、`bin` が並んでいることを確認します。
+7. もう一度 **Terminal → New Terminal** を押します。このフォルダを開いた状態のターミナルを、以後ずっと使います。
+8. 次を 1 行ずつ実行し、版を確認します。
 
 ```bash
 node --version
@@ -240,14 +240,14 @@ corepack enable
 corepack pnpm --version
 ```
 
-1. Node.js は `v24.` で始まる数字、Python は `Python 3.10` 以上、Git・GitHub CLI・pnpm は版の数字が表示されることを確認します。
-2. 次を実行し、サイトが使う部品を入れます。
+9. Node.js は `v24.` で始まる数字、Python は `Python 3.10` 以上、Git・GitHub CLI・pnpm は版の数字が表示されることを確認します。
+10. 次を実行し、サイトが使う部品を入れます。
 
 ```bash
 corepack pnpm install --frozen-lockfile
 ```
 
-1. 処理が終わり、次のコマンドを入力できる状態に戻るまで待ちます。途中で `esbuild` の build script を無視したという警告が出ても、そのまま進めて構いません。
+11. 処理が終わり、次のコマンドを入力できる状態に戻るまで待ちます。途中で `esbuild` の build script を無視したという警告が出ても、そのまま進めて構いません。
 
 **済んだ目印** Cursor の左側に配布物のファイルが並び、部品の導入が終わって、ターミナルで次の入力ができます。
 
@@ -281,27 +281,27 @@ corepack pnpm install --frozen-lockfile
 git remote rename origin upstream
 ```
 
-1. 次を実行し、GitHub CLI で自分の個人用 GitHub アカウントにログインします。GitHub はパスワードでの送信を受け付けないので、git がパスワードを聞いてくる状態のままでは、正しいパスワードを入れても手順 11 が失敗します。
+8. 次を実行し、GitHub CLI で自分の個人用 GitHub アカウントにログインします。GitHub はパスワードでの送信を受け付けないので、git がパスワードを聞いてくる状態のままでは、正しいパスワードを入れても手順 11 が失敗します。
 
 ```bash
-gh auth login --hostname github.com --git-protocol https --web
+gh auth login --hostname github.com --git-protocol https --web --scopes workflow
 ```
 
-1. ターミナルに `First copy your one-time code: XXXX-XXXX` と 8 文字のコードが出ます。控えてから Enter を押します。ブラウザで GitHub の画面が開くので、コードを入れて **Continue**、続けて **Authorize github** を押します。ブラウザが開かない（WSL で多い）ときは、ターミナルに出た `https://github.com/login/device` を自分でブラウザに貼って開きます。`Authenticate Git with your GitHub credentials?` と聞かれたら、Enter（Yes）を押します。
-2. ターミナルに `Logged in as 自分のユーザー名` と出たことを確認し、次を実行します。git が送信のときの認証を GitHub CLI に任せるようになり、以後パスワードを聞かれません。
+9. ターミナルに `First copy your one-time code: XXXX-XXXX` と 8 文字のコードが出ます。控えてから Enter を押します。ブラウザで GitHub の画面が開くので、コードを入れて **Continue**、続けて **Authorize github** を押します。ブラウザが開かない（WSL で多い）ときは、ターミナルに出た `https://github.com/login/device` を自分でブラウザに貼って開きます。`Authenticate Git with your GitHub credentials?` と聞かれたら、Enter（Yes）を押します。
+10. ターミナルに `Logged in as 自分のユーザー名` と出たことを確認し、次を実行します。git が送信のときの認証を GitHub CLI に任せるようになり、以後パスワードを聞かれません。
 
 ```bash
 gh auth setup-git
 ```
 
-1. 次の `自分のリポジトリのURL` を、手順 6 でコピーした URL に置き換えて実行します。
+11. 次の `自分のリポジトリのURL` を、手順 6 でコピーした URL に置き換えて実行します。
 
 ```bash
 git remote add origin 自分のリポジトリのURL
 git push -u origin main
 ```
 
-1. ブラウザの GitHub リポジトリ画面を再読み込みします。
+12. ブラウザの GitHub リポジトリ画面を再読み込みします。
 
 **済んだ目印** リポジトリ名の横に **Private**、枝の選択欄に **main** と表示され、`src`、`scripts`、`README.md` などのファイルが並んでいます。
 
@@ -310,6 +310,7 @@ git push -u origin main
 - `No such remote` や `not a git repository` と出る。ZIP で取得したフォルダで作業しています。3-2 の手順 4 に戻り、`git clone` で取り直します。
 - `remote origin already exists` と出る。手順 7 を飛ばしています。手順 7 を実行してから手順 11 をやり直します。
 - `Username for 'https://github.com':` とユーザー名やパスワードを聞かれる。手順 8〜9 のログインが済んでいません。Ctrl + C で止め、`gh auth status` で `Logged in` と出るか確かめます。出なければ手順 8 から、出れば手順 10 の `gh auth setup-git` からやり直し、手順 11 の `git push -u origin main` だけをもう一度実行します。
+- `refusing to allow an OAuth App to create or update workflow` と出る。ログインに `workflow` の権限が入っていません（手順 8 より前に gh でログインしていた場合など）。`gh auth refresh -h github.com -s workflow` を実行してブラウザで承認し、手順 11 の `git push -u origin main` だけをもう一度実行します。
 - `Permission denied` や `403` と出る。別の GitHub アカウントでログインしています。`gh auth status` で出たユーザー名が 3-1 で控えた自分のユーザー名と同じか確かめ、違えば `gh auth logout` してから手順 8 からやり直します。
 - `Logged in as` に出たユーザー名が自分のものでない。ブラウザで別のアカウントにログインしたまま承認しています。ブラウザの GitHub から一度ログアウトし、`gh auth logout` してから手順 8 からやり直します。
 
@@ -421,22 +422,22 @@ DATABASE_ADMIN_URL=<コピーしたNeonの初期化用接続情報>
 PAGES_OWNER_EMAIL=<自分のGoogleメールアドレス>
 ```
 
-1. **Command + S** で保存します。
-2. ブラウザへ戻り、**Hide secret** を押して接続情報を隠します。
-3. ターミナルで次を実行します。`chmod 600` は、ファイルを本人だけが読み書きできるようにするコマンドです。
+6. **Command + S** で保存します。
+7. ブラウザへ戻り、**Hide secret** を押して接続情報を隠します。
+8. ターミナルで次を実行します。`chmod 600` は、ファイルを本人だけが読み書きできるようにするコマンドです。
 
 ```bash
 chmod 600 .env.setup
 ```
 
-1. 対象が今回新しく作った `surprise-pages-db` であることを確認し、次を実行します。
+9. 対象が今回新しく作った `surprise-pages-db` であることを確認し、次を実行します。
 
 ```bash
 node --env-file=.env.setup scripts/setup/database.mjs init --confirm-new
 ```
 
-1. 「初期化しました」と表示されたら、Cursor で `.env.setup` を開き直します。末尾に `DATABASE_URL=` の行が足されています。これが通常運転用の接続情報で、`DATABASE_ADMIN_URL` とは別の値です。
-2. 次を実行します。`git check-ignore` は、GitHub へ送らないファイルに指定されているかを確かめるコマンドです。
+10. 「初期化しました」と表示されたら、Cursor で `.env.setup` を開き直します。末尾に `DATABASE_URL=` の行が足されています。これが通常運転用の接続情報で、`DATABASE_ADMIN_URL` とは別の値です。
+11. 次を実行します。`git check-ignore` は、GitHub へ送らないファイルに指定されているかを確かめるコマンドです。
 
 ```bash
 git check-ignore .env.setup
@@ -468,45 +469,45 @@ git check-ignore .env.setup
 
 同意画面を作る
 
-1. 左上の三本線のメニューから **API とサービス → OAuth 同意画面** を押します。**Google Auth Platform** の画面が開きます。
-2. 中央の **開始** を押します。
-3. **アプリ情報** の **アプリ名** に `Surprise Pages` と入力し、**ユーザー サポートメール** で自分の Google アドレスを選び、**次へ** を押します。
-4. **対象** で **外部**（External）を選び、**次へ** を押します。
-5. **連絡先情報** に自分のメールアドレスを入れ、**次へ** を押します。
-6. **終了** の画面で、Google API サービスのユーザーデータポリシーを確認し、同意する場合はチェックを入れます。**続行** を押し、**作成** を押します。
+5. 左上の三本線のメニューから **API とサービス → OAuth 同意画面** を押します。**Google Auth Platform** の画面が開きます。
+6. 中央の **開始** を押します。
+7. **アプリ情報** の **アプリ名** に `Surprise Pages` と入力し、**ユーザー サポートメール** で自分の Google アドレスを選び、**次へ** を押します。
+8. **対象** で **外部**（External）を選び、**次へ** を押します。
+9. **連絡先情報** に自分のメールアドレスを入れ、**次へ** を押します。
+10. **終了** の画面で、Google API サービスのユーザーデータポリシーを確認し、同意する場合はチェックを入れます。**続行** を押し、**作成** を押します。
 
 ログインの入口を作る
 
-1. 左側のメニューで **クライアント** を押し、**クライアントの作成** を押します。
-2. **アプリケーションの種類** を押し、一番上の **ウェブ アプリケーション** を選びます。
-3. **名前** に `Surprise Pages Web` と入力します。
-4. 下へ進み、**承認済みのリダイレクト URI** の下の **URI を追加** を押します。上にある **承認済みの JavaScript 生成元** のボタンとは別です。
-5. **URI 1** の欄に、自分のサイトの URL の後ろへ `/api/auth/callback/google` を付けて入力します。
+11. 左側のメニューで **クライアント** を押し、**クライアントの作成** を押します。
+12. **アプリケーションの種類** を押し、一番上の **ウェブ アプリケーション** を選びます。
+13. **名前** に `Surprise Pages Web` と入力します。
+14. 下へ進み、**承認済みのリダイレクト URI** の下の **URI を追加** を押します。上にある **承認済みの JavaScript 生成元** のボタンとは別です。
+15. **URI 1** の欄に、自分のサイトの URL の後ろへ `/api/auth/callback/google` を付けて入力します。
 
 ```text
 https://自分のドメイン.vercel.app/api/auth/callback/google
 ```
 
-1. 先頭が `https://`、末尾が `/api/auth/callback/google` であることを確認します。**承認済みの JavaScript 生成元** は空欄、**Use this client for an AI-powered agent** はチェック無しのままにします。
-2. **作成** を押します。
+16. 先頭が `https://`、末尾が `/api/auth/callback/google` であることを確認します。**承認済みの JavaScript 生成元** は空欄、**Use this client for an AI-powered agent** はチェック無しのままにします。
+17. **作成** を押します。
 
 2 つの値を保存する
 
-1. 作成結果に **クライアント ID**（Client ID）と **クライアント シークレット**（Client secret）が表示されます。この画面は、保存が済むまで閉じません。
-2. Cursor で `.env.setup` を開き、末尾に次の 2 行を足します。
+18. 作成結果に **クライアント ID**（Client ID）と **クライアント シークレット**（Client secret）が表示されます。この画面は、保存が済むまで閉じません。
+19. Cursor で `.env.setup` を開き、末尾に次の 2 行を足します。
 
 ```dotenv
 AUTH_GOOGLE_ID=<Client ID>
 AUTH_GOOGLE_SECRET=<Client secret>
 ```
 
-1. Client ID のコピーアイコンを押し、`AUTH_GOOGLE_ID=` の右側へ貼り付けます。Client secret も同じように `AUTH_GOOGLE_SECRET=` の右側へ貼り付けます。見本の `<Client ID>` と `<Client secret>` が残っていないことを確認し、保存してから Google の作成結果の画面を閉じます。
+20. Client ID のコピーアイコンを押し、`AUTH_GOOGLE_ID=` の右側へ貼り付けます。Client secret も同じように `AUTH_GOOGLE_SECRET=` の右側へ貼り付けます。見本の `<Client ID>` と `<Client secret>` が残っていないことを確認し、保存してから Google の作成結果の画面を閉じます。
 
 自分をテストユーザーに登録する
 
-1. 左側の **対象**（Audience）を押します。**公開ステータス** が **テスト中**、**ユーザーの種類** が **外部** であることを確認します。
-2. **テストユーザー** の下の **ユーザーを追加**（Add users）を押します。
-3. 自分の Google アドレスを入れて Enter を押し、1 つの項目として確定したら **保存**（Save）を押します。
+21. 左側の **対象**（Audience）を押します。**公開ステータス** が **テスト中**、**ユーザーの種類** が **外部** であることを確認します。
+22. **テストユーザー** の下の **ユーザーを追加**（Add users）を押します。
+23. 自分の Google アドレスを入れて Enter を押し、1 つの項目として確定したら **保存**（Save）を押します。
 
 **済んだ目印** `.env.setup` に Google の 2 つの値が入り、Google Auth Platform の **クライアント** に `Surprise Pages Web`、**対象** のテストユーザーに自分のアドレスが表示されています。
 
@@ -535,14 +536,14 @@ AUTH_GOOGLE_SECRET=<Client secret>
 node scripts/setup/secrets.mjs
 ```
 
-1. 「2 つの鍵を .env.setup に追記しました。」と表示されることを確認します。
+2. 「2 つの鍵を .env.setup に追記しました。」と表示されることを確認します。
 
 残りの 3 項目を `.env.setup` に足す
 
-1. Vercel の **Storage** で `surprise-pages-blob` を開き、左側の **Getting Started** を押し、中央のコード欄の **.env.local** を押します。
-2. **Show secret** を押し、**BLOB_READ_WRITE_TOKEN=** の右側の値をコピーします。コピーしたら **Hide secret** に戻します。
-3. Cursor で `.env.setup` を開き、末尾に次の 3 行を足します。
-4. `< >` の部分を下の表のとおりに置き換えます。各行の右側には値だけを入れ、`BLOB_READ_WRITE_TOKEN=` などの名前を二重に貼り付けないようにします。
+3. Vercel の **Storage** で `surprise-pages-blob` を開き、左側の **Getting Started** を押し、中央のコード欄の **.env.local** を押します。
+4. **Show secret** を押し、**BLOB_READ_WRITE_TOKEN=** の右側の値をコピーします。コピーしたら **Hide secret** に戻します。
+5. Cursor で `.env.setup` を開き、末尾に次の 3 行を足します。
+6. `< >` の部分を下の表のとおりに置き換えます。各行の右側には値だけを入れ、`BLOB_READ_WRITE_TOKEN=` などの名前を二重に貼り付けないようにします。
 
 ```dotenv
 BLOB_READ_WRITE_TOKEN=<Blobの読み書きの鍵>
@@ -553,12 +554,12 @@ PAGES_SITE_NAME=Surprise Pages
 
 | 名前                      | 右側に入れる内容                          |
 | ----------------------- | --------------------------------- |
-| `BLOB_READ_WRITE_TOKEN` | 手順 2 でコピーした Blob の読み書きの鍵          |
+| `BLOB_READ_WRITE_TOKEN` | 手順 4 でコピーした Blob の読み書きの鍵          |
 | `PAGES_SITE_URL`        | 3-4 で控えた `https://○○.vercel.app`  |
 | `PAGES_SITE_NAME`       | 画面に表示するツールの名前。例は `Surprise Pages` |
 
 
-1. 見本の `< >` が残っていないことを確認し、保存します。`.env.setup` は次の形になっています。`# ---- ここから下` の注意書きより下の 9 行が Vercel へ入れる項目で、上の `DATABASE_ADMIN_URL` は入れません。
+7. 見本の `< >` が残っていないことを確認し、保存します。`.env.setup` は次の形になっています。`# ---- ここから下` の注意書きより下の 9 行が Vercel へ入れる項目で、上の `DATABASE_ADMIN_URL` は入れません。
 
 ```dotenv
 # この 1 行だけは Vercel に入れない（初期化・復旧用）
@@ -575,17 +576,17 @@ PAGES_SITE_URL=…
 PAGES_SITE_NAME=…
 ```
 
-1. 鍵の控えを、本人だけが開ける場所へ保存します。パスワード管理アプリの自分専用の保管庫に `Surprise Pages の設定と鍵` という記録を作り、`.env.setup` の中身をすべて保存します（`DATABASE_ADMIN_URL` の行に「初期化・復旧用」と明記）。GitHub リポジトリの URL、Vercel・Neon・Blob・Google Cloud の各名前、Google の戻り先 URL も書き添えます。管理アプリを使わない場合の保存の仕方と、記録の形式は [鍵の保管ガイド](docs/guides/secret-storage.md)にあります。1Password などの契約は、この配布物の動作条件ではありません。
+8. 鍵の控えを、本人だけが開ける場所へ保存します。パスワード管理アプリの自分専用の保管庫に `Surprise Pages の設定と鍵` という記録を作り、`.env.setup` の中身をすべて保存します（`DATABASE_ADMIN_URL` の行に「初期化・復旧用」と明記）。GitHub リポジトリの URL、Vercel・Neon・Blob・Google Cloud の各名前、Google の戻り先 URL も書き添えます。管理アプリを使わない場合の保存の仕方と、記録の形式は [鍵の保管ガイド](docs/guides/secret-storage.md)にあります。1Password などの契約は、この配布物の動作条件ではありません。
 
 Neon が自動で入れた接続情報を控えて外す
 
 Neon を作ったとき、Vercel の環境変数に管理用の接続情報が自動で入っています。通常運転には使わないので、控えを取ってから外し、通常運転用の `DATABASE_URL` に入れ替えます。
 
-1. Vercel の **Storage** で `surprise-pages-db` を開き、**Getting Started** の **.env.local** を選びます。
-2. **Show secret** を押し、コード欄の右上の **Copy Snippet** を押します。手順 9 と同じ保管庫に「Neon 初期接続の控え」という記録を作り、コピーした内容をそのまま貼り付けて保存します。ブラウザの **Hide secret** を押します。手元のファイルには書きません（`DATABASE_URL` という同じ名前が `.env.setup` の通常運転用の行と混ざるため）。
-3. **Settings → Environment Variables** の一覧に **NEON_PROJECT_ID** がある場合は、その行の **Reveal Value** で値を表示し、`NEON_PROJECT_ID=値` の形で同じ記録へ書き添えます。
-4. 記録の各行が元の画面と一致することを確認します。
-5. **Settings → Environment Variables** の一覧で、次の名前のうち自動追加されているものを探します。この手順で新しく作った `surprise-pages` の環境変数だけを操作します。
+9. Vercel の **Storage** で `surprise-pages-db` を開き、**Getting Started** の **.env.local** を選びます。
+10. **Show secret** を押し、コード欄の右上の **Copy Snippet** を押します。手順 8 と同じ保管庫に「Neon 初期接続の控え」という記録を作り、コピーした内容をそのまま貼り付けて保存します。ブラウザの **Hide secret** を押します。手元のファイルには書きません（`DATABASE_URL` という同じ名前が `.env.setup` の通常運転用の行と混ざるため）。
+11. **Settings → Environment Variables** の一覧に **NEON_PROJECT_ID** がある場合は、その行の **Reveal Value** で値を表示し、`NEON_PROJECT_ID=値` の形で同じ記録へ書き添えます。
+12. 記録の各行が元の画面と一致することを確認します。
+13. **Settings → Environment Variables** の一覧で、次の名前のうち自動追加されているものを探します。この手順で新しく作った `surprise-pages` の環境変数だけを操作します。
 
 ```text
 DATABASE_URL
@@ -606,18 +607,18 @@ POSTGRES_URL_NO_SSL
 POSTGRES_PRISMA_URL
 ```
 
-1. 対象の行の右端の **…**（Menu）を押し、**Delete** を選びます。確認画面に表示された変数名が今選んだ名前であることを確認し、確認欄がある場合は変数名を入力して **Delete** を押します。
-2. 一覧にある同じ名前の項目すべてに同じ操作をします。自動追加されていない名前は操作不要です。Blob の **BLOB_READ_WRITE_TOKEN**、**BLOB_STORE_ID**、**BLOB_WEBHOOK_PUBLIC_KEY** は残します。
+14. 対象の行の右端の **…**（Menu）を押し、**Delete** を選びます。確認画面に表示された変数名が今選んだ名前であることを確認し、確認欄がある場合は変数名を入力して **Delete** を押します。
+15. 一覧にある同じ名前の項目すべてに同じ操作をします。自動追加されていない名前は操作不要です。Blob の **BLOB_READ_WRITE_TOKEN**、**BLOB_STORE_ID**、**BLOB_WEBHOOK_PUBLIC_KEY** は残します。
 
 通常運転の設定を 1 項目ずつ入れる
 
-1. 一覧の右上の **Add Environment Variable** を押します。
-2. **Type** の上側の **Secret** を選びます。
-3. **Key** に設定名を入れます。最初は `DATABASE_URL` です。
-4. **Value** に、`.env.setup` の同じ名前の行の右側の値だけを貼り付けます。`DATABASE_ADMIN_URL` の行と取り違えないように、名前を見てから貼ります。
-5. **Environments** で **Production** だけを選びます。**Preview** と **Development** は外します。
-6. **Save** を押し、一覧に追加した名前と **Production** が出ていることを確認します。
-7. 手順 18〜23 を、次の 7 項目にも繰り返します。
+16. 一覧の右上の **Add Environment Variable** を押します。
+17. **Type** の上側の **Secret** を選びます。
+18. **Key** に設定名を入れます。最初は `DATABASE_URL` です。
+19. **Value** に、`.env.setup` の同じ名前の行の右側の値だけを貼り付けます。`DATABASE_ADMIN_URL` の行と取り違えないように、名前を見てから貼ります。
+20. **Environments** で **Production** だけを選びます。**Preview** と **Development** は外します。
+21. **Save** を押し、一覧に追加した名前と **Production** が出ていることを確認します。
+22. 手順 16〜21 を、次の 7 項目にも繰り返します。
 
 ```text
 PAGES_SITE_NAME
@@ -629,8 +630,8 @@ AUTH_GOOGLE_SECRET
 CRON_SECRET
 ```
 
-1. 自動追加済みの **BLOB_READ_WRITE_TOKEN** が一覧にあり、**Production** を含んでいることを確認します。追加し直す必要はありません。
-2. 下の 9 項目がすべてそろっていることを確認します。値を表示する必要はありません。
+23. 自動追加済みの **BLOB_READ_WRITE_TOKEN** が一覧にあり、**Production** を含んでいることを確認します。追加し直す必要はありません。
+24. 下の 9 項目がすべてそろっていることを確認します。値を表示する必要はありません。
 
 ```text
 PAGES_SITE_NAME
@@ -646,14 +647,14 @@ CRON_SECRET
 
 本番を再ビルドする
 
-1. `surprise-pages` の **Deployments** を押し、**Production** のデプロイの行を開きます。
-2. 右上の **…** を押し、**Redeploy** を選びます。確認画面で対象が **Production** であることを確認し、**Redeploy** を押します。
-3. 新しいデプロイが **Building** から **Ready** になるまで待ちます。
+25. `surprise-pages` の **Deployments** を押し、**Production** のデプロイの行を開きます。
+26. 右上の **…** を押し、**Redeploy** を選びます。確認画面で対象が **Production** であることを確認し、**Redeploy** を押します。
+27. 新しいデプロイが **Building** から **Ready** になるまで待ちます。
 
 サイトに入る
 
-1. 自分のサイトの URL をブラウザで開きます。ログイン画面に、`PAGES_SITE_NAME` に入れた名前が表示されます。
-2. **Google でログイン** を押し、`PAGES_OWNER_EMAIL` に設定したアドレスを選びます。Google の確認画面が出たら、アプリ名と共有される内容を確認して進めます。
+28. 自分のサイトの URL をブラウザで開きます。ログイン画面に、`PAGES_SITE_NAME` に入れた名前が表示されます。
+29. **Google でログイン** を押し、`PAGES_OWNER_EMAIL` に設定したアドレスを選びます。Google の確認画面が出たら、アプリ名と共有される内容を確認して進めます。
 
 **済んだ目印** **Deployments** の新しい行に **Ready** と **Production** が出ています。自分のサイトの **ホーム** が開き、左側に **自分の資料**、**個人設定**、**管理** が表示されています。
 
@@ -680,22 +681,22 @@ CRON_SECRET
 node scripts/setup/personal.mjs configure
 ```
 
-1. サイトの URL を求める案内が出たら、3-4 で控えた `https://○○.vercel.app` を入力し、Enter を押します。続けて「スキルを Claude Code・Cursor・Codex につなぎます。」と出ます。
-2. 次を実行し、表示された `origin` が自分のサイトの URL と一致することを確認します。
+2. サイトの URL を求める案内が出たら、3-4 で控えた `https://○○.vercel.app` を入力し、Enter を押します。続けて「スキルを Claude Code・Cursor・Codex につなぎます。」と出ます。
+3. 次を実行し、表示された `origin` が自分のサイトの URL と一致することを確認します。
 
 ```bash
 node bin/pages-publish.mjs config --json
 ```
 
-1. 次を実行します。ブラウザに **ログインの許可** の画面が開きます。
+4. 次を実行します。ブラウザに **ログインの許可** の画面が開きます。
 
 ```bash
 node bin/pages-publish.mjs login
 ```
 
-1. Google ログインを求められた場合は、サイトの持ち主のアドレスでログインします。このパソコンから資料を投稿する許可であることを確認し、**許可する** を押します。
-2. ターミナルへ戻り、**ログインしました** と表示されるのを待ちます。
-3. 開いている Claude Code・Cursor・Codex を一度閉じて開き直します。スキルは次に開いたときから使えます。
+5. Google ログインを求められた場合は、サイトの持ち主のアドレスでログインします。このパソコンから資料を投稿する許可であることを確認し、**許可する** を押します。
+6. ターミナルへ戻り、**ログインしました** と表示されるのを待ちます。
+7. 開いている Claude Code・Cursor・Codex を一度閉じて開き直します。スキルは次に開いたときから使えます。
 
 投稿用の鍵の控えは、コマンドが本人の設定フォルダへ保存します。サイトの 9 項目の設定とは別に管理されます。
 
@@ -727,15 +728,15 @@ node bin/pages-publish.mjs login --remote
 node bin/pages-publish.mjs --file src/templates/page.html --slug practice/first
 ```
 
-1. **投稿しました（第 1 版）** と **URL:** が表示されます。
-2. 表示された URL を、Google ログイン済みのブラウザで開き、見本のページが表示されることを確認します。この段階の資料は自分だけが開けます。
-3. 次を実行し、設置全体を診断します。3-7 から足してきた `.env.setup` を使います。
+2. **投稿しました（第 1 版）** と **URL:** が表示されます。
+3. 表示された URL を、Google ログイン済みのブラウザで開き、見本のページが表示されることを確認します。この段階の資料は自分だけが開けます。
+4. 次を実行し、設置全体を診断します。3-7 から足してきた `.env.setup` を使います。
 
 ```bash
 node --env-file=.env.setup scripts/setup/personal.mjs doctor
 ```
 
-1. 設定、データベース、持ち主、画像の保管先、サイト、Google の戻り先、投稿先、パソコンのログインの結果が順に出ます。
+5. 設定、データベース、持ち主、画像の保管先、サイト、Google の戻り先、投稿先、パソコンのログインの結果が順に出ます。
 
 **済んだ目印** 最後に「設置はそろっています。」と表示され、投稿した見本がブラウザで開けています。
 
@@ -798,20 +799,20 @@ Vercel は画面、Neon は本文、Private Blob は画像を保存すること�
 鍵の値を応答やログへ出さないでください。
 ```
 
-1. AI が作った内容を確認し、投稿後に示された URL を開きます。
-2. 図解の本文と画像が表示され、アドレスの末尾が `/internal/practice/stack` になっていることを確認します。
+2. AI が作った内容を確認し、投稿後に示された URL を開きます。
+3. 図解の本文と画像が表示され、アドレスの末尾が `/internal/practice/stack` になっていることを確認します。
 
 自分で用意した HTML と画像を投稿する
 
-1. Cursor の左側で `docs/evidence` を右クリックし、**New Folder**（新しいフォルダー）で `page-out` を作ります。
-2. 投稿する HTML を `page-out/index.html` として保存します。配布物の `src/templates/page.html` を元にし、本文を編集します。
-3. 使う画像を同じ `page-out` へ置きます。各ファイルは 4MB 以内にします。本文の表示したい場所に次を入れます。
+4. Cursor の左側で `docs/evidence` を右クリックし、**New Folder**（新しいフォルダー）で `page-out` を作ります。
+5. 投稿する HTML を `page-out/index.html` として保存します。配布物の `src/templates/page.html` を元にし、本文を編集します。
+6. 使う画像を同じ `page-out` へ置きます。各ファイルは 4MB 以内にします。本文の表示したい場所に次を入れます。
 
 ```html
 <img src="sample.png" alt="図解の見本画像">
 ```
 
-1. 次を実行し、表示された URL を開いて本文と画像を確認します。
+7. 次を実行し、表示された URL を開いて本文と画像を確認します。
 
 ```bash
 node bin/pages-publish.mjs --dir docs/evidence/page-out --slug practice/image
@@ -872,7 +873,7 @@ node bin/install-pages-agent.mjs
 
 持ち主が AI に取り寄せさせて直す
 
-1. Cursor の AI チャットで、次の `資料のURL` を直したいページの URL に置き換えて送ります。
+5. Cursor の AI チャットで、次の `資料のURL` を直したいページの URL に置き換えて送ります。
 
 ```text
 この配布物の .claude/skills/read-page/SKILL.md を読んで、
@@ -881,7 +882,7 @@ node bin/install-pages-agent.mjs
 元の説明や数字を勝手に変えないでください。
 ```
 
-1. AI の提案を読み、採用する内容を決めて指示します。
+6. AI の提案を読み、採用する内容を決めて指示します。
 
 ```text
 この提案のうち、具体例を1つ追加する修正を採用します。
@@ -890,20 +891,20 @@ node bin/install-pages-agent.mjs
 コメントを解決済みにする操作は、まだしないでください。
 ```
 
-1. 投稿後に示された URL を開きます。以前と同じ URL で、本文に修正が反映され、上部の版の表示が進み、画像も引き続き表示されていることを確認します。
+7. 投稿後に示された URL を開きます。以前と同じ URL で、本文に修正が反映され、上部の版の表示が進み、画像も引き続き表示されていることを確認します。
 
-コマンドで取得して直す場合
+AI を使わず、コマンドで取得して直す場合（手順 5〜7 の代わり）
 
-1. 現在の本文を新しい作業用フォルダへ取得し、コメントを一覧します。
+8. 現在の本文を新しい作業用フォルダへ取得し、コメントを一覧します。
 
 ```bash
 node bin/pages-publish.mjs get --slug practice/stack --out docs/evidence/revise-stack
 node bin/pages-publish.mjs comments list --slug practice/stack
 ```
 
-1. 出力に表示される、再投稿用のコマンドと完全な 40 桁の版の目印を控えます。
-2. `docs/evidence/revise-stack/index.html` を開き、コメントに対応する箇所だけを編集して保存します。
-3. 次の `取得した40桁の版の目印` を手順 2 の値に置き換えて実行します。
+9. 出力に表示される、再投稿用のコマンドと完全な 40 桁の版の目印を控えます。
+10. `docs/evidence/revise-stack/index.html` を開き、コメントに対応する箇所だけを編集して保存します。
+11. 次の `取得した40桁の版の目印` を手順 9 の値に置き換えて実行します。
 
 ```bash
 node bin/pages-publish.mjs \
@@ -913,7 +914,7 @@ node bin/pages-publish.mjs \
   --message 'コメントを受けて具体例を追加'
 ```
 
-1. **投稿しました（第 2 版…）** と出ます。以前の URL を開き直し、修正と新しい版の表示を確認します。
+12. **投稿しました（第 2 版…）** と出ます。以前の URL を開き直し、修正と新しい版の表示を確認します。
 
 **済んだ目印** コメントを受けた修正が、同じ URL の新しい版として開けています。
 
